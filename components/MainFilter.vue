@@ -25,9 +25,9 @@
       @getFilter = "filter => getFilter(filter, idx)"
     />
 
-    <div class="overflow-auto" style="display: flex;">
+    <div class="overflow-auto flex-col md:flex-row" style="display: flex;">
       <div v-for = "(added, i) in filtered" :key = "i">
-        <div v-if="added.type">
+        <div v-if="added.type" class="max-w-xs">
           <div v-if = "added.value" :style = "filteredValuesStyle">
             <div class = "val">
               {{ added.title.split('-/-')[0] }} = {{ getvalue(added.value.split('-/-')[0]) }}
@@ -38,7 +38,7 @@
             <div style="margin-left: 10px;cursor: pointer" @click = "removeFilter(i)">X</div>
           </div>
         </div>
-        <div v-else-if="Array.isArray(added.value)">
+        <div v-else-if="Array.isArray(added.value)" class="max-w-xs">
           <div v-if = "added.value" :style = "filteredValuesStyle">
             <div class = "val">
               {{ added.title }} = {{ alterValue(getvalue(added.value.map(u => u.translation).join(','))) }}
@@ -46,7 +46,7 @@
             <div style="margin-left: 10px;cursor: pointer" @click = "removeFilter(i)">X</div>
           </div>
         </div>
-        <div v-else-if="added.all">
+        <div v-else-if="added.all" class="max-w-xs">
           <div v-if = "added.value" :style = "filteredValuesStyle">
             <div class = "val">
               {{ added.all.title }} = {{ alterValue(getvalue(added.value)) }}
@@ -54,7 +54,7 @@
             <div style="margin-left: 10px;cursor: pointer" @click = "removeFilter(i)">X</div>
           </div>
         </div>
-        <div v-else>
+        <div v-else class="max-w-xs">
           <div v-if = "added.value" :style = "filteredValuesStyle">
             <div class = "val">
               {{ added.title }} = {{ alterValue(getvalue(added.value)) }}
@@ -231,7 +231,7 @@ export default {
     },
     filteredValuesStyle: {
       type: String,
-      default: 'color: white; background: black; padding: 5px 15px; margin: 0 5px; border-radius: 10px; position: relative; display: flex;'
+      default: 'color: white; background: black; padding: 5px 15px; margin: 0 5px; border-radius: 10px; position: relative; display: flex; width: fit-content;'
     },
     filtersQuery: {
       type: String,
@@ -447,5 +447,9 @@ export default {
 </script>
 
 <style scoped>
-
+@media screen and (max-width: 768px) {
+  .max-w-xs {
+    max-width: 320px;
+  }
+}
 </style>

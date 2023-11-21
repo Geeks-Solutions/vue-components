@@ -202,11 +202,21 @@ export default {
 </script>
 
 <style>
+@media only screen and (max-width:480px) {
+  .default-select-style-chooser .vs--searchable .vs__dropdown-toggle {
+    min-width: 220px;
+    max-width: 320px;
+  }
+}
+@media only screen and (min-width:769px) {
+  .default-select-style-chooser .vs--searchable .vs__dropdown-toggle {
+    min-width: 250px;
+  }
+}
 .default-select-style-chooser .vs--searchable .vs__dropdown-toggle {
   border-radius: 10px;
   border: 1px solid #c2c2c2;
   width: 100%;
-  min-width: 250px;
   min-height: 49px;
   padding-left: 0;
 }
@@ -274,14 +284,21 @@ export default {
   color: #737373;
   font-size: 12px;
 }
-
-
-
+@media only screen and (max-width:480px) {
+  .default-select-style-chooser .vs--unsearchable .vs__dropdown-toggle {
+    min-width: 220px;
+    max-width: 320px;
+  }
+}
+@media only screen and (min-width:768px) {
+  .default-select-style-chooser .vs--unsearchable .vs__dropdown-toggle {
+    min-width: 250px;
+  }
+}
 .default-select-style-chooser .vs--unsearchable .vs__dropdown-toggle {
   border-radius: 10px;
   border: 1px solid #c2c2c2;
   width: 100%;
-  min-width: 250px;
   min-height: 49px;
   padding-left: 0;
 }

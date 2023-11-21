@@ -32,9 +32,9 @@
       </div>
     </div>
 
-    <div class="flex mt-4 w-full" :class="nuxtSections ? '' : 'pl-6'">
+    <div class="flex flex-col md:flex-row mt-4 w-full gap-4 md:gap-0" :class="nuxtSections ? '' : 'md:pl-6'">
 
-      <div class="flex flex-col w-300px py-8 px-6 shadow rounded-xl">
+      <div class="flex flex-col md:w-300px w-350px py-8 px-6 shadow rounded-xl">
 
         <label class="text-lg">{{ $t(mediaTranslationPrefix + 'EditMedia.mediaTitle') }}</label>
         <div v-if="!(lockedStatus === 'locked' && media.author !== sectionsUserIdProp)">
@@ -93,7 +93,7 @@
 
       </div>
 
-      <div class="w-full pl-2 mx-4">
+      <div class="w-full pl-2 pr-4 md:pr-0 md:mx-4">
 
         <HeaderContainer :items="headerItems" @itemClicked="itemClicked" />
 
@@ -112,9 +112,9 @@
                       <span class="icon-cross cursor-pointer" @click="showPopupCode = false"></span>
                     </div>
                   </div>
-                  <div v-if="popupContent && popupContent.content" class="mt-2" style="overflow: scroll !important;">
+                  <div v-if="popupContent && popupContent.content" class="mt-2" style="overflow: auto !important; max-height: 450px;">
                     <div v-for="content in popupContent.content" :key="content.id" class="flex flex-row items-center p-1">
-                      <div class="w-2.5 h-2.5 mr-3 rounded-full bg-darkBlue"></div>
+                      <div class="md:w-2.5 w-5 h-2.5 mr-3 rounded-full bg-darkBlue"></div>
                       <div class="font-medium text-lg pr-3">
                         {{ `${content.name} (${content.id}) ${$t(mediaTranslationPrefix + 'by')}${popupContent.author}` }}
                       </div>
@@ -141,14 +141,14 @@
           </div>
         </div>
 
-        <div v-if="media.files && media.type === 'video'" class="text-xs text-SmallTextGray font-light pl-2 pt-5 flex">
+        <div v-if="media.files && media.type === 'video'" class="text-xs text-SmallTextGray font-light pl-2 pt-5 flex flex-col md:flex-row">
           <div>{{ `${$t(mediaTranslationPrefix + 'EditMedia.fileName')}  ${handleFileName(media.files[0].filename)}` }}</div>
           <div class="px-6 text-Dark">|</div>
           <div>{{ `${$t(mediaTranslationPrefix + 'EditMedia.fileSize')}  ${media.files[0].size > Math.pow(10, 6) ? `${(media.files[0].size * Math.pow(10, -6)).toFixed(2)} MB` : `${(media.files[0].size * Math.pow(10, -3)).toFixed(2)} KB`}` }}</div>
           <div class="px-6 text-Dark">|</div>
           <div>{{ `${$t(mediaTranslationPrefix + 'EditMedia.duration')}  ${media.files[0].size}min` }}</div>
         </div>
-        <div v-else-if="media.files" class="text-xs text-SmallTextGray font-light pl-2 pt-5 flex">
+        <div v-else-if="media.files" class="text-xs text-SmallTextGray font-light pl-2 pt-5 flex flex-col md:flex-row">
           <div class="flex gap-2">
             <div>{{ `${$t(mediaTranslationPrefix + 'EditMedia.fileName')}` }}</div>
             <div class="w-min">{{ `${handleFileName(media.files[0].filename)}` }}</div>
@@ -182,7 +182,7 @@
           </div>
           <div v-else-if="!(lockedStatus === 'locked' && media.author !== sectionsUserIdProp)">
             <div v-if="media.files && media.files[0].url !== ''" class="relative w-max">
-              <img :src="media.files[0].url" alt="" class="rounded-md w-400px">
+              <img :src="media.files[0].url" alt="" class="rounded-md md:w-400px w-300px">
               <div class="absolute top-1/3 left-1/3 -translate-x-1/3 -translate-y-1/3" @click="$refs.imagePick.click()">
                 <span class="icon-reload text-8xl cursor-pointer"></span>
                 <input
@@ -223,7 +223,7 @@
 
       <div class="flex w-full items-center justify-end">
         <div v-if="privateStatus !== 'private' || (privateStatus === 'private' && media.author === sectionsUserIdProp)" class="cursor-pointer flex items-center" @click="showPopup = true">
-          <div class="text-error text-lg">{{ $t(mediaTranslationPrefix + 'EditMedia.deleteMedia') }}</div>
+          <div class="text-error text-sm md:text-lg">{{ $t(mediaTranslationPrefix + 'EditMedia.deleteMedia') }}</div>
           <span class="icon-trashCan2 text-md pb-1 px-2"></span>
         </div>
         <div @click.stop.prevent="mediaByIdUri !== '' ? updateMediaByID() : () => {}">
@@ -236,7 +236,7 @@
 
     </div>
 
-    <AlertPopup :errors-container-style="'mt-10 mb-14 self-center h-70px overflow-y-auto'" :apply-button-text="$t(mediaTranslationPrefix + 'EditMedia.deleteMedia')" :cancel-button-text="$t(mediaTranslationPrefix + 'EditMedia.cancel')" :title-delete="$t(mediaTranslationPrefix + 'EditMedia.deleteMediaMsg')" :title-no-delete="$t(mediaTranslationPrefix + 'EditMedia.cannotDelete')" :sub-title-no-delete="$t(mediaTranslationPrefix + 'EditMedia.cannotDeleteExtra')" :show-popup-code="showPopup" :can-be-deleted="media.meta ? !(media.meta.content && media.meta.content.length > 0) : false" :errors="noDeleteErrors" @cancel="showPopup = false" @apply="deleteMediaByID" />
+    <AlertPopup :errors-container-style="'mt-10 mb-14 self-center h-auto max-h-72 overflow-y-auto'" :apply-button-text="$t(mediaTranslationPrefix + 'EditMedia.deleteMedia')" :cancel-button-text="$t(mediaTranslationPrefix + 'EditMedia.cancel')" :title-delete="$t(mediaTranslationPrefix + 'EditMedia.deleteMediaMsg')" :title-no-delete="$t(mediaTranslationPrefix + 'EditMedia.cannotDelete')" :sub-title-no-delete="$t(mediaTranslationPrefix + 'EditMedia.cannotDeleteExtra')" :show-popup-code="showPopup" :can-be-deleted="media.meta ? !(media.meta.content && media.meta.content.length > 0) : false" :errors="noDeleteErrors" @cancel="showPopup = false" @apply="deleteMediaByID" />
 
     <AnimatedLoading :loading="loading" :animated-loading-icon="require('../../assets/images/loading_animated.svg')" />
 
@@ -265,6 +265,14 @@ export default {
     AnimatedLoading
   },
   props: {
+    appliedFilters: {
+      type: String,
+      default: ""
+    },
+    folderType: {
+      type: String,
+      default: ""
+    },
     mediaByIdUriProp: {
       type: String,
       default: ""
@@ -646,7 +654,7 @@ export default {
         this.loading = false
         if (this.mediasPath) {
           this.$router.push(this.localePath({path: this.mediasPath}))
-        } else this.$emit('updateMediaComponent', {name: 'MediaListMedias'})
+        } else this.$emit('updateMediaComponent', {name: 'MediaListMedias', appliedFilters: this.appliedFilters, folderType: this.folderType})
       }
     },
     onFileSelected(e) {
@@ -682,7 +690,7 @@ export default {
       this.isEditingMedia = false
       if (this.mediasPath) {
         this.$router.push(this.localePath({path: this.mediasPath, query: {filters: this.$route.query.filters, folder: this.$route.query.folder}}))
-      } else this.$emit('updateMediaComponent', {name: 'MediaListMedias'})
+      } else this.$emit('updateMediaComponent', {name: 'MediaListMedias', appliedFilters: this.appliedFilters, folderType: this.folderType})
     },
     // The below function is used to split the media fileName string into 3 parts separated with space, it was done for design purpose as the fileName of media can be very long and cause design problems
     handleFileName(fileName) {

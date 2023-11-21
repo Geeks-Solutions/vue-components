@@ -41,7 +41,7 @@ export default {
     },
     containerStyle: {
       type: String,
-      default: 'flex border-2 border-Blue justify-between p-2 rounded-xl'
+      default: 'flex flex-col md:flex-row border-2 border-Blue justify-between p-2 rounded-xl'
     },
     widthStyle: {
       type: String,

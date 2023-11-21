@@ -1,12 +1,12 @@
 <template>
   <div class="mr-8" :class="nuxtSections ? '' : 'ml-4'">
-    <div class="cursor-pointer text-4xl text-Blue" :class="nuxtSections ? 'fixed top-3 left-12' : 'pl-8'" @click="backClicked">
+    <div class="cursor-pointer text-4xl text-Blue" :class="nuxtSections ? 'fixed top-3 left-12' : 'md:pl-8'" @click="backClicked">
       {{ backLabel }}
     </div>
-    <div class="text-mediaTextGray mt-8" :class="nuxtSections ? '' : 'ml-8'">
+    <div class="text-mediaTextGray mt-8" :class="nuxtSections ? '' : 'md:ml-8'">
       {{ $t(mediaTranslationPrefix + 'dragDropMedia') }}
     </div>
-    <div class="flex justify-center items-center w-2/3 mt-8" :class="nuxtSections ? '' : 'ml-8'" @drop.prevent="onFileSelected" @dragenter.prevent @dragover.prevent>
+    <div class="flex justify-center w-full md:w-auto items-center w-2/3 mt-8 md:ml-8" :class="nuxtSections ? '' : 'md:ml-8'" @drop.prevent="onFileSelected" @dragenter.prevent @dragover.prevent>
       <label for="dropzone-file" class="flex flex-col justify-center items-center w-full h-64 bg-gray-50 rounded-lg border-2 border-BorderGray border-dashed cursor-pointer bg-mediaUploadGray">
         <div class="flex flex-col justify-center items-center pt-5 pb-6">
           <img src="../../assets/images/upload.svg" alt="" class="pb-4" width="100">
@@ -38,6 +38,14 @@ export default {
     }
   },
   props: {
+    appliedFilters: {
+      type: String,
+      default: ""
+    },
+    folderType: {
+      type: String,
+      default: ""
+    },
     mediaByIdUriProp: {
       type: String,
       default: ""
@@ -167,7 +175,7 @@ export default {
             }
             if(this.editMediaPath) {
               this.$router.push(this.localePath({path: this.editMediaPath, query: {id: response.data.id, isCreate: true}}))
-            } else this.$emit('updateMediaComponent', {name: 'MediaEditMedia', mediaId: response.data.id, isCreateMedia: true})
+            } else this.$emit('updateMediaComponent', {name: 'MediaEditMedia', mediaId: response.data.id, isCreateMedia: true, appliedFilters: this.appliedFilters, folderType: this.folderType})
           }
         }
         this.loading = false
@@ -176,7 +184,7 @@ export default {
     backClicked() {
       if (this.mediasPath) {
         this.$router.push(this.localePath({path: this.mediasPath, query: {filters: this.$route.query.filters}}))
-      } else this.$emit('updateMediaComponent', {name: 'MediaListMedias'})
+      } else this.$emit('updateMediaComponent', {name: 'MediaListMedias', appliedFilters: this.appliedFilters, folderType: this.folderType})
     }
   }
 }

@@ -159,7 +159,7 @@ export default {
     },
     containerStyle: {
       type: String,
-      default: 'inline-block shadow-lg shadow ring-black ring-opacity-5 align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle w-1/2'
+      default: 'inline-block shadow-lg shadow ring-black ring-opacity-5 align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle md:w-1/2'
     },
     errorsContainerStyle: {
       type: String,

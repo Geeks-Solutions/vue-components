@@ -1,51 +1,51 @@
 <template>
   <div class="mt-4" :class="nuxtSections ? 'ml-4' : ''">
 
-    <div class="flex w-full justify-between pr-4">
+    <div class="flex flex-col md:flex-row items-start md:items-start w-full justify-between md:pr-4 pl-2 md:pl-0">
 
-      <div class="flex" :class="nuxtSections ? '' : 'pl-16'">
+      <div class="flex" :class="nuxtSections ? '' : 'md:pl-16'">
         <client-only>
-          <MainFilter :filters-query="filtersQuery" :add-filter-label="$t(mediaTranslationPrefix + 'table.addFilter')" :clear-filters-label="$t(mediaTranslationPrefix + 'table.clearFilters')" :apply-filter-label="$t(mediaTranslationPrefix + 'table.applyFilters')" :filtered-values-style="'color: white; background: #03B1C7; padding: 5px 15px; margin: 15px 5px 0 0; border-radius: 10px; position: relative; display: flex;'" :filter-icon-icomoon="'icon-filterIcon'" :filter-icon-style="''" :main-filter-style="'flex items-center pl-2 mr-6 ml-2 border border-FieldGray rounded-xl h-48px w-284px focus:outline-none'" :select-style="'h-35px w-220px ml-8'" :filter-select-default="$t(mediaTranslationPrefix + 'selectFilter')" :filter-by-text="$t(mediaTranslationPrefix + 'filterMedias')" :clear-filters="filterClear" :sub-filter-style="'flex items-center pl-2 mr-6 ml-2 border border-FieldGray rounded-xl h-48px w-244px focus:outline-none'" :input-style="'py-4 pl-6 ml-2 pr-3.5 border border-FieldGray rounded-xl h-48px w-220px focus:outline-none'" :filter-options="filterOptions" :filter_map="filterMap" :emit-all="false" :alter-value="updateFilterValues" :main-filter-options="mainFilterOptions" :multi-select-placeholder="multiSelectPlaceholder" :single-select-filter-options="singleSelectFilterOptions" :multi-select-filter-options="multiSelectFilterOptions" @getFilter = "getFilter" @remove_filter="removeFilter" @clearFilters="clearFilters" @apply_filter="filterMedias" />
+          <MainFilter :filters-query="filtersQuery" :add-filter-label="$t(mediaTranslationPrefix + 'table.addFilter')" :clear-filters-label="$t(mediaTranslationPrefix + 'table.clearFilters')" :apply-filter-label="$t(mediaTranslationPrefix + 'table.applyFilters')" :filtered-values-style="'color: white; background: #03B1C7; padding: 5px 15px; margin: 15px 5px 0 0; border-radius: 10px; position: relative; display: flex; width: fit-content;'" :filter-icon-icomoon="'icon-filterIcon'" :filter-icon-style="''" :main-filter-style="'flex items-center pl-2 mr-6 ml-2 border border-FieldGray rounded-xl h-48px w-284px focus:outline-none'" :select-style="'h-35px w-220px ml-8'" :filter-select-default="$t(mediaTranslationPrefix + 'selectFilter')" :filter-by-text="$t(mediaTranslationPrefix + 'filterMedias')" :clear-filters="filterClear" :sub-filter-style="'flex items-center pl-2 mr-6 ml-2 border border-FieldGray rounded-xl h-48px w-244px focus:outline-none'" :input-style="'py-4 pl-6 ml-2 pr-3.5 border border-FieldGray rounded-xl h-48px w-220px focus:outline-none'" :filter-options="filterOptions" :filter_map="filterMap" :emit-all="false" :alter-value="updateFilterValues" :main-filter-options="mainFilterOptions" :multi-select-placeholder="multiSelectPlaceholder" :single-select-filter-options="singleSelectFilterOptions" :multi-select-filter-options="multiSelectFilterOptions" @getFilter = "getFilter" @remove_filter="removeFilter" @clearFilters="clearFilters" @apply_filter="filterMedias" />
         </client-only>      </div>
       <Buttons v-show="showCreateMediaButton === true" :button-text="$t(mediaTranslationPrefix + 'createNew')" :button-style="createButtonsStyle" :with-icon="false" :submit-function="openCreateMedia" />
 
     </div>
 
     <div>
-      <div class="flex pt-8 gap-16" :class="nuxtSections ? '' : 'pl-16'">
-        <div v-show="mediaCategory !== 'document'">
-          <div class="flex flex-col">
+      <div class="flex flex-col md:flex-row pt-8 gap-16" :class="nuxtSections ? '' : 'md:pl-16'">
+        <div v-show="mediaCategory !== 'document'" class="self-center md:self-start">
+          <div class="flex flex-col w-max md:w-auto">
             <Folder :is-selected="selectedFolder === 'all'" :all="true" :medias="allMedias" :total-label="$t(mediaTranslationPrefix + 'total')" :category-label="$t(mediaTranslationPrefix + 'category')" :category-value="$t(mediaTranslationPrefix + 'all')" :all-text="$t(mediaTranslationPrefix + 'all')" :total-value="allMediasLength.toString()" folder-style="font-size: 185px" :media-style="'rounded-full ml-2 h-40px w-40px'" :folder-clicked="() => {selectedFolder = 'all'; getAllMedias('all')}" />
             <div v-if="selectedFolder === 'all'" class="h-10px bg-Blue flex mt-6">
             </div>
           </div>
         </div>
-        <div v-show="mediaCategory !== 'document'">
+        <div v-show="mediaCategory !== 'document'" class="self-center md:self-start">
           <Folder :is-selected="selectedFolder === 'image'" :medias="imageMedias" :total-label="$t(mediaTranslationPrefix + 'total')" :category-label="$t(mediaTranslationPrefix + 'category')" :category-value="$t(mediaTranslationPrefix + 'images')" :total-value="imageMediasLength.toString()" folder-style="font-size: 185px" :media-style="'rounded-full ml-2 h-40px w-40px'" :folder-clicked="() => {selectedFolder = 'image'; getAllMedias('image')}" />
           <div v-if="selectedFolder === 'image'" class="h-10px bg-Blue flex mt-6">
           </div>
         </div>
-        <div v-show="videoMedias.length !== 0 && mediaCategory !== 'document'">
+        <div v-show="videoMedias.length !== 0 && mediaCategory !== 'document'" class="self-center md:self-start">
           <Folder :is-selected="selectedFolder === 'video'" :medias="videoMedias" :total-label="$t(mediaTranslationPrefix + 'total')" :category-label="$t(mediaTranslationPrefix + 'category')" :category-value="$t(mediaTranslationPrefix + 'videos')" :total-value="videoMediasLength.toString()" :category-icon="'icon-play pr-2'" folder-style="font-size: 185px" :media-style="'rounded-full ml-2 h-40px w-40px'" :folder-clicked="() => {selectedFolder = 'video'; getAllMedias('video')}" />
           <div v-if="selectedFolder === 'video'" class="h-10px bg-Blue flex mt-6">
           </div>
         </div>
-        <div>
+        <div class="self-center md:self-start">
           <Folder :is-selected="selectedFolder === 'document'" :medias="documentMedias" :total-label="$t(mediaTranslationPrefix + 'total')" :category-label="$t(mediaTranslationPrefix + 'category')" :category-value="$t(mediaTranslationPrefix + 'documents')" :total-value="documentMediasLength.toString()" :category-icon="'icon-mediaDocumentBlue pr-2'" folder-style="font-size: 185px" :media-style="'rounded-full ml-2 h-40px w-40px'" :folder-clicked="() => {selectedFolder = 'document'; getAllMedias('document')}" />
           <div v-if="selectedFolder === 'document'" class="h-10px bg-Blue flex mt-6">
           </div>
         </div>
       </div>
 
-      <div class="h-10px flex mx-16 mb-8" :style="lineSeparatorStyle">
+      <div class="h-10px flex mx-16 mb-8 mobileHidden" :style="lineSeparatorStyle">
       </div>
 
       <div v-show="mediaResponse.length !== 0">
-        <div class="flex text-FieldGray pt-2" :class="nuxtSections ? 'pl-4' : 'pl-16'">
+        <div class="flex justify-center md:justify-start text-FieldGray pt-2" :class="nuxtSections ? 'pl-4' : 'md:pl-16'">
           {{ mediaResponse.length + ` ${$t(mediaTranslationPrefix + 'of')} ` + totalMedias + ` ${$t(mediaTranslationPrefix + 'medias')} ` }}
         </div>
 
-        <div class="py-8 flex flex-wrap" :class="nuxtSections ? '' : 'pl-16'">
+        <div class="py-8 flex flex-wrap" :class="nuxtSections ? '' : 'md:pl-16'">
           <div v-for="media in mediaResponse" :key="`media--${media.id}`" class="m-2">
             <Card :copy-link-label="$t(mediaTranslationPrefix + 'copyLink')" :size-label="$t(mediaTranslationPrefix + 'size')" :content-label="$t(mediaTranslationPrefix + 'contentUsing')" :locked="media.locked_status !== 'unlocked'" :hidden="media.private_status !== 'public'" :media-src="media.files[0].url" :media-title="media.title && media.title !== '' && media.title !== 'null' ? media.title : media.files[0].filename" :media-title-style="'w-200px overflow-hidden text-ellipsis white whitespace-nowrap'" :media-author="media.meta.author_name ? $t(mediaTranslationPrefix + 'by') + media.meta.author_name : ''" :contentvalue="media.number_of_contents.toString()" :hidden-media-src="'icon-alert text-4xl'" :hidden-container-style="media.type === 'document' ? 'background: #61035B' : 'background: #EDEDED'" :hidden-message="$t(mediaTranslationPrefix + 'previewNotAvailable')" :is-author="media.author === sectionsUserId" :size-value="media.files[0].size > Math.pow(10, 6) ? `${(media.files[0].size * Math.pow(10, -6)).toFixed(2)} MB` : `${(media.files[0].size * Math.pow(10, -3)).toFixed(2)} KB`" :with-duration="media.type === 'video'" :media-type="media.type" :copy-link="() => copyMediaLink(media.files[0].url)" :open-media="() => openMedia(media.id)" />
           </div>
@@ -84,6 +84,14 @@ export default {
     Buttons
   },
   props: {
+    appliedFilters: {
+      type: String,
+      default: ""
+    },
+    folderType: {
+      type: String,
+      default: ""
+    },
     mediaUriProp: {
       type: String,
       default: ""
@@ -347,7 +355,7 @@ export default {
       sectionsUserId: '',
       accessLimitedVal: false,
       filtersQuery: '',
-      selectedFolder: this.$route.query.folder ? this.$route.query.folder : 'all'
+      selectedFolder: this.$route.query.folder ? this.$route.query.folder : this.folderType ? this.folderType : 'all'
     }
   },
   computed: {
@@ -386,6 +394,8 @@ export default {
         this.mediaUri = val
         if(this.$route.query.filters && this.$route.query.filters !== "") {
           this.filterMedias(JSON.parse(this.$route.query.filters))
+        } else if (this.nuxtSections && this.appliedFilters) {
+          this.filterMedias(JSON.parse(this.appliedFilters))
         } else if (val && process.client) this.getAllMedias()
       },
       deep: true,
@@ -634,6 +644,8 @@ export default {
         this.getAllMedias(this.selectedFolder, true)
         if (!this.nuxtSections) {
           this.$router.push(this.localePath({ path: this.mediasPath, query: {folder: this.selectedFolder} }))
+        } else {
+          this.filtersQuery = ''
         }
       }
     },
@@ -645,7 +657,7 @@ export default {
           this.$router.push(this.localePath({path: this.editMediaPath, query: {id: mediaID, folder: this.selectedFolder}}))
         }
       } else {
-        this.$emit('updateMediaComponent', {name: 'MediaEditMedia', mediaId: mediaID})
+        this.$emit('updateMediaComponent', {name: 'MediaEditMedia', mediaId: mediaID, appliedFilters: this.filtersQuery, folderType: this.selectedFolder})
       }
     },
     setPage(pageNumber) {
@@ -666,7 +678,7 @@ export default {
     openCreateMedia() {
       if (this.createMediaPath) {
         this.$router.push(this.localePath({path: this.createMediaPath, query: {filters: this.$route.query.filters, folder: this.selectedFolder}}))
-      } else this.$emit('updateMediaComponent', {name: 'MediaCreateMedia'})
+      } else this.$emit('updateMediaComponent', {name: 'MediaCreateMedia', appliedFilters: this.filtersQuery, folderType: this.selectedFolder})
     },
     updateFilterValues(value) {
       if(value === 'public' || value === 'private' || value === 'locked' || value === 'unlocked') {
@@ -680,5 +692,10 @@ export default {
 <style>
 .text-ellipsis {
   text-overflow: ellipsis !important;
+}
+@media only screen and (max-width:768px) {
+  .mobileHidden {
+    display: none !important;
+  }
 }
 </style>

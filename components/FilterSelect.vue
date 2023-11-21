@@ -1,7 +1,7 @@
 <template>
   <div>
-    <div class="flex" :class="filterContainerStyle">
-      <div class="flex-col">
+    <div class="flex flex-col md:flex-row" :class="filterContainerStyle">
+      <div class="flex-col self-start md:self-end">
         <AutoComplete
           :main-filter="mainFilter"
           :select-label="filterByText"
@@ -39,7 +39,7 @@
           @itemSelected="(item) => {emitFilter(item)}"
         ></AutoComplete>
       </div>
-      <div class="flex-col">
+      <div class="flex-col self-start md:self-end">
         <div v-if="filter_map[mainFilter].type === 'text'">
           <input v-model = "filter_val[mainFilter]"
             type = "text"
@@ -126,7 +126,7 @@
           ></AutoComplete>
         </div>
 
-        <div v-if="filter_map[mainFilter].type === 'range'" class="flex">
+        <div v-if="filter_map[mainFilter].type === 'range'" class="flex flex-col md:flex-row gap-4 md:gap-0">
           <input v-model = "filter_val[filter_map[mainFilter].key1]"
                  type = "text"
                  :placeholder = "filter_map[mainFilter].subTitle1 | capitalize" :class = "inputStyle" @input="emitFilter()" />
@@ -266,7 +266,7 @@ export default {
     },
     filterContainerStyle: {
       type: String,
-      default: 'items-end gap-4'
+      default: 'md:items-end gap-4'
     },
     filterByStyle: {
       type: String,
@@ -290,11 +290,11 @@ export default {
     },
     mainFilterStyle: {
       type: String,
-      default: 'flex items-center pl-2 mr-6 ml-2 border border-FieldGray rounded-xl h-49px w-244px focus:outline-none mb-6'
+      default: 'flex items-center pl-2 mr-6 md:ml-2 border border-FieldGray rounded-xl h-49px w-244px focus:outline-none mb-6'
     },
     inputStyle: {
       type: String,
-      default: 'py-4 pl-6 mr-1 border border-FieldGray rounded-xl h-49px w-300px focus:outline-none'
+      default: 'py-4 pl-6 mr-1 border border-FieldGray rounded-xl h-49px md:w-300px w-220px focus:outline-none'
     },
     subFilterStyle: {
       type: String,
