@@ -3,6 +3,21 @@
 ---
 
 
+### v1.0.12 (31/01/2025)
+
+---
+
+- [x] Fixed Mobile responsiveness support for some components: Mobile responsiveness landscape and as well tablet eweev/geeks/sections-bo#239
+
+- [x] Fixed Blogs components for when a user has multiple roles: When a user has both roles Author and Publisher, or Admin and Publisher, it should have access for the 2 roles eweev/geeks/bo-blogs#22
+
+- [x] Draft management improvement: Remove duplicate articles and show only the draft with a link to access the original article eweev/geeks/bo-blogs#36
+
+- [x] When editing or adding an article for the suggested article, have in the listing the picture of it near the title and as well when selecting one eweev/geeks/bo-blogs#20
+
+- [x] Fixed undefined in media popup content: In the media meta component, when a media is linked to a blogs article and you open the content details, instead of the article title showing there is undefined #67
+
+
 ### v1.0.11 (07/01/2025)
 
 ---

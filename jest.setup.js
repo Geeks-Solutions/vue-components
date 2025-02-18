@@ -41,7 +41,7 @@ global.mocks = {
     },
     $toast: { show: jest.fn() },
     // localePath: jest.fn(),
-    // $nuxt: {
-    //     $emit: jest.fn()
-    // }
+    $nuxt: {
+        $emit: jest.fn()
+    }
 };

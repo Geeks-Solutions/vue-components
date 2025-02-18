@@ -45,7 +45,7 @@
       </div>
 
       <div class="flex flex-col items-end pt-1 pl-3 pr-3">
-        <div v-if="draftOf" :class="draftOfStyle" style="text-align: end">
+        <div v-if="draftOf" :class="draftOfStyle" style="text-align: end" @click="$emit('open-original-blog')">
           {{ draftOf }}
         </div>
         <div v-if="lastUpdateDate" :class="[lastUpdateStyle, draftOf ? '' : 'pt-4']">
@@ -140,7 +140,7 @@ export default {
     },
     draftOfStyle: {
       type: String,
-      default: 'text-xs font-extralight w-340px text-end whitespace-nowrap pr-1 text-ellipsis overflow-hidden'
+      default: 'text-xs text-Blue underline md:cursor-pointer font-extralight w-340px text-end whitespace-nowrap pr-1 text-ellipsis overflow-hidden'
     },
     draftOf: {
       type: String,

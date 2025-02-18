@@ -192,6 +192,7 @@
             :track-by="'key'"
             :preselect-first="true"
             :multiple="true"
+            :select-wrapper-style="''"
             @itemSelected="(val) => {article.categories = val}"
           ></AutoComplete>
         </div>
@@ -208,8 +209,22 @@
             :track-by="'key'"
             :preselect-first="true"
             :multiple="true"
+            :select-wrapper-style="''"
             @itemSelected="(val) => {article.suggested = val}"
-          ></AutoComplete>
+          >
+            <template #selected-option="{ key, translation, image }">
+              <div style="display: flex; flex-direction: row; align-items: center">
+                <img :src="image" alt="" style="width: 100px; object-fit: cover;" />
+                <span style="margin: 0.5rem 0.5rem;">{{ translation }}</span>
+              </div>
+            </template>
+            <template #option="{ key, translation, image }">
+              <div style="display: flex; flex-direction: row; align-items: center">
+                <img :src="image" alt="" style="width: 100px; object-fit: cover;" />
+                <span style="margin: 0.5rem 0.5rem;">{{ translation }}</span>
+              </div>
+            </template>
+          </AutoComplete>
         </div>
         <div v-if="blogsUri !== '' && isCreateBlog !== true" class="flex flex-row gap-2 text-sm">
           <div>{{ $t(mediaTranslationPrefix + 'filterOptions.publishedStatus') }}: </div>
@@ -221,14 +236,14 @@
 
     </div>
 
-    <div class="sticky bottom-0 py-2 m-4 rounded-md shadow">
+    <div class="sticky bottom-0 py-2 m-4 rounded-md shadow z-20">
 
       <div class="flex w-full items-center justify-end bg-white">
         <div v-if="blogsUri !== '' && isCreateBlog !== true" class="cursor-pointer flex items-center" @click="showPopup = true">
           <div class="text-error text-sm md:text-lg">{{ $t(mediaTranslationPrefix + 'blogs.deleteArticle') }}</div>
           <span class="icon-trashCan2 text-md pb-1 px-2"></span>
         </div>
-        <div v-if="blogsUri !== '' && isCreateBlog !== true && (blogsUserRoleProp === 'publisher' || (blogsUserRoleProp === 'admin' && article.published === false))" @click.stop.prevent="publishBlogByID(article.published)">
+        <div v-if="blogsUri !== '' && isCreateBlog !== true && (blogsUserRoleProp.includes('publisher') || (blogsUserRoleProp.includes('admin') && article.published === false))" class="publish-btn" @click.stop.prevent="publishBlogByID(article.published)">
           <Buttons :button-text="article.published ? $t(mediaTranslationPrefix + 'blogs.unpublish') : $t(mediaTranslationPrefix + 'blogs.publish')" :button-style="saveButtonStyle" class="ml-12" :with-icon="false" />
         </div>
         <div @click.stop.prevent="blogsUri !== '' && isCreateBlog !== true ? updateBlogByID() : createArticle()">
@@ -983,7 +998,7 @@ export default {
           value: 'true'
         }
       ]
-      if (this.blogsUserRoleProp === 'author') {
+      if (this.blogsUserRoleProp.includes('author') && !this.blogsUserRoleProp.includes('admin')) {
         filters.push({
           key: 'author_id',
           value: this.blogsUserId
@@ -1004,7 +1019,8 @@ export default {
           this.filterMap.suggested.push(
               {
                 key: article.id.toString(),
-                translation: article.title
+                translation: article.title,
+                image: article.medias && article.medias[0] && article.medias[0].files && article.medias[0].files[0] && article.medias[0].files[0].thumbnail_url ? article.medias[0].files[0].thumbnail_url : null
               }
           )
         })

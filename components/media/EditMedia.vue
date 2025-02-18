@@ -34,7 +34,7 @@
 
     <div class="flex flex-col md:flex-row mt-4 w-full gap-4 md:gap-0" :class="nuxtSections ? '' : 'md:pl-6'">
 
-      <div class="flex flex-col md:w-300px w-350px py-8 px-6 shadow rounded-xl">
+      <div class="flex flex-col md:w-300px py-8 px-6 shadow rounded-xl">
 
         <label class="text-lg">{{ $t(mediaTranslationPrefix + 'EditMedia.mediaTitle') }}</label>
         <div v-if="!(lockedStatus === 'locked' && media.author !== sectionsUserIdProp)">
@@ -54,7 +54,7 @@
 
         <label class="mt-8 text-lg">{{ $t(mediaTranslationPrefix + 'EditMedia.type') }}</label>
         <div class="mt-3 flex">
-          <div class="w-15px h-6px bg-Blue rounded-full mt-2.5 mr-2"></div>
+          <div class="w-7px h-6px bg-Blue rounded-full mt-2.5 mr-2"></div>
           <div class="text-md text-mediaTextGray">
             {{ $t(mediaTranslationPrefix + 'EditMedia.privateDesc') }}
           </div>
@@ -114,9 +114,9 @@
                   </div>
                   <div v-if="popupContent && popupContent.content" class="mt-2" style="overflow: auto !important; max-height: 450px;">
                     <div v-for="content in popupContent.content" :key="content.id" class="flex flex-row items-center p-1">
-                      <div class="md:w-2.5 w-5 h-2.5 mr-3 rounded-full bg-darkBlue"></div>
-                      <div class="font-medium text-lg pr-3">
-                        {{ `${content.name} (${content.id}) ${$t(mediaTranslationPrefix + 'by')}${popupContent.author}` }}
+                      <div class="w-2.5 h-2.5 mr-3 rounded-full bg-darkBlue"></div>
+                      <div class="content-used font-medium text-lg pr-3">
+                        {{ `${contentUsedKey ? content[contentUsedKey] : content.name} (${content.id}) ${$t(mediaTranslationPrefix + 'by')}${popupContent.author}` }}
                       </div>
                     </div>
                   </div>
@@ -219,7 +219,7 @@
 
     </div>
 
-    <div v-if="!((privateStatus === 'private' || privateStatus === 'public') && lockedStatus === 'locked' && media.author !== sectionsUserIdProp)" class="sticky bottom-0 py-2 m-4 rounded-md shadow">
+    <div v-if="!((privateStatus === 'private' || privateStatus === 'public') && lockedStatus === 'locked' && media.author !== sectionsUserIdProp)" class="sticky bottom-0 py-2 m-4 rounded-md shadow bg-white">
 
       <div class="flex w-full items-center justify-end">
         <div v-if="privateStatus !== 'private' || (privateStatus === 'private' && media.author === sectionsUserIdProp)" class="cursor-pointer flex items-center" @click="showPopup = true">
@@ -594,7 +594,9 @@ export default {
         }).catch((e) => {
         this.loading = false
         let errorMessage = ''
-        if (e.response.data.options) {
+        if (e.request && e.response === undefined) {
+          errorMessage = this.$t('mediaTooLarge');
+        } else if (e.response.data.options) {
           if (this.boUsage === true) {
             errorMessage = `<a href='/admin${e.response.data.options.link.path}' >${e.response.data.error}, ${e.response.data.message}</a>`
           } else {
@@ -606,7 +608,11 @@ export default {
           errorMessage = e.response.data.error ? `${e.response.data.error}, ${e.response.data.message}` : e.response.data.message
         }
           if (this.nuxtSections) {
-            showSectionsToast(this.$toast, 'error', `${e.response.data.error}, ${e.response.data.message}`, e.response.data.options, errorMessage)
+            if (e.request && e.response === undefined) {
+              showSectionsToast(this.$toast, 'error', errorMessage, '', errorMessage)
+            } else {
+              showSectionsToast(this.$toast, 'error', `${e.response.data.error}, ${e.response.data.message}`, e.response.data.options, errorMessage)
+            }
           } else {
             this.$toast.show(
               {

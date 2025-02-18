@@ -23,7 +23,14 @@
             :searchable="filterSearchable"
             @input="(val) => {filterModel = val; $emit('itemSelected', val)}"
             @search="(search) => {selectIsSearching = search !== ''}"
-          ></v-select>
+          >
+            <template v-slot:selected-option="slotProps">
+              <slot name="selected-option" v-bind="slotProps" />
+            </template>
+            <template v-slot:option="slotProps">
+              <slot name="option" v-bind="slotProps" />
+            </template>
+          </v-select>
           <span v-if="withIcon" :class="filterIconIcomoon"></span>
         </div>
       </div>

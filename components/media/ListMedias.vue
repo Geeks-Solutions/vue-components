@@ -12,7 +12,7 @@
     </div>
 
     <div>
-      <div class="flex flex-col md:flex-row pt-8 gap-16" :class="nuxtSections ? '' : 'md:pl-16'">
+      <div class="flex flex-row pt-8 gap-16 overflow-x-scroll" :class="nuxtSections ? '' : 'md:pl-16'">
         <div v-show="mediaCategory !== 'document'" class="self-center md:self-start">
           <div class="flex flex-col w-max md:w-auto">
             <Folder :is-selected="selectedFolder === 'all'" :all="true" :medias="allMedias" :total-label="$t(mediaTranslationPrefix + 'total')" :category-label="$t(mediaTranslationPrefix + 'category')" :category-value="$t(mediaTranslationPrefix + 'all')" :all-text="$t(mediaTranslationPrefix + 'all')" :total-value="allMediasLength.toString()" folder-style="font-size: 185px" :media-style="'rounded-full ml-2 h-40px w-40px'" :folder-clicked="() => {selectedFolder = 'all'; getAllMedias('all')}" />

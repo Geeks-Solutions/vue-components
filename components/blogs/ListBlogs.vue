@@ -2,7 +2,7 @@
   <div class="mt-4" :class="nuxtSections ? 'ml-4' : ''">
 
     <div class="flex flex-row justify-end gap-4">
-      <Buttons v-show="showCreateBlogButton === true && blogsUserRoleProp !== 'publisher'" :button-text="$t(mediaTranslationPrefix + 'blogs.createNew')" :button-style="createButtonsStyle" :with-icon="false" :submit-function="openCreateBlog" />
+      <Buttons v-show="showCreateBlogButton === true && (blogsUserRoleProp.includes('admin') || blogsUserRoleProp.includes('author'))" :button-text="$t(mediaTranslationPrefix + 'blogs.createNew')" :button-style="createButtonsStyle" :with-icon="false" :submit-function="openCreateBlog" />
     </div>
 
     <div class="flex flex-col md:flex-row items-start md:items-start w-full justify-between md:pr-4 pl-2 md:pl-0">
@@ -24,7 +24,7 @@
 
         <div class="py-8 flex flex-wrap" :class="nuxtSections ? '' : 'md:pl-16'">
           <div v-for="(blog, idx) in blogsResponse" :key="`blog--${blog.id}`" class="m-2">
-            <Card :can-delete="blogsUserRoleProp !== 'publisher'" :description="blog.description" :edit-label="blogsUserRoleProp === 'publisher' ? blog.published ? $t(mediaTranslationPrefix + 'blogs.unpublish') : $t(mediaTranslationPrefix + 'blogs.publish') : $t(mediaTranslationPrefix + 'blogs.editContent')" :published="blog.published" :draft-of="blog.draft_of ? $t(mediaTranslationPrefix + 'blogs.draftOf', {id: blog.draft_of}) : ''" :media-src="blog.medias && blog.medias[0] && blog.medias[0].files ? blog.medias[0].files[0].url : ''" :blog-title="blog.title && blog.title !== '' && blog.title !== 'null' ? blog.title : blog.medias && blog.medias[0] && blog.medias[0].files ? blog.medias[0].files[0].filename : ''" :blog-title-style="'w-200px overflow-hidden text-ellipsis white whitespace-nowrap'" :blog-author="getAuthorName(blog.author_id)" :is-author="blog.author_id === blogsUserId" :last-update-date="blog.updated ? $t(mediaTranslationPrefix + 'blogs.lastUpdateDate') + parseDate(blog.updated) : ''" :open-blog="() => {blogsUserRoleProp === 'publisher' ? null : openBlog(blog.id, blog.author_id, blog.default_locale)}" :edit-blog="() => {blogsUserRoleProp === 'publisher' ? publishBlogByID(blog.id, blog.published, idx) : openBlog(blog.id, blog.author_id, blog.default_locale)}" @delete-blog="blogId = blog.id; showPopup = true" />
+            <Card :can-delete="(blogsUserRoleProp.includes('admin') || blogsUserRoleProp.includes('author'))" :description="blog.description" :edit-label="blogsUserRoleProp.includes('publisher') ? blog.published ? $t(mediaTranslationPrefix + 'blogs.unpublish') : $t(mediaTranslationPrefix + 'blogs.publish') : $t(mediaTranslationPrefix + 'blogs.editContent')" :published="blog.published" :draft-of="blog.draft_of ? $t(mediaTranslationPrefix + 'blogs.draftOf', {id: blog.draft_of}) : ''" :media-src="blog.medias && blog.medias[0] && blog.medias[0].files ? blog.medias[0].files[0].url : ''" :blog-title="blog.title && blog.title !== '' && blog.title !== 'null' ? blog.title : blog.medias && blog.medias[0] && blog.medias[0].files ? blog.medias[0].files[0].filename : ''" :blog-title-style="'w-200px overflow-hidden text-ellipsis white whitespace-nowrap'" :blog-author="getAuthorName(blog.author_id)" :is-author="blog.author_id === blogsUserId" :last-update-date="blog.updated ? $t(mediaTranslationPrefix + 'blogs.lastUpdateDate') + parseDate(blog.updated) : ''" :open-blog="() => {blogsUserRoleProp.includes('publisher') && blogsUserRoleProp.length === 1 ? null : openBlog(blog.id, blog.author_id, blog.default_locale)}" :edit-blog="() => {blogsUserRoleProp.includes('publisher') ? publishBlogByID(blog.id, blog.published, idx) : openBlog(blog.id, blog.author_id, blog.default_locale)}" @delete-blog="blogId = blog.id; showPopup = true" @open-original-blog="openBlog(blog.draft_of, blog.author_id, blog.default_locale)" />
           </div>
         </div>
 
@@ -396,7 +396,7 @@ export default {
         {key: 'inserted_at', value: this.$t(this.mediaTranslationPrefix + 'filterOptions.createdAt')},
         {key: 'updated_at', value: this.$t(this.mediaTranslationPrefix + 'filterOptions.updatedAt')}
       ]
-      if (this.blogsUserRoleProp === 'author') {
+      if (this.blogsUserRoleProp.includes('author') && !this.blogsUserRoleProp.includes('admin')) {
         return baseFilters
       } else {
         return [
@@ -487,7 +487,7 @@ export default {
       this.loading = true
       const token = this.token
 
-      if (this.blogsUserRoleProp === 'author') {
+      if (this.blogsUserRoleProp.includes('author') && !this.blogsUserRoleProp.includes('admin')) {
         this.payloadData.filters.push({
           key: 'author_id',
           value: this.blogsUserId
@@ -552,7 +552,9 @@ export default {
         )
       })
 
-      this.blogsResponse = response.data.data
+      if (response.data && response.data.data && response.data.data.length > 0) {
+        this.blogsResponse = response.data.data.filter(article => !response.data.data.some(atcl => atcl.draft_of === article.id))
+      }
       this.totalBlogs = response.data.total
 
       this.$nuxt.$emit('setModel')
@@ -679,6 +681,7 @@ export default {
       })
       if(response) {
         this.$set(this.blogsResponse[idx], 'published', response.data.published)
+        await this.getAllBlogs()
         if (this.nuxtSections) {
           showSectionsToast(this.$toast, 'success', this.$t(this.mediaTranslationPrefix + 'blogs.articlePublished'))
         } else {

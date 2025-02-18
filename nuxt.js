@@ -19,12 +19,14 @@ export default function() {
       en: {
         quillEditor: {
           quillDesc: "To edit an image added to your editor, you need to select it and click on the image icon of the toolbar"
-        }
+        },
+        mediaTooLarge: "The size of your media exceeds the authorized limit. Please refer to your package details to check the maximum supported size."
       },
       fr: {
         quillEditor: {
           quillDesc: "Pour éditer une image ajoutée à votre éditeur, vous devez la sélectionner et cliquer sur l'icone image de la barre d'outil"
-        }
+        },
+        mediaTooLarge: "La taille de votre média dépasse la limite autorisée. Veuillez vous référer aux détails de votre colis pour vérifier la taille maximale prise en charge."
       }
     })
   })

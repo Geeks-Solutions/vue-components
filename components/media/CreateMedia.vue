@@ -140,7 +140,9 @@ export default {
             }).catch((e) => {
             this.loading = false
             let errorMessage = ''
-            if (e.response.data.options) {
+            if (e.request && e.response === undefined) {
+              errorMessage = this.$t('mediaTooLarge');
+            } else if (e.response.data.options) {
               if (this.boUsage === true) {
                 errorMessage = `<a href='/admin${e.response.data.options.link.path}' >${e.response.data.error}, ${e.response.data.message}</a>`
               } else {
@@ -152,7 +154,11 @@ export default {
               errorMessage = e.response.data.error ? `${e.response.data.error}, ${e.response.data.message}` : e.response.data.message
             }
             if (this.nuxtSections) {
-              showSectionsToast(this.$toast, 'error', `${e.response.data.error}, ${e.response.data.message}`, e.response.data.options, errorMessage)
+              if (e.request && e.response === undefined) {
+                showSectionsToast(this.$toast, 'error', errorMessage, '', errorMessage)
+              } else {
+                showSectionsToast(this.$toast, 'error', `${e.response.data.error}, ${e.response.data.message}`, e.response.data.options, errorMessage)
+              }
             } else {
               this.$toast.show(
                 {

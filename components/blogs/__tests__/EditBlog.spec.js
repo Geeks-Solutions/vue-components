@@ -216,6 +216,83 @@ describe('EditBlog', () => {
 
   });
 
+  it('shows the publish button when conditions are met', async () => {
+
+    await wrapper.setProps(
+        {
+          isCreateBlog: false,
+          blogsUserRoleProp: 'publisher'
+        }
+    )
+
+    await wrapper.setData({
+      blogsUri: 'https://api.example.com',
+      article: { published: false } });
+
+    expect(wrapper.find('.publish-btn').exists()).toBe(true);
+  });
+
+  it('shows the publish button when user is admin and article is not published', async () => {
+    await wrapper.setProps(
+        {
+          isCreateBlog: false,
+          blogsUserRoleProp: 'admin'
+        }
+    )
+
+    await wrapper.setData({
+      blogsUri: 'https://api.example.com',
+      article: { published: false } });
+
+    expect(wrapper.find('.publish-btn').exists()).toBe(true);
+  });
+
+
+  it('does not show the publish button when isCreateBlog is true', async () => {
+    await wrapper.setProps(
+        {
+          isCreateBlog: true,
+          blogsUserRoleProp: 'publisher'
+        }
+    )
+
+    await wrapper.setData({
+      blogsUri: 'https://api.example.com',
+      article: { published: false } });
+
+    expect(wrapper.find('.publish-btn').exists()).toBe(false);
+  });
+
+  it('does not show the publish button when user is not a publisher or admin', async () => {
+    await wrapper.setProps(
+        {
+          isCreateBlog: false,
+          blogsUserRoleProp: 'author'
+        }
+    )
+
+    await wrapper.setData({
+      blogsUri: 'https://api.example.com',
+      article: { published: false } });
+
+    expect(wrapper.find('.publish-btn').exists()).toBe(false);
+  });
+
+  it('does not show the publish button when user is admin but article is already published', async () => {
+    await wrapper.setProps(
+        {
+          isCreateBlog: false,
+          blogsUserRoleProp: 'admin'
+        }
+    )
+
+    await wrapper.setData({
+      blogsUri: 'https://api.example.com',
+      article: { published: true } });
+
+    expect(wrapper.find('.publish-btn').exists()).toBe(false);
+  });
+
   // it('matches the snapshot', () => {
   //   expect(wrapper.html()).toMatchSnapshot();
   // });
