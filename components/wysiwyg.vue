@@ -137,10 +137,21 @@ export default {
     }
   },
   created() {
+    import("quill/dist/quill.snow.css");
     if (process.client) {
-      let Emoji = require("quill-emoji");
-      let Quill = require('quill');
-      Quill.register("modules/emoji", Emoji);
+      let Emoji = require("@devdcodes9/quill-emojijs");
+      import("@devdcodes9/quill-emojijs/dist/quill-emoji.css");
+      let Quill = require('quill').default;
+
+      Quill.prototype.pasteHTML = function (html) {
+        this.setContents(this.clipboard.convert({
+          html: html,
+          text: '\n'
+        }))
+      };
+
+      Quill.register("modules/emoji-toolbar", Emoji.default.ToolbarEmoji);
+      Quill.register('formats/emoji', Emoji.default.EmojiBlot);
 
       const ImageBlot = Quill.import("formats/image");
       class CustomImageBlot extends ImageBlot {
@@ -192,6 +203,8 @@ export default {
 
       let rawHtml = require("quill-html-edit-button");
       Quill.register("modules/htmlEditButton", rawHtml.htmlEditButton);
+
+      window.Quill = Quill
     }
 
     if(this.editorOptions.modules && Object.keys(this.editorOptions.modules).length > 0) {
@@ -223,8 +236,6 @@ export default {
             ["save-format", "apply-format"],
           ],
           "emoji-toolbar": true,
-          "emoji-textarea": true,
-          "emoji-shortname": true,
           htmlEditButton: {},
         }
       }

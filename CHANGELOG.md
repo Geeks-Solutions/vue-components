@@ -3,6 +3,21 @@
 ---
 
 
+### v1.0.13 (17/03/2025)
+
+---
+
+- Global css import for quill editor is moved to new `WysiwygContent` component to only load the css when the component is used.
+- Introduced a new component `WysiwygContent` for displaying wyiswyg contents
+
+**Breaking Change**
+- Using `v-html` to display the wysiwyg content will still work, but it will no more have the wysiwyg styles `headings, aligments etc...`
+- Use the new introduced component to display the wysiwyg content
+  `<gWysiwygContent :html-content="html" />`
+
+
+- Updated quill js to version 2.0.3
+
 ### v1.0.12 (31/01/2025)
 
 ---
