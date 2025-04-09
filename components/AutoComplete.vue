@@ -1,7 +1,7 @@
 <template>
   <div :class="selectWrapperStyle">
     <div :class="[selectStyle, errorOccurredModel ? selectErrorClass : '', withIcon ? selectIconClass : '', labelOutside ? '' : labelInsideClass]">
-      <div v-if="selectLabel" :class="[labelOutside ? labelStyle : filterModel !== undefined && filterModel !== null ? filterModel.length === 0 && !selectIsSearching ? labelInsideDefaultStyle : labelInsideStyle : !selectIsSearching ? labelInsideDefaultStyle : labelInsideStyle, withIcon ? labelPaddingWithIcon : labelPadding]">
+      <div v-if="selectLabel" :class="[labelClass, withIcon ? labelPaddingWithIcon : labelPadding]">
         {{ selectLabel }}
       </div>
       <div :class="[focused ? focusStyle : '']">
@@ -21,14 +21,14 @@
             :track-by="trackBy"
             :preselect-first="preselectFirst"
             :searchable="filterSearchable"
-            @input="(val) => {filterModel = val; $emit('itemSelected', val)}"
+            @input="(val) => {filterModel = val; emit('itemSelected', val)}"
             @search="(search) => {selectIsSearching = search !== ''}"
           >
-            <template v-slot:selected-option="slotProps">
-              <slot name="selected-option" v-bind="slotProps" />
+            <template #selected-option="{ selected, label }">
+              <slot name="selected-option" :selected="selected" :label="label"></slot>
             </template>
-            <template v-slot:option="slotProps">
-              <slot name="option" v-bind="slotProps" />
+            <template #option="{ option, label }">
+              <slot name="option" :option="option" :label="label"></slot>
             </template>
           </v-select>
           <span v-if="withIcon" :class="filterIconIcomoon"></span>
@@ -38,174 +38,180 @@
   </div>
 </template>
 
-<script>
+<script setup lang="ts">
+import { ref, computed, watch } from 'vue';
 import vSelect from "vue-select";
 import 'vue-select/dist/vue-select.css';
 
-export default {
-  name: "AutoComplete",
-  components: {
-    vSelect
+const props = defineProps({
+  selectWrapperStyle: {
+    type: String,
+    default: 'w-max'
   },
-  props: {
-    selectWrapperStyle: {
-      type: String,
-      default: 'w-max'
-    },
-    selectLabel: {
-      type: String,
-      default: ''
-    },
-    selectStyle: {
-      type: String,
-      default: 'default-select-style-chooser relative'
-    },
-    labelStyle: {
-      type: String,
-      default: 'text-md font-base mr-2 mb-1'
-    },
-    labelInsideStyle: {
-      type: String,
-      default: 'absolute top-2 text-xs font-base text-Blue mr-2 mb-1 z-10'
-    },
-    labelInsideDefaultStyle: {
-      type: String,
-      default: 'absolute top-3 text-md font-base text-darkGray mr-2 mb-1 defaultSearching z-10'
-    },
-    labelPaddingWithIcon: {
-      type: String,
-      default: 'left-12'
-    },
-    labelPadding: {
-      type: String,
-      default: 'left-3'
-    },
-    selectErrorClass: {
-      type: String,
-      default: 'select-error-class'
-    },
-    selectIconClass: {
-      type: String,
-      default: 'select-icon-class'
-    },
-    labelInsideClass: {
-      type: String,
-      default: 'label-inside-class'
-    },
-    trackBy: {
-      type: String,
-      default: ''
-    },
-    focused: {
-      type: Boolean,
-      default: false
-    },
-    filterDisabled: {
-      type: Boolean,
-      default: false
-    },
-    multiple: {
-      type: Boolean,
-      default: false
-    },
-    closeOnSelect: {
-      type: Boolean,
-      default: true
-    },
-    preserveSearch: {
-      type: Boolean,
-      default: false
-    },
-    preselectFirst: {
-      type: Boolean,
-      default: false
-    },
-    clearOnSelect: {
-      type: Boolean,
-      default: false
-    },
-    multipleSelection: {
-      type: Boolean,
-      default: false
-    },
-    reduce: {
-      type: Function,
-      default: val => val
-    },
-    labelOutside: {
-      type: Boolean,
-      default: true
-    },
-    mainFilter: {},
-    selectPlaceholder: {
-      type: String,
-      default: ''
-    },
-    filterLabelProp: {
-      type: String,
-      default: 'value'
-    },
-    filterIconIcomoon: {
-      type: String,
-      default: 'absolute top-4.5 left-4 icon-filterIcon icon-filterIcon filterIconStyle'
-    },
-    focusStyle: {
-      type: String,
-      default: 'border border-Blue rounded-xl'
-    },
-    focusMarginStyle: {
-      type: String,
-      default: 'px-0.5 py-0.5'
-    },
-    filterClearable: {
-      type: Boolean,
-      default: false
-    },
-    filterSearchable: {
-      type: Boolean,
-      default: true
-    },
-    errorOccurred: {
-      type: Boolean,
-      default: false
-    },
-    withIcon: {
-      type: Boolean,
-      default: false
-    },
-    filterOptions: {
-      type: Array,
-      default() {
-        return []
+  selectLabel: {
+    type: String,
+    default: ''
+  },
+  selectStyle: {
+    type: String,
+    default: 'default-select-style-chooser relative'
+  },
+  labelStyle: {
+    type: String,
+    default: 'text-md font-base mr-2 mb-1'
+  },
+  labelInsideStyle: {
+    type: String,
+    default: 'absolute top-2 text-xs font-base text-Blue mr-2 mb-1 z-10'
+  },
+  labelInsideDefaultStyle: {
+    type: String,
+    default: 'absolute top-3 text-md font-base text-darkGray mr-2 mb-1 defaultSearching z-10'
+  },
+  labelPaddingWithIcon: {
+    type: String,
+    default: 'left-12'
+  },
+  labelPadding: {
+    type: String,
+    default: 'left-3'
+  },
+  selectErrorClass: {
+    type: String,
+    default: 'select-error-class'
+  },
+  selectIconClass: {
+    type: String,
+    default: 'select-icon-class'
+  },
+  labelInsideClass: {
+    type: String,
+    default: 'label-inside-class'
+  },
+  trackBy: {
+    type: String,
+    default: ''
+  },
+  focused: {
+    type: Boolean,
+    default: false
+  },
+  filterDisabled: {
+    type: Boolean,
+    default: false
+  },
+  multiple: {
+    type: Boolean,
+    default: false
+  },
+  closeOnSelect: {
+    type: Boolean,
+    default: true
+  },
+  preserveSearch: {
+    type: Boolean,
+    default: false
+  },
+  preselectFirst: {
+    type: Boolean,
+    default: false
+  },
+  clearOnSelect: {
+    type: Boolean,
+    default: false
+  },
+  multipleSelection: {
+    type: Boolean,
+    default: false
+  },
+  reduce: {
+    type: Function,
+    default: (val: any) => val
+  },
+  labelOutside: {
+    type: Boolean,
+    default: true
+  },
+  mainFilter: {
+    type: Object,
+    default: null
+  },
+  selectPlaceholder: {
+    type: String,
+    default: ''
+  },
+  filterLabelProp: {
+    type: String,
+    default: 'value'
+  },
+  filterIconIcomoon: {
+    type: String,
+    default: 'absolute top-4.5 left-4 icon-filterIcon icon-filterIcon filterIconStyle'
+  },
+  focusStyle: {
+    type: String,
+    default: 'border border-Blue rounded-xl'
+  },
+  focusMarginStyle: {
+    type: String,
+    default: 'px-0.5 py-0.5'
+  },
+  filterClearable: {
+    type: Boolean,
+    default: false
+  },
+  filterSearchable: {
+    type: Boolean,
+    default: true
+  },
+  errorOccurred: {
+    type: Boolean,
+    default: false
+  },
+  withIcon: {
+    type: Boolean,
+    default: false
+  },
+  filterOptions: {
+    type: Array,
+    default: () => []
+  }
+});
+
+const emit = defineEmits(['itemSelected']);
+
+const filterModel = ref(props.mainFilter || null);
+const errorOccurredModel = ref(props.errorOccurred);
+const selectIsSearching = ref(false);
+
+watch(() => props.mainFilter, (newVal) => {
+  filterModel.value = newVal;
+}, { immediate: true, deep: true });
+
+watch(() => props.errorOccurred, (newVal) => {
+  errorOccurredModel.value = newVal;
+}, { immediate: true, deep: true });
+
+const labelClass = computed(() => {
+  if (props.labelOutside) {
+    return props.labelStyle;
+  } else {
+    if (filterModel.value !== undefined && filterModel.value !== null) {
+      if (filterModel.value.length === 0 && !selectIsSearching.value) {
+        return props.labelInsideDefaultStyle;
+      } else {
+        return props.labelInsideStyle;
+      }
+    } else {
+      if (!selectIsSearching.value) {
+        return props.labelInsideDefaultStyle;
+      } else {
+        return props.labelInsideStyle;
       }
     }
-  },
-  data() {
-    return {
-      filterModel: '',
-      errorOccurredModel: false,
-      selectIsSearching: false
-    }
-  },
-  watch: {
-    mainFilter: {
-      handler() {
-        this.$nextTick(() => {
-          this.filterModel = this.mainFilter
-        })
-      },
-      deep: true,
-      immediate: true
-    },
-    errorOccurred: {
-      handler(v) {
-        this.errorOccurredModel = v
-      },
-      deep: true,
-      immediate: true
-    }
   }
-}
+});
+
 </script>
 
 <style>
