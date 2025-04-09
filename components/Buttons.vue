@@ -25,69 +25,70 @@
   </div>
 </template>
 
-<script>
-export default {
-  props: {
-    submitFunction: {
-      type: Function,
-      default: () => {}
-    },
-    buttonText: {
-      type: String,
-      default: 'Button with icon',
-    },
-    active: {
-      type: Boolean,
-      default: true,
-    },
-    withIcon: {
-      type: Boolean,
-      default: false,
-    },
-    submit: {
-      type: Boolean,
-      default: false,
-    },
-    withIcomoonIcon: {
-      type: Boolean,
-      default: false,
-    },
-    icomoonIconActiveSrc: {
-      type: String,
-      default: 'icon-rotateWhite',
-    },
-    icomoonIconInActiveSrc: {
-      type: String,
-      default: 'icon-rotate',
-    },
-    icomoonIconActiveStyle: {
-      type: String,
-      default: 'pl-2',
-    },
-    icomoonIconInActiveStyle: {
-      type: String,
-      default: 'pl-2',
-    },
-    buttonStyle: {
-      type: String,
-      default: 'bg-Blue text-white border-Blue border hover:text-Blue px-3.5 h-53px py-3.5 rounded-xl hover:bg-white',
-    },
-    inactiveButtonStyle: {
-      type: String,
-      default: 'bg-SmallTextGray text-white border-SmallTextGray border px-3.5 h-53px py-3.5 rounded-xl cursor-default',
-    },
-    iconStyle: {
-      type: Object,
-      default() {
-        return {
-          activeIconStyle: '',
-          inActiveIconStyle: '',
-          src: require('../assets/images/rotate.svg')
-        }
-      }
-    }
+<script setup>
+// Import necessary functions from Vue 3
+import { defineProps } from 'vue'
+
+// Define props using the new Vue 3 syntax
+const props = defineProps({
+  submitFunction: {
+    type: Function,
+    default: () => {}
   },
-}
+  buttonText: {
+    type: String,
+    default: 'Button with icon',
+  },
+  active: {
+    type: Boolean,
+    default: true,
+  },
+  withIcon: {
+    type: Boolean,
+    default: false,
+  },
+  submit: {
+    type: Boolean,
+    default: false,
+  },
+  withIcomoonIcon: {
+    type: Boolean,
+    default: false,
+  },
+  icomoonIconActiveSrc: {
+    type: String,
+    default: 'icon-rotateWhite',
+  },
+  icomoonIconInActiveSrc: {
+    type: String,
+    default: 'icon-rotate',
+  },
+  icomoonIconActiveStyle: {
+    type: String,
+    default: 'pl-2',
+  },
+  icomoonIconInActiveStyle: {
+    type: String,
+    default: 'pl-2',
+  },
+  buttonStyle: {
+    type: String,
+    default: 'bg-Blue text-white border-Blue border hover:text-Blue px-3.5 h-53px py-3.5 rounded-xl hover:bg-white',
+  },
+  inactiveButtonStyle: {
+    type: String,
+    default: 'bg-SmallTextGray text-white border-SmallTextGray border px-3.5 h-53px py-3.5 rounded-xl cursor-default',
+  },
+  iconStyle: {
+    type: Object,
+    default: () => ({
+      activeIconStyle: '',
+      inActiveIconStyle: '',
+      // Use dynamic import for assets in Nuxt 3
+      src: '/assets/images/rotate.svg'
+    })
+  }
+})
 </script>
 
 <style>

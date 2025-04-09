@@ -5,214 +5,236 @@
     <MediaComponent ref="sectionsMediaComponent" :content-used-key="contentUsedKey" :auth-token="authToken" :server-url="serverUrl" :project-id="projectIdProp" :sections-user-id="sectionsUserId" :selected-media-id="$route.query.id" :media-translation-prefix="mediaTranslationPrefix" @emittedMedia="(media) => selectedMedia = media"></MediaComponent>
   </div>
 </template>
-<script>
-import MediaComponent from "./MediaComponent";
+<script setup>
+import { ref, watch, onMounted, nextTick } from 'vue'
+import { useCookies } from '@vueuse/core'
+import MediaComponent from "./MediaComponent.vue"
 
 /* eslint-disable camelcase */
 
-export default {
-  components: {
-    MediaComponent
+// Define props
+const props = defineProps({
+  html: {
+    type: String,
+    default: ""
   },
-  props: {
-    html: {
-      type: String,
-      default: ""
-    },
-    quillKey: {
-      type: String,
-      default: "quillKey"
-    },
-    editorOptions: {
-      type: Object,
-      default() {
-        return {}
-      }
-    },
-    sectionsWysiwygEditorOptions: {
-      type: Object,
-      default() {
-        return {}
-      }
-    },
-    authToken: {
-      type: String,
-      default: ''
-    },
-    sectionsUserId: {
-      type: String,
-      default: ''
-    },
-    projectIdProp: {
-      type: String,
-      default: ''
-    },
-    serverUrl: {
-      type: String,
-      default: ''
-    },
-    selectedMediaId: {
-      type: String,
-      default: ''
-    },
-    contentUsedKey: {
-      type: String,
-      default: "title"
-    },
-    mediaTranslationPrefix: {
-      type: String,
-      default: "mediaT."
-    }
+  quillKey: {
+    type: String,
+    default: "quillKey"
   },
-  data() {
-    return {
-      settings: "",
-      savedFormat: null,
-      selectedMedia: null,
-      options: null,
-      selectedRange: null,
-      QuillComponent: null
-    };
+  editorOptions: {
+    type: Object,
+    default: () => ({})
   },
-  watch: {
-    settings() {
-      this.$emit('settingsUpdate', this.settings)
-    },
-    html: {
-      handler() {
-        this.settings = this.html
-      },
-      deep: true,
-      immediate: true
-    },
-    selectedMedia(mediaObject) {
-      const media = {
-        media_id: "",
-        url: "",
-        seo_tag: "",
-        files: [
-          {
-            filename: "",
-            url: ""
-          }
-        ],
-        headers: {}
-      };
-      media.files[0].url = mediaObject.files[0].url;
-      media.files[0].filename = mediaObject.files[0].filename;
-      media.media_id = mediaObject.id;
-      media.url = mediaObject.files[0].url;
-      media.seo_tag = mediaObject.seo_tag;
-      if (mediaObject.files[0].headers) {
-        media.headers = mediaObject.files[0].headers
-      }
-
-      if (this.selectedRange) {
-        this.$refs.myQuillEditor.quill.deleteText(this.selectedRange.index, this.selectedRange.length)
-      }
-
-      const range = this.$refs.myQuillEditor.quill.getSelection();
-      this.$refs.myQuillEditor.quill.insertEmbed(this.selectedRange ? this.selectedRange.index : range ? range.index : 0, 'image', media.url);
-
-      try {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(this.$refs.myQuillEditor.quill.root.innerHTML, 'text/html');
-        const imgTags = doc.querySelectorAll('img');
-        imgTags.forEach(img => {
-          if (!img.hasAttribute('media-id')) {
-            img.setAttribute('media-id', media.media_id);
-          }
-          if (!img.hasAttribute('alt') && media.seo_tag) {
-            img.setAttribute('alt', media.seo_tag);
-          }
-          if (!img.hasAttribute('loading')) {
-            img.setAttribute('loading', 'lazy');
-          }
-        });
-        this.$refs.myQuillEditor.quill.root.innerHTML = doc.body.innerHTML;
-      } catch {}
-
-      this.$emit('wysiwygMedia', media);
-      this.$refs.sectionsMediaComponent.closeModal()
-    }
+  sectionsWysiwygEditorOptions: {
+    type: Object,
+    default: () => ({})
   },
-  created() {
-    import("quill/dist/quill.snow.css");
-    if (process.client) {
-      let Emoji = require("@devdcodes9/quill-emojijs");
-      import("@devdcodes9/quill-emojijs/dist/quill-emoji.css");
-      let Quill = require('quill').default;
+  authToken: {
+    type: String,
+    default: ''
+  },
+  sectionsUserId: {
+    type: String,
+    default: ''
+  },
+  projectIdProp: {
+    type: String,
+    default: ''
+  },
+  serverUrl: {
+    type: String,
+    default: ''
+  },
+  selectedMediaId: {
+    type: String,
+    default: ''
+  },
+  contentUsedKey: {
+    type: String,
+    default: "title"
+  },
+  mediaTranslationPrefix: {
+    type: String,
+    default: "mediaT."
+  }
+})
 
-      Quill.prototype.pasteHTML = function (html) {
-        this.setContents(this.clipboard.convert({
-          html: html,
-          text: '\n'
-        }))
-      };
+// Define emits
+const emit = defineEmits(['settingsUpdate', 'wysiwygMedia'])
 
-      Quill.register("modules/emoji-toolbar", Emoji.default.ToolbarEmoji);
-      Quill.register('formats/emoji', Emoji.default.EmojiBlot);
+// Reactive state
+const settings = ref("")
+const savedFormat = ref(null)
+const selectedMedia = ref(null)
+const options = ref(null)
+const selectedRange = ref(null)
+const QuillComponent = ref(null)
 
-      const ImageBlot = Quill.import("formats/image");
-      class CustomImageBlot extends ImageBlot {
-        static blotName = "customImage";
-        static tagName = "img";
+// Template refs
+const myQuillEditor = ref(null)
+const sectionsMediaComponent = ref(null)
 
-        /**
-         * Converts the HTML tag to image blot
-         * @param value
-         */
-        static create(value) {
-          let node = super.create();
-          Object.getOwnPropertyNames(value).forEach((attribute_name) => {
-            node.setAttribute(attribute_name, value[attribute_name]);
-          });
+// Cookies
+const cookies = useCookies()
 
-          return node;
-        }
+// Watch for changes
+watch(settings, () => {
+  emit('settingsUpdate', settings.value)
+})
 
-        /**
-         * Converts the image blot to HTML tag
-         * @param node
-         */
-        static value(node) {
-          var blot = {};
-          node.getAttributeNames().forEach((attribute_name) => {
-            blot[attribute_name] = node.getAttribute(attribute_name);
-          });
+watch(() => props.html, () => {
+  settings.value = props.html
+}, { deep: true, immediate: true })
 
-          return blot;
-        }
+watch(selectedMedia, (mediaObject) => {
+  if (!mediaObject) return
+  
+  const media = {
+    media_id: "",
+    url: "",
+    seo_tag: "",
+    files: [
+      {
+        filename: "",
+        url: ""
       }
-      Quill.register(CustomImageBlot);
+    ],
+    headers: {}
+  }
+  
+  media.files[0].url = mediaObject.files[0].url
+  media.files[0].filename = mediaObject.files[0].filename
+  media.media_id = mediaObject.id
+  media.url = mediaObject.files[0].url
+  media.seo_tag = mediaObject.seo_tag
+  
+  if (mediaObject.files[0].headers) {
+    media.headers = mediaObject.files[0].headers
+  }
 
-      const BlockEmbed = Quill.import('blots/block/embed');
-      class RawHTMLBlot extends BlockEmbed {
-        static create(value) {
-          const node = super.create();
-          node.innerHTML = value; // Insert the raw HTML
-          return node;
-        }
-        static value(node) {
-          return node.innerHTML; // Extract the raw HTML when needed
-        }
+  if (selectedRange.value) {
+    myQuillEditor.value.quill.deleteText(selectedRange.value.index, selectedRange.value.length)
+  }
+
+  const range = myQuillEditor.value.quill.getSelection()
+  myQuillEditor.value.quill.insertEmbed(
+    selectedRange.value ? selectedRange.value.index : range ? range.index : 0,
+    'image',
+    media.url
+  )
+
+  try {
+    const parser = new DOMParser()
+    const doc = parser.parseFromString(myQuillEditor.value.quill.root.innerHTML, 'text/html')
+    const imgTags = doc.querySelectorAll('img')
+    
+    imgTags.forEach(img => {
+      if (!img.hasAttribute('media-id')) {
+        img.setAttribute('media-id', media.media_id)
       }
-      RawHTMLBlot.blotName = 'rawHtml';
-      RawHTMLBlot.tagName = 'div';
-      Quill.register(RawHTMLBlot);
+      if (!img.hasAttribute('alt') && media.seo_tag) {
+        img.setAttribute('alt', media.seo_tag)
+      }
+      if (!img.hasAttribute('loading')) {
+        img.setAttribute('loading', 'lazy')
+      }
+    })
+    
+    myQuillEditor.value.quill.root.innerHTML = doc.body.innerHTML
+  } catch (error) {
+    console.error('Error processing image:', error)
+  }
 
-      let rawHtml = require("quill-html-edit-button");
-      Quill.register("modules/htmlEditButton", rawHtml.htmlEditButton);
+  emit('wysiwygMedia', media)
+  sectionsMediaComponent.value.closeModal()
+})
 
-      window.Quill = Quill
+// Initialize Quill
+onMounted(async () => {
+  // Import CSS
+  await import("quill/dist/quill.snow.css")
+  
+  if (process.client) {
+    // Setup Quill with plugins
+    let Emoji = await import("@devdcodes9/quill-emojijs")
+    await import("@devdcodes9/quill-emojijs/dist/quill-emoji.css")
+    let Quill = (await import('quill')).default
+
+    // Add pasteHTML method
+    Quill.prototype.pasteHTML = function (html) {
+      this.setContents(this.clipboard.convert({
+        html: html,
+        text: '\n'
+      }))
     }
 
-    if(this.editorOptions.modules && Object.keys(this.editorOptions.modules).length > 0) {
-      this.options = this.editorOptions
-    } else if(this.sectionsWysiwygEditorOptions && Object.keys(this.sectionsWysiwygEditorOptions).length > 0) {
-      this.options = this.sectionsWysiwygEditorOptions
+    // Register emoji modules
+    Quill.register("modules/emoji-toolbar", Emoji.default.ToolbarEmoji)
+    Quill.register('formats/emoji', Emoji.default.EmojiBlot)
+
+    // Custom image blot
+    const ImageBlot = Quill.import("formats/image")
+    class CustomImageBlot extends ImageBlot {
+      static blotName = "customImage"
+      static tagName = "img"
+
+      /**
+       * Converts the HTML tag to image blot
+       * @param value
+       */
+      static create(value) {
+        let node = super.create()
+        Object.getOwnPropertyNames(value).forEach((attribute_name) => {
+          node.setAttribute(attribute_name, value[attribute_name])
+        })
+        return node
+      }
+
+      /**
+       * Converts the image blot to HTML tag
+       * @param node
+       */
+      static value(node) {
+        var blot = {}
+        node.getAttributeNames().forEach((attribute_name) => {
+          blot[attribute_name] = node.getAttribute(attribute_name)
+        })
+        return blot
+      }
+    }
+    Quill.register(CustomImageBlot)
+
+    // Raw HTML blot
+    const BlockEmbed = Quill.import('blots/block/embed')
+    class RawHTMLBlot extends BlockEmbed {
+      static create(value) {
+        const node = super.create()
+        node.innerHTML = value // Insert the raw HTML
+        return node
+      }
+      static value(node) {
+        return node.innerHTML // Extract the raw HTML when needed
+      }
+    }
+    RawHTMLBlot.blotName = 'rawHtml'
+    RawHTMLBlot.tagName = 'div'
+    Quill.register(RawHTMLBlot)
+
+    // HTML edit button
+    let rawHtml = await import("quill-html-edit-button")
+    Quill.register("modules/htmlEditButton", rawHtml.htmlEditButton)
+
+    // Make Quill available globally
+    window.Quill = Quill
+    
+    // Set editor options
+    if (props.editorOptions.modules && Object.keys(props.editorOptions.modules).length > 0) {
+      options.value = props.editorOptions
+    } else if (props.sectionsWysiwygEditorOptions && Object.keys(props.sectionsWysiwygEditorOptions).length > 0) {
+      options.value = props.sectionsWysiwygEditorOptions
     } else {
-      this.options = {
+      options.value = {
         modules: {
           toolbar: [
             ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
@@ -240,68 +262,79 @@ export default {
         }
       }
     }
-  },
-  async mounted() {
-    await import('vue-quill-editor').then(module => {
-      this.QuillComponent = module.quillEditor
-      this.$nextTick(() => {
-        this.$refs.myQuillEditor.quill.getModule('toolbar').addHandler('image', () => {
-          this.selectedRange = null
+    
+    // Import and setup quill editor
+    const quillEditorModule = await import('@vueuse/core')
+    QuillComponent.value = quillEditorModule.quillEditor
+    
+    // Setup toolbar handlers after component is mounted
+    nextTick(() => {
+      if (myQuillEditor.value && myQuillEditor.value.quill) {
+        // Add image handler
+        myQuillEditor.value.quill.getModule('toolbar').addHandler('image', () => {
+          selectedRange.value = null
           let selectedMedia = ''
+          
           try {
-            const range = this.$refs.myQuillEditor.quill.getSelection();
+            const range = myQuillEditor.value.quill.getSelection()
             if (range && range.length > 0) {
-              this.selectedRange = range
-              const delta = this.$refs.myQuillEditor.quill.getContents(range.index, range.length);
-              if (delta && delta.ops && delta.ops.length > 0 && delta.ops.length === 1 && delta.ops[0] && delta.ops[0].insert && delta.ops[0].insert.customImage && delta.ops[0].insert.customImage['media-id']) {
+              selectedRange.value = range
+              const delta = myQuillEditor.value.quill.getContents(range.index, range.length)
+              
+              if (delta && delta.ops && delta.ops.length > 0 && delta.ops.length === 1 &&
+                  delta.ops[0] && delta.ops[0].insert && delta.ops[0].insert.customImage &&
+                  delta.ops[0].insert.customImage['media-id']) {
                 selectedMedia = delta.ops[0].insert.customImage['media-id']
               }
             }
-          } catch {}
+          } catch (error) {
+            console.error('Error getting selection:', error)
+          }
 
-          this.uploadFunction(selectedMedia);
-        });
+          uploadFunction(selectedMedia)
+        })
 
-        var saveButtons = document.querySelectorAll('.ql-save-format');
+        // Add save format button handler
+        const saveButtons = document.querySelectorAll('.ql-save-format')
         saveButtons.forEach((saveButton) => {
-          saveButton.addEventListener('click', () => {
-            this.saveFormat()
-          });
+          saveButton.addEventListener('click', saveFormat)
         })
 
-        var applyButtons = document.querySelectorAll('.ql-apply-format');
+        // Add apply format button handler
+        const applyButtons = document.querySelectorAll('.ql-apply-format')
         applyButtons.forEach((applyButton) => {
-          applyButton.addEventListener('click', () => {
-            this.applyFormat()
-          });
+          applyButton.addEventListener('click', applyFormat)
         })
-      })
+      }
     })
-  },
-  methods: {
-    validate() {
-      return true;
-    },
-    uploadFunction(mediaId = null) {
-      this.$refs.sectionsMediaComponent.openModal(mediaId, null)
-    },
-    saveFormat() {
-      const selection = this.$refs.myQuillEditor.quill.getSelection();
-      if (selection) {
-        const savedFormat = JSON.stringify(this.$refs.myQuillEditor.quill.getFormat(selection));
-        this.$cookies.set('sections-quill-format', savedFormat);
-      }
-    },
-    applyFormat() {
-      const selection = this.$refs.myQuillEditor.quill.getSelection();
-      const savedFormat = this.$cookies.get('sections-quill-format');
-
-      if (selection && savedFormat) {
-        this.$refs.myQuillEditor.quill.formatText(selection.index, selection.length, savedFormat);
-      }
-    }
   }
-};
+})
+
+// Methods
+const validate = () => {
+  return true
+}
+
+const uploadFunction = (mediaId = null) => {
+  sectionsMediaComponent.value.openModal(mediaId, null)
+}
+
+const saveFormat = () => {
+  const selection = myQuillEditor.value.quill.getSelection()
+  if (selection) {
+    const savedFormatValue = JSON.stringify(myQuillEditor.value.quill.getFormat(selection))
+    cookies.set('sections-quill-format', savedFormatValue)
+  }
+}
+
+const applyFormat = () => {
+  const selection = myQuillEditor.value.quill.getSelection()
+  const savedFormatValue = cookies.get('sections-quill-format')
+
+  if (selection && savedFormatValue) {
+    myQuillEditor.value.quill.formatText(selection.index, selection.length, savedFormatValue)
+  }
+}
 </script>
 
 <style>

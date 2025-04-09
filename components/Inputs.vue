@@ -168,289 +168,299 @@
     >
   </div>
 </template>
+<script setup>
+import { ref, computed, watch } from 'vue'
 
-<script>
-export default {
-  props: {
-    active: {
-      type: Boolean,
-      default: true,
-    },
-    placeholder: {
-      type: String,
-      default: 'Placeholder Text',
-    },
-    eyeIcon: {
-      type: Boolean,
-      default: false,
-    },
-    toutAppareil: {
-      type: Boolean,
-      default: false,
-    },
-    monitorIcon: {
-      type: String,
-      default: '',
-    },
-    monitorIcomoonSrc: {
-      type: String,
-      default: 'icon-monitor',
-    },
-    monitorIcomoonStyle: {
-      type: String,
-      default: 'mx-auto mt-0.5 -mb-2 text-2xl',
-    },
-    mobileIcomoonSrc: {
-      type: String,
-      default: 'icon-appel-sur-smartphone',
-    },
-    mobileIcomoonStyle: {
-      type: String,
-      default: 'mr-2.5 cursor-pointer text-xl',
-    },
-    mobileIcon: {
-      type: String,
-      default: '',
-    },
-    optionnel: {
-      type: Boolean,
-      default: false,
-    },
-    allDevices: {
-      type: String,
-      default: 'tout appareil',
-    },
-    optionalHint: {
-      type: String,
-      default: '(optionnel)',
-    },
-    addDevice: {
-      type: String,
-      default: 'Ajouter un contenu pour mobile',
-    },
-    errorTextMessage: {
-      type: String,
-      default: '',
-    },
-    errorTextMessageMobile: {
-      type: String,
-      default: '',
-    },
-    types: {
-      type: String,
-      default: ''
-    },
-    icon: {
-      type: String,
-      default: ''
-    },
-    requiredInput: {
-      type: Boolean,
-      default: false
-    },
-    inputStyle: {
-      type: String,
-      default: 'py-4 pl-10 border border-FieldGray rounded-xl h-48px w-240px md:w-344px focus:outline-none'
-    },
-    optionalStyle: {
-      type: String,
-      default: 'pr-3.5'
-    },
-    inputModel: {
-      type: String,
-      default: ''
-    },
-    inputMobileModel: {
-      type: String,
-      default: ''
-    },
-    inputWrapper: {
-      type: String,
-      default: ''
-    },
-    textArea: {
-      type: Boolean,
-      default: false
-    },
-    inputLabel: {
-      type: Boolean,
-      default: true
-    },
-    overrideDefault: {
-      type: Boolean,
-      default: false
-    },
-    signImage: {
-      type: String,
-      default: ''
-    },
-    signImageIcomoonSrc: {
-      type: String,
-      default: 'icon-check-mark-blue'
-    },
-    signImageIcomoonStyle: {
-      type: String,
-      default: 'absolute md:left-72 left-40'
-    },
-    labelStyle: {
-      type: String,
-      default: 'text-Blue'
-    },
-    eyeIconStyle: {
-      type: String,
-      default: 'absolute md:left-64 left-40 cursor-pointer text-2xl'
-    },
-    eyeIconIcomoon: {
-      type: Boolean,
-      default: false
-    },
-    eyeIconCrossedIcomoon: {
-      type: String,
-      default: 'icon-eyeCrossed'
-    },
-    eyeIconIcomoonSrc: {
-      type: String,
-      default: 'icon-eye'
-    },
-    validate: {
-      type: Boolean,
-      default: false
-    },
-    lockIcon: {
-      type: String,
-      default: ''
-    },
-    phoneIcon: {
-      type: String,
-      default: ''
-    },
-    lockIconIcomoon: {
-      type: String,
-      default: 'icon-lock'
-    },
-    phoneIconIcomoon: {
-      type: String,
-      default: 'icon-appel-sur-smartphone'
-    },
-    inputIconIcomoonStyle: {
-      type: String,
-      default: 'absolute left-3'
-    },
-    validateIcon: {
-      type: String,
-      default: ''
-    },
-    validateIconIcomoonSrc: {
-      type: String,
-      default: 'icon-check-mark-blue'
-    },
-    validateIconIcomoonStyle: {
-      type: String,
-      default: 'absolute md:left-72 left-40'
-    },
-    icomoonCrossIconStyle: {
-      type: String,
-      default: 'pl-4 cursor-pointer'
-    },
-    icomoonCrossIconSrc: {
-      type: String,
-      default: 'icon-cross'
-    },
-    crossIcon: {
-      type: String,
-      default: ''
-    },
-    autoComplete: {
-      type: String,
-      default: 'on'
-    }
+// Define props
+const props = defineProps({
+  active: {
+    type: Boolean,
+    default: true,
   },
-  data() {
-    return {
-      inputText: this.inputModel,
-      inputTextMobile: this.inputMobileModel,
-      error: this.errorMessage,
-      toggleMobile: this.optionnel,
-      passwordShown: false,
-      imgClicked: false,
-      password: 'password',
-    }
+  placeholder: {
+    type: String,
+    default: 'Placeholder Text',
   },
-  computed: {
-    inputType() {
-      switch(this.types) {
-        case "password":
-          return (this.password && !this.passwordShown ? 'password' : 'text')
-        case "phoneNumber":
-          return 'text'
-        case "amount":
-          return 'number'
-        default:
-          return 'text'
-      }
-    },
-    getInputIcon() {
-      switch(this.types) {
-        case "password":
-          return this.lockIcon
-        case "phoneNumber":
-          return this.phoneIcon
-        default:
-          return ''
-      }
-    },
-    getInputIconIcomoon() {
-      switch(this.types) {
-        case "password":
-          return this.lockIconIcomoon
-        case "phoneNumber":
-          return this.phoneIconIcomoon
-        default:
-          return ''
-      }
-    }
+  eyeIcon: {
+    type: Boolean,
+    default: false,
   },
-  watch: {
-    inputText(value) {
-      this.$emit('input', value)
-    },
-    inputModel(val) {
-      this.inputText = val
-    },
-    inputTextMobile(value) {
-      this.$emit('inputMobile', value)
-    },
-    inputMobileModel(val) {
-      this.inputTextMobile = val
-    },
-    optionnel() {
-      this.toggleMobile = this.optionnel
-    }
+  toutAppareil: {
+    type: Boolean,
+    default: false,
   },
-  methods: {
-    onlyNumber ($event) {
-      const keyCode = ($event.keyCode ? $event.keyCode : $event.which);
-      if ((keyCode < 48 || keyCode > 57)) {
-        $event.preventDefault();
-      }
-    },
-    validateInput() {
-      if(this.requiredInput === true) {
-        this.$emit('childToParent', this.inputText)
-        if (this.inputText !== '') {
-          this.error = false
-        } else this.error = this.inputText === '';
-      }
-    },
-    addMobile() {
-      this.$emit('inputMobile', '')
-      this.toggleMobile = !this.toggleMobile
-    },
-    showPass() {
-      this.imgClicked = !this.imgClicked
-      this.passwordShown = !this.passwordShown
-    },
+  monitorIcon: {
+    type: String,
+    default: '',
   },
+  monitorIcomoonSrc: {
+    type: String,
+    default: 'icon-monitor',
+  },
+  monitorIcomoonStyle: {
+    type: String,
+    default: 'mx-auto mt-0.5 -mb-2 text-2xl',
+  },
+  mobileIcomoonSrc: {
+    type: String,
+    default: 'icon-appel-sur-smartphone',
+  },
+  mobileIcomoonStyle: {
+    type: String,
+    default: 'mr-2.5 cursor-pointer text-xl',
+  },
+  mobileIcon: {
+    type: String,
+    default: '',
+  },
+  optionnel: {
+    type: Boolean,
+    default: false,
+  },
+  allDevices: {
+    type: String,
+    default: 'tout appareil',
+  },
+  optionalHint: {
+    type: String,
+    default: '(optionnel)',
+  },
+  addDevice: {
+    type: String,
+    default: 'Ajouter un contenu pour mobile',
+  },
+  errorTextMessage: {
+    type: String,
+    default: '',
+  },
+  errorTextMessageMobile: {
+    type: String,
+    default: '',
+  },
+  types: {
+    type: String,
+    default: ''
+  },
+  icon: {
+    type: String,
+    default: ''
+  },
+  requiredInput: {
+    type: Boolean,
+    default: false
+  },
+  inputStyle: {
+    type: String,
+    default: 'py-4 pl-10 border border-FieldGray rounded-xl h-48px w-240px md:w-344px focus:outline-none'
+  },
+  optionalStyle: {
+    type: String,
+    default: 'pr-3.5'
+  },
+  inputModel: {
+    type: String,
+    default: ''
+  },
+  inputMobileModel: {
+    type: String,
+    default: ''
+  },
+  inputWrapper: {
+    type: String,
+    default: ''
+  },
+  textArea: {
+    type: Boolean,
+    default: false
+  },
+  inputLabel: {
+    type: Boolean,
+    default: true
+  },
+  overrideDefault: {
+    type: Boolean,
+    default: false
+  },
+  signImage: {
+    type: String,
+    default: ''
+  },
+  signImageIcomoonSrc: {
+    type: String,
+    default: 'icon-check-mark-blue'
+  },
+  signImageIcomoonStyle: {
+    type: String,
+    default: 'absolute md:left-72 left-40'
+  },
+  labelStyle: {
+    type: String,
+    default: 'text-Blue'
+  },
+  eyeIconStyle: {
+    type: String,
+    default: 'absolute md:left-64 left-40 cursor-pointer text-2xl'
+  },
+  eyeIconIcomoon: {
+    type: Boolean,
+    default: false
+  },
+  eyeIconCrossedIcomoon: {
+    type: String,
+    default: 'icon-eyeCrossed'
+  },
+  eyeIconIcomoonSrc: {
+    type: String,
+    default: 'icon-eye'
+  },
+  validate: {
+    type: Boolean,
+    default: false
+  },
+  lockIcon: {
+    type: String,
+    default: ''
+  },
+  phoneIcon: {
+    type: String,
+    default: ''
+  },
+  lockIconIcomoon: {
+    type: String,
+    default: 'icon-lock'
+  },
+  phoneIconIcomoon: {
+    type: String,
+    default: 'icon-appel-sur-smartphone'
+  },
+  inputIconIcomoonStyle: {
+    type: String,
+    default: 'absolute left-3'
+  },
+  validateIcon: {
+    type: String,
+    default: ''
+  },
+  validateIconIcomoonSrc: {
+    type: String,
+    default: 'icon-check-mark-blue'
+  },
+  validateIconIcomoonStyle: {
+    type: String,
+    default: 'absolute md:left-72 left-40'
+  },
+  icomoonCrossIconStyle: {
+    type: String,
+    default: 'pl-4 cursor-pointer'
+  },
+  icomoonCrossIconSrc: {
+    type: String,
+    default: 'icon-cross'
+  },
+  crossIcon: {
+    type: String,
+    default: ''
+  },
+  autoComplete: {
+    type: String,
+    default: 'on'
+  }
+})
+
+// Define emits
+const emit = defineEmits(['input', 'inputMobile', 'childToParent', 'onlyNumbers', 'addCharacter'])
+
+// Reactive state
+const inputText = ref(props.inputModel)
+const inputTextMobile = ref(props.inputMobileModel)
+const error = ref(props.errorMessage)
+const toggleMobile = ref(props.optionnel)
+const passwordShown = ref(false)
+const imgClicked = ref(false)
+const password = ref('password')
+
+// Computed properties
+const inputType = computed(() => {
+  switch(props.types) {
+    case "password":
+      return (password.value && !passwordShown.value ? 'password' : 'text')
+    case "phoneNumber":
+      return 'text'
+    case "amount":
+      return 'number'
+    default:
+      return 'text'
+  }
+})
+
+const getInputIcon = computed(() => {
+  switch(props.types) {
+    case "password":
+      return props.lockIcon
+    case "phoneNumber":
+      return props.phoneIcon
+    default:
+      return ''
+  }
+})
+
+const getInputIconIcomoon = computed(() => {
+  switch(props.types) {
+    case "password":
+      return props.lockIconIcomoon
+    case "phoneNumber":
+      return props.phoneIconIcomoon
+    default:
+      return ''
+  }
+})
+
+// Watch for changes
+watch(inputText, (value) => {
+  emit('input', value)
+})
+
+watch(() => props.inputModel, (val) => {
+  inputText.value = val
+})
+
+watch(inputTextMobile, (value) => {
+  emit('inputMobile', value)
+})
+
+watch(() => props.inputMobileModel, (val) => {
+  inputTextMobile.value = val
+})
+
+watch(() => props.optionnel, () => {
+  toggleMobile.value = props.optionnel
+})
+
+// Methods
+const onlyNumber = ($event) => {
+  const keyCode = ($event.keyCode ? $event.keyCode : $event.which)
+  if ((keyCode < 48 || keyCode > 57)) {
+    $event.preventDefault()
+  }
+}
+
+const validateInput = () => {
+  if(props.requiredInput === true) {
+    emit('childToParent', inputText.value)
+    if (inputText.value !== '') {
+      error.value = false
+    } else error.value = inputText.value === ''
+  }
+}
+
+const addMobile = () => {
+  emit('inputMobile', '')
+  toggleMobile.value = !toggleMobile.value
+}
+
+const showPass = () => {
+  imgClicked.value = !imgClicked.value
+  passwordShown.value = !passwordShown.value
 }
 </script>
 

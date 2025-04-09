@@ -12,86 +12,92 @@
     </div>
   </div>
 </template>
+<script setup>
+import { ref, onMounted } from 'vue'
+import Media from "./media/Media.vue"
+import IconsClose from "./icons/close.vue"
 
-<script>
-import Media from "./media/Media.vue";
-import IconsClose from "./icons/close.vue";
+// Define props
+const props = defineProps({
+  authToken: {
+    type: String,
+    default: ''
+  },
+  sectionsUserId: {
+    type: String,
+    default: ''
+  },
+  projectId: {
+    type: String,
+    default: ''
+  },
+  serverUrl: {
+    type: String,
+    default: ''
+  },
+  selectedMediaId: {
+    type: String,
+    default: ''
+  },
+  contentUsedKey: {
+    type: String,
+    default: ""
+  },
+  mediaTranslationPrefix: {
+    type: String,
+    default: "mediaT."
+  }
+})
 
-export default {
-  name: "MediaComponent",
-  components: {
-    Media,
-    IconsClose
-  },
-  props: {
-    authToken: {
-      type: String,
-      default: ''
-    },
-    sectionsUserId: {
-      type: String,
-      default: ''
-    },
-    projectId: {
-      type: String,
-      default: ''
-    },
-    serverUrl: {
-      type: String,
-      default: ''
-    },
-    selectedMediaId: {
-      type: String,
-      default: ''
-    },
-    contentUsedKey: {
-      type: String,
-      default: ""
-    },
-    mediaTranslationPrefix: {
-      type: String,
-      default: "mediaT."
-    }
-  },
-  data() {
-    return {
-      authorsUri: '',
-      mediasUri: '',
-      mediaByIdUri: '',
-      loading: false,
-      isOpen: false,
-      mediaIdEditing: '',
-      mediaCategory: ''
-    }
-  },
-  created() {
-    this.authorsUri = `${this.serverUrl}/project/${this.projectId}/users`
-    this.mediasUri = `${this.serverUrl}/project/${this.projectId}/medias`
-    this.mediaByIdUri = `${this.serverUrl}/project/${this.projectId}/media/`
-  },
-  methods: {
-    emitMedia(media) {
-      this.$emit('emittedMedia', media)
-    },
-    openModal(mediaId, category) {
-      if (mediaId && mediaId !== '') {
-        this.mediaIdEditing = mediaId.toString()
-      } else {
-        this.mediaIdEditing = null
-      }
-      this.mediaCategory = category
-      this.isOpen = true;
-    },
-    closeModal() {
-      this.isOpen = false;
-    },
-    handleOverlayClick(event) {
-      if (event.target.classList.contains('section-module-modal-overlay')) {
-        this.isOpen = false;
-      }
-    }
+// Define emits
+const emit = defineEmits(['emittedMedia'])
+
+// Reactive state
+const authorsUri = ref('')
+const mediasUri = ref('')
+const mediaByIdUri = ref('')
+const loading = ref(false)
+const isOpen = ref(false)
+const mediaIdEditing = ref('')
+const mediaCategory = ref('')
+
+// Initialize URIs
+onMounted(() => {
+  authorsUri.value = `${props.serverUrl}/project/${props.projectId}/users`
+  mediasUri.value = `${props.serverUrl}/project/${props.projectId}/medias`
+  mediaByIdUri.value = `${props.serverUrl}/project/${props.projectId}/media/`
+})
+
+// Methods
+const emitMedia = (media) => {
+  emit('emittedMedia', media)
+}
+
+const openModal = (mediaId, category) => {
+  if (mediaId && mediaId !== '') {
+    mediaIdEditing.value = mediaId.toString()
+  } else {
+    mediaIdEditing.value = null
+  }
+  mediaCategory.value = category
+  isOpen.value = true
+}
+
+const closeModal = () => {
+  isOpen.value = false
+}
+
+const handleOverlayClick = (event) => {
+  if (event.target.classList.contains('section-module-modal-overlay')) {
+    isOpen.value = false
   }
 }
+
+// Expose methods to parent components
+defineExpose({
+  openModal,
+  closeModal
+})
 </script>
 
 <style>

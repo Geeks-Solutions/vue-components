@@ -2,6 +2,28 @@
 
 ---
 
+### v2.0.0 (09/04/2025)
+
+---
+
+- [x] Migration from Vue 2/Nuxt 2 to Vue 3/Nuxt 3
+  - Migrated components:
+    - Buttons
+    - Inputs
+    - wysiwyg
+    - MediaComponent
+    - Media
+    - IconsClose
+  - Updated testing framework from Jest to Vitest
+  - Updated build and development tools
+  - Added TypeScript support
+  - Replaced Vuex with Pinia for state management
+
+**Breaking Changes**
+- Vue 3 Composition API is now used instead of Options API
+- Component props and emits are now defined using the new Vue 3 syntax
+- Host projects must use Vue 3/Nuxt 3
+
 
 ### v1.0.15 (03/04/2025)
 
