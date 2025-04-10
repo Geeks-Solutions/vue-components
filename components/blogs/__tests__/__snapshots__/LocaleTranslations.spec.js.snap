@@ -1,4 +1,12 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`LocaleTranslations.vue > matches the snapshot 1`] = `
+"<div id="LocaleTranslations" class="flex flex-row gap-2">
+  <div data-testid="locale-trans-item-en" class="flex px-2 py-2 uppercase md:cursor-pointer h-max bg-gray-500 locale-trans-item-en">en</div>
+  <div data-testid="locale-trans-item-fr" class="flex px-2 py-2 uppercase md:cursor-pointer h-max bg-blue-500 locale-trans-item-fr">fr</div>
+  <div data-testid="locale-trans-item-es" class="flex px-2 py-2 uppercase md:cursor-pointer h-max bg-gray-500 locale-trans-item-es">es</div>
+</div>"
+`;
 
 exports[`LocaleTranslations.vue matches the snapshot 1`] = `
 "<div id=\\"LocaleTranslations\\" class=\\"flex flex-row gap-2\\">
