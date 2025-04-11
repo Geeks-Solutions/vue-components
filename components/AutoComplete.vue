@@ -21,7 +21,7 @@
             :track-by="trackBy"
             :preselect-first="preselectFirst"
             :searchable="filterSearchable"
-            @input="(val) => {filterModel = val; emit('itemSelected', val)}"
+            @update:modelValue="(val) => emit('itemSelected', val)"
             @search="(search) => {selectIsSearching = search !== ''}"
           >
             <template #selected-option="{ selected, label }">
@@ -212,6 +212,16 @@ const labelClass = computed(() => {
   }
 });
 
+// Method to clear the selection
+// TODO: Revisit during testing. Consider if multiple=true needs different reset logic (e.g., empty array).
+const clear = () => {
+  filterModel.value = null; // Reset the model value
+};
+
+// Expose the clear method
+defineExpose({
+  clear,
+});
 </script>
 
 <style>

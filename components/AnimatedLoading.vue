@@ -8,6 +8,8 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+// Import the asset directly for better handling in Nuxt 3/Vite
+import loadingSvg from '~/assets/images/loading_animated.svg';
 
 const props = defineProps({
   loading: {
@@ -16,10 +18,8 @@ const props = defineProps({
   },
   animatedLoadingIcon: {
     type: String,
-    // Note: Il est préférable d'importer l'image ou d'utiliser un chemin absolu/alias
-    // si ce composant est utilisé dans différents contextes.
-    // Pour l'instant, je garde le chemin relatif par défaut.
-    default: "../../assets/images/loading_animated.svg"
+    // Use the imported asset as the default value
+    default: loadingSvg
   },
 });
 

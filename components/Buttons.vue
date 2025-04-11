@@ -28,7 +28,8 @@
 <script setup>
 // Import necessary functions from Vue 3
 import { defineProps } from 'vue'
-
+// Import the asset directly
+import rotateSvg from '~/assets/images/rotate.svg'
 // Define props using the new Vue 3 syntax
 const props = defineProps({
   submitFunction: {
@@ -84,8 +85,8 @@ const props = defineProps({
     default: () => ({
       activeIconStyle: '',
       inActiveIconStyle: '',
-      // Use dynamic import for assets in Nuxt 3
-      src: '/assets/images/rotate.svg'
+      // Use the imported asset as the default value
+      src: rotateSvg
     })
   }
 })

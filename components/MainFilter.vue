@@ -459,14 +459,19 @@ const getFilter = (filter: any, idx: number) => {
 const clearFilters = () => {
   emit('clearFilters');
   filtered.value = [];
-  filters.value = [{}];
-  // This is probably wrong, as filterRef is an array
-  // and we are trying to access a property on the array itself
-  // instead of on the component instances within the array.
-  // Also, even if it worked, it would only clear the first filter.
-  // This needs to be revisited.
-  //filterRef.value[0].filter_val = {};
-  //filterRef.value[0].filter = 'All';
+  filters.value = [{ value: '' }]; // Reset to one empty filter selector
+
+  // Iterate through the FilterSelect component instances via their refs
+  // and call a 'clear' method on each.
+  // NOTE: This assumes FilterSelect.vue exposes a 'clear()' method.
+  // TODO: Needs testing to ensure FilterSelect exposes clear() and refs work as expected.
+  filterRef.value.forEach(filterComponentInstance => {
+    if (filterComponentInstance && typeof filterComponentInstance.clear === 'function') {
+      filterComponentInstance.clear();
+    } else {
+      console.warn('MainFilter: Could not find clear() method on FilterSelect instance.');
+    }
+  });
 };
 
 const getMainFilterValue = (idx: number): any => {

@@ -468,10 +468,10 @@ const emit = defineEmits(['getFilter', 'itemsSelected']);
 
 const filters = ref([{ value: '' }]);
 const selectedType = ref('');
-const mainFilter = ref('All');
-const filterVal = ref<{ [key: string]: any }>({});
-const value2 = ref('');
-const toggleValue = ref('');
+const mainFilter = ref('All'); // Holds the selected filter type key (e.g., 'id', 'name')
+const filterVal = ref<{ [key: string]: any }>({}); // Holds the actual value for the selected filter type
+const value2 = ref(''); // Seems unused?
+const toggleValue = ref(''); // Seems unused?
 
 watch(() => props.clearFilters, () => {
   mainFilter.value = 'All';
@@ -506,6 +506,20 @@ const updateFilter = () => {
   }
   return filter;
 };
+
+// Method to clear the filter selection and value
+// TODO: Revisit during testing to ensure it correctly resets state and interacts with AutoComplete.
+const clear = () => {
+  mainFilter.value = 'All'; // Reset the filter type selector
+  filterVal.value = {}; // Clear the stored filter values
+  // Optionally, emit an event if the parent needs to know it was cleared programmatically
+  // emit('getFilter', updateFilter());
+};
+
+// Expose the clear method to the parent component
+defineExpose({
+  clear,
+});
 
 const emitFilter = (item?: any) => {
   if (item) {
