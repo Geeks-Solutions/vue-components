@@ -154,6 +154,47 @@
           </div>
         </div>
 
+        <div v-if="filter_map[mainFilter].type === 'date'" class="flex flex-col md:flex-row gap-4 md:gap-0">
+          <div :class="filter_map[mainFilter].dateWrapperStyle1 ? filter_map[mainFilter].dateWrapperStyle1 : ''">
+            <div v-if="filter_map[mainFilter].description1" :class="filter_map[mainFilter].descriptionStyle1 ? filter_map[mainFilter].descriptionStyle1 : ''">
+              {{ filter_map[mainFilter].description1 }}
+            </div>
+            <input v-if="filter_map[mainFilter].useNativeDatePicker !== false"
+                   v-model = "filter_val[filter_map[mainFilter].key1]"
+                   type = "date"
+                   :placeholder = "filter_map[mainFilter].placeholder1 || filter_map[mainFilter].subTitle1 | capitalize"
+                   :class = "filter_map[mainFilter].dateStyle1 || inputStyle"
+                   @input="emitFilter()" />
+            <input v-else
+                   v-model = "displayDates[filter_map[mainFilter].key1]"
+                   type = "text"
+                   :placeholder = "filter_map[mainFilter].placeholder1 || getFormattedPlaceholder(filter_map[mainFilter].dateFormat || 'dd/mm/yy')"
+                   :class = "filter_map[mainFilter].dateStyle1 || inputStyle"
+                   @input="handleDateInput($event, filter_map[mainFilter].key1)"
+                   @blur="validateAndFormatDate($event, filter_map[mainFilter].key1)"
+                   maxlength="8" />
+          </div>
+          <div :class="filter_map[mainFilter].dateWrapperStyle2 ? filter_map[mainFilter].dateWrapperStyle2 : ''">
+            <div v-if="filter_map[mainFilter].description2" :class="filter_map[mainFilter].descriptionStyle2 ? filter_map[mainFilter].descriptionStyle2 : ''">
+              {{ filter_map[mainFilter].description2 }}
+            </div>
+            <input v-if="filter_map[mainFilter].useNativeDatePicker !== false"
+                   v-model = "filter_val[filter_map[mainFilter].key2]"
+                   type = "date"
+                   :placeholder = "filter_map[mainFilter].placeholder2 || filter_map[mainFilter].subTitle2 | capitalize"
+                   :class = "filter_map[mainFilter].dateStyle2 || inputStyle"
+                   @input="emitFilter()" />
+            <input v-else
+                   v-model = "displayDates[filter_map[mainFilter].key2]"
+                   type = "text"
+                   :placeholder = "filter_map[mainFilter].placeholder2 || getFormattedPlaceholder(filter_map[mainFilter].dateFormat || 'dd/mm/yy')"
+                   :class = "filter_map[mainFilter].dateStyle2 || inputStyle"
+                   @input="handleDateInput($event, filter_map[mainFilter].key2)"
+                   @blur="validateAndFormatDate($event, filter_map[mainFilter].key2)"
+                   maxlength="8" />
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -465,6 +506,7 @@ export default {
       selectedType: '',
       mainFilter: 'All',
       filter_val: {},
+      displayDates: {}, // For storing formatted display dates
       value2: '',
       toggleValue: ''
     }
@@ -473,6 +515,7 @@ export default {
     clearFilters() {
       this.mainFilter = 'All'
       this.filter_val = {}
+      this.displayDates = {}
     },
     mainFilterValue: {
       handler() {
@@ -502,12 +545,12 @@ export default {
       this.$emit('removeFilter')
     },
     updateFilter() {
-      return this.filter_map[this.mainFilter].type === 'range' ?
+      return (this.filter_map[this.mainFilter].type === 'range' || this.filter_map[this.mainFilter].type === 'date') ?
         {
           key: this.filter_map[this.mainFilter].key1+'-/-'+this.filter_map[this.mainFilter].key2,
           value: this.filter_val[this.filter_map[this.mainFilter].key1]+'-/-'+this.filter_val[this.filter_map[this.mainFilter].key2],
           title: this.filter_map[this.mainFilter].subTitle1+'-/-'+this.filter_map[this.mainFilter].subTitle2,
-          type: 'range'
+          type: this.filter_map[this.mainFilter].type
         }
         : {
           key: this.filter_map[this.mainFilter].key,
@@ -523,16 +566,146 @@ export default {
       if(this.emitAll === true) {
         this.$emit('getFilter', {
           all: this.filter_map[this.mainFilter],
-          value: this.filter_map[this.mainFilter].type === 'range' ? this.filter_val[this.filter_map[this.mainFilter].key1]+'-'+this.filter_val[this.filter_map[this.mainFilter].key2] : this.filter_val[this.mainFilter]
+          value: (this.filter_map[this.mainFilter].type === 'range' || this.filter_map[this.mainFilter].type === 'date') ?
+            this.filter_val[this.filter_map[this.mainFilter].key1]+'-'+this.filter_val[this.filter_map[this.mainFilter].key2] :
+            this.filter_val[this.mainFilter]
         })
       }
     },
     updateFilterValue(val) {
       this.$set(this.filter_val, this.mainFilter, val);
+    },
+
+    // Date formatting methods
+    getFormattedPlaceholder(format) {
+      return format.toUpperCase();
+    },
+
+    handleDateInput(event, key) {
+      let value = event.target.value.replace(/\D/g, ''); // Remove non-digits
+      const format = this.filter_map[this.mainFilter].dateFormat || 'dd/mm/yy';
+
+      // Auto-add separators as user types
+      if (format === 'dd/mm/yy' || format === 'dd/mm/yyyy') {
+        if (value.length >= 2 && value.length < 4) {
+          value = value.slice(0, 2) + '/' + value.slice(2);
+        } else if (value.length >= 4) {
+          value = value.slice(0, 2) + '/' + value.slice(2, 4) + '/' + value.slice(4, format === 'dd/mm/yy' ? 6 : 8);
+        }
+      } else if (format === 'mm/dd/yy' || format === 'mm/dd/yyyy') {
+        if (value.length >= 2 && value.length < 4) {
+          value = value.slice(0, 2) + '/' + value.slice(2);
+        } else if (value.length >= 4) {
+          value = value.slice(0, 2) + '/' + value.slice(2, 4) + '/' + value.slice(4, format === 'mm/dd/yy' ? 6 : 8);
+        }
+      } else if (format === 'yyyy-mm-dd') {
+        if (value.length >= 4 && value.length < 6) {
+          value = value.slice(0, 4) + '-' + value.slice(4);
+        } else if (value.length >= 6) {
+          value = value.slice(0, 4) + '-' + value.slice(4, 6) + '-' + value.slice(6, 8);
+        }
+      }
+
+      this.$set(this.displayDates, key, value);
+    },
+
+    validateAndFormatDate(event, key) {
+      const value = event.target.value;
+      const format = this.filter_map[this.mainFilter].dateFormat || 'dd/mm/yy';
+
+      if (!value) {
+        this.$set(this.filter_val, key, '');
+        return;
+      }
+
+      const convertedDate = this.convertToStandardDate(value, format);
+      if (convertedDate) {
+        this.$set(this.filter_val, key, convertedDate);
+        // Format the display value properly
+        this.$set(this.displayDates, key, this.formatDisplayDate(convertedDate, format));
+        this.emitFilter();
+      } else {
+        // Invalid date, clear the value
+        this.$set(this.filter_val, key, '');
+        this.$set(this.displayDates, key, '');
+      }
+    },
+
+    convertToStandardDate(dateStr, format) {
+      if (!dateStr) return '';
+
+      let day, month, year;
+      const parts = dateStr.split(/[\/\-]/);
+
+      if (parts.length !== 3) return null;
+
+      switch (format) {
+        case 'dd/mm/yy':
+        case 'dd/mm/yyyy':
+          day = parseInt(parts[0]);
+          month = parseInt(parts[1]);
+          year = parseInt(parts[2]);
+          if (format === 'dd/mm/yy' && year < 100) {
+            year = year < 50 ? 2000 + year : 1900 + year; // Assume 00-49 is 2000s, 50-99 is 1900s
+          }
+          break;
+        case 'mm/dd/yy':
+        case 'mm/dd/yyyy':
+          month = parseInt(parts[0]);
+          day = parseInt(parts[1]);
+          year = parseInt(parts[2]);
+          if (format === 'mm/dd/yy' && year < 100) {
+            year = year < 50 ? 2000 + year : 1900 + year;
+          }
+          break;
+        case 'yyyy-mm-dd':
+          year = parseInt(parts[0]);
+          month = parseInt(parts[1]);
+          day = parseInt(parts[2]);
+          break;
+        default:
+          return null;
+      }
+
+      // Validate date
+      if (month < 1 || month > 12 || day < 1 || day > 31) return null;
+
+      const date = new Date(year, month - 1, day);
+      if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) {
+        return null; // Invalid date
+      }
+
+      // Return in YYYY-MM-DD format for consistency
+      return year + '-' + String(month).padStart(2, '0') + '-' + String(day).padStart(2, '0');
+    },
+
+    formatDisplayDate(standardDate, format) {
+      if (!standardDate) return '';
+
+      const [year, month, day] = standardDate.split('-');
+      const shortYear = year.slice(-2);
+
+      switch (format) {
+        case 'dd/mm/yy':
+          return `${day}/${month}/${shortYear}`;
+        case 'dd/mm/yyyy':
+          return `${day}/${month}/${year}`;
+        case 'mm/dd/yy':
+          return `${month}/${day}/${shortYear}`;
+        case 'mm/dd/yyyy':
+          return `${month}/${day}/${year}`;
+        case 'yyyy-mm-dd':
+          return standardDate;
+        default:
+          return `${day}/${month}/${shortYear}`;
+      }
     }
   }
 }
 </script>
 
 <style scoped>
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+}
 </style>

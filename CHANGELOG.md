@@ -3,6 +3,13 @@
 ---
 
 
+### v1.0.22 (30/06/2025)
+
+---
+
+- Update Filter component to support a date range filter
+
+
 ### v1.0.21 (07/05/2025)
 
 ---
