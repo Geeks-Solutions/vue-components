@@ -30,10 +30,10 @@
         <div v-if="added.type" class="max-w-xs">
           <div v-if = "added.value" :style = "filteredValuesStyle">
             <div class = "val">
-              {{ added.title.split('-/-')[0] }} = {{ getvalue(added.value.split('-/-')[0]) }}
+              {{ added.title.split('-/-')[0] }} = {{ alterValue(getvalue(added.value.split('-/-')[0]), added.type) }}
             </div>
             <div class = "val pl-4">
-              {{ added.title.split('-/-')[1] }} = {{ getvalue(added.value.split('-/-')[1]) }}
+              {{ added.title.split('-/-')[1] }} = {{ alterValue(getvalue(added.value.split('-/-')[1]), added.type) }}
             </div>
             <div style="margin-left: 10px;cursor: pointer" @click = "removeFilter(i)">X</div>
           </div>
@@ -227,7 +227,7 @@ export default {
     },
     alterValue: {
       type: Function,
-      default: (value) => {return value}
+      default: (value, type) => {return value}
     },
     filteredValuesStyle: {
       type: String,
