@@ -7,6 +7,7 @@
 </template>
 <script>
 import MediaComponent from "./MediaComponent";
+import {initLottieFromHtml} from "./media/medias";
 
 /* eslint-disable camelcase */
 
@@ -77,7 +78,8 @@ export default {
         "2.25rem", "2.5rem", "2.75rem", "3rem", "3.25rem", "3.5rem", "3.75rem", "4rem",
         "4.25rem", "4.5rem", "4.75rem", "5rem", "5.25rem", "5.5rem", "5.75rem", "6rem",
         "6.25rem", "6.5rem", "6.75rem", "7rem", "7.25rem", "7.5rem", "7.75rem", "8rem"
-      ]
+      ],
+      editableMediaId: null
     };
   },
   watch: {
@@ -85,13 +87,14 @@ export default {
       this.$emit('settingsUpdate', this.settings)
     },
     html: {
-      handler() {
+      async handler() {
         this.settings = this.html
+        await this.initializeLottie(this.$refs.myQuillEditor)
       },
       deep: true,
       immediate: true
     },
-    selectedMedia(mediaObject) {
+    async selectedMedia(mediaObject) {
       const media = {
         media_id: "",
         url: "",
@@ -109,6 +112,7 @@ export default {
       media.media_id = mediaObject.id;
       media.url = mediaObject.files[0].url;
       media.seo_tag = mediaObject.seo_tag;
+      media.metadata = mediaObject.metadata;
       if (mediaObject.files[0].headers) {
         media.headers = mediaObject.files[0].headers
       }
@@ -118,7 +122,18 @@ export default {
       }
 
       const range = this.$refs.myQuillEditor.quill.getSelection();
-      this.$refs.myQuillEditor.quill.insertEmbed(this.selectedRange ? this.selectedRange.index : range ? range.index : 0, 'image', media.url);
+
+      if (media.metadata?.type === 'lottie') {
+        this.$refs.myQuillEditor.quill.insertEmbed(this.selectedRange ? this.selectedRange.index : range ? range.index : 0, 'lottie', {
+          'lottie-id': `lottie-${media.media_id}`,
+          src: media.url,
+          'media-id': media.media_id,
+          'media-type': media.metadata?.type || 'image',
+        }, Quill.sources.USER);
+        await this.initializeLottie(this.$refs.myQuillEditor)
+      } else {
+        this.$refs.myQuillEditor.quill.insertEmbed(this.selectedRange ? this.selectedRange.index : range ? range.index : 0, 'image', media.url);
+      }
 
       try {
         const parser = new DOMParser();
@@ -484,9 +499,38 @@ export default {
 // Register the module with Quill
       Quill.register('modules/html', HTMLModule);
 
+      class LottieBlot extends Embed {
+        static blotName = 'lottie';
+        static tagName = 'div';
+
+        static create(value) {
+          const node = super.create();
+          if (value['lottie-id']) node.setAttribute('lottie-id', value['lottie-id']);
+          if (value.src) node.setAttribute('src', value.src);
+          if (value['media-id']) node.setAttribute('media-id', value['media-id']);
+          if (value['media-type']) node.setAttribute('media-type', value['media-type']);
+          node.setAttribute('contenteditable', 'false');
+          node.style.display = 'inline-block'
+          return node;
+        }
+
+        static value(node) {
+          return {
+            'lottie-id': node.getAttribute('lottie-id'),
+            src: node.getAttribute('src'),
+            'media-id': node.getAttribute('media-id'),
+            'media-type': node.getAttribute('media-type'),
+          };
+        }
+      }
+      Quill.register(LottieBlot);
+
 // Add styles for the HTML editor and icon
       const style = document.createElement('style');
       style.innerHTML = `
+      div[lottie-id] canvas {
+    pointer-events: none;
+  }
   .ql-html-container {
     width: 100%;
   }
@@ -647,7 +691,7 @@ export default {
   async mounted() {
     await import('vue-quill-editor').then(module => {
       this.QuillComponent = module.quillEditor
-      this.$nextTick(() => {
+      this.$nextTick(async () => {
         this.$refs.myQuillEditor.quill.getModule('toolbar').addHandler('image', () => {
           this.selectedRange = null
           let selectedMedia = ''
@@ -658,6 +702,8 @@ export default {
               const delta = this.$refs.myQuillEditor.quill.getContents(range.index, range.length);
               if (delta && delta.ops && delta.ops.length > 0 && delta.ops.length === 1 && delta.ops[0] && delta.ops[0].insert && delta.ops[0].insert.customImage && delta.ops[0].insert.customImage['media-id']) {
                 selectedMedia = delta.ops[0].insert.customImage['media-id']
+              } else if (delta?.ops?.length === 1 && delta.ops[0].insert?.lottie?.['media-id']) {
+                selectedMedia = delta.ops[0].insert.lottie['media-id'];
               }
             }
           } catch {}
@@ -874,6 +920,8 @@ export default {
           });
         })
 
+        await this.initializeLottie(this.$refs.myQuillEditor)
+
       })
     })
   },
@@ -898,6 +946,28 @@ export default {
       if (selection && savedFormat) {
         this.$refs.myQuillEditor.quill.formatText(selection.index, selection.length, savedFormat);
       }
+    },
+    handleLottieClick(event) {
+      const mediaId = event.target.getAttribute('media-id');
+
+      if (mediaId) {
+        this.editableMediaId = mediaId;
+      }
+    },
+    async initializeLottie(htmlElement) {
+      try {
+        if (this.$loadScript) {
+          const lottieDivs = htmlElement.querySelectorAll('div[lottie-id][media-type="lottie"]');
+          if (lottieDivs && lottieDivs.length > 0) {
+            await this.$loadScript('https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.13.0/lottie.min.js', true)
+          }
+          await this.$nextTick()
+          lottieDivs.forEach(div => {
+            div.addEventListener('click', this.handleLottieClick);
+          });
+          initLottieFromHtml(htmlElement)
+        }
+      } catch {}
     }
   }
 };

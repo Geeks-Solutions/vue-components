@@ -27,7 +27,7 @@
       </div>
 
       <div v-if="!hidden || (hidden && isAuthor)" class="w-350px cursor-pointer" @click="openMedia">
-        <div v-if="mediaType === 'document'">
+        <div v-if="mediaType === 'document' && mediaMetadataType !== 'lottie'">
           <div class="flex w-full h-200px justify-center items-center object-cover" :style="hiddenContainerStyle">
             <div class="flex flex-col items-center gap-4">
               <span class="icon-mediaDocument text-6xl"></span>
@@ -42,7 +42,7 @@
           </div>
         </div>
         <div v-else>
-          <img :src="mediaSrc" class="w-full h-200px object-cover">
+          <UniversalViewer :src="mediaSrc" :type="mediaMetadataType" class="w-full h-200px object-cover" />
         </div>
       </div>
       <div v-else class="w-350px cursor-pointer" :style="hiddenContainerStyle" @click="openMedia">
@@ -110,8 +110,13 @@
 </template>
 
 <script>
+import UniversalViewer from "../UniversalViewer.vue"
+
 export default {
   name: "Card",
+  components: {
+    UniversalViewer
+  },
   props: {
     locked: {
       type: Boolean,
@@ -160,6 +165,10 @@ export default {
     mediaSrc: {
       type: String,
       default: '../assets/images/temp2.svg'
+    },
+    mediaMetadataType: {
+      type: String,
+      default: ''
     },
     hiddenMediaSrc: {
       type: String,

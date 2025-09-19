@@ -3,6 +3,14 @@
 ---
 
 
+### v1.0.23 (19/09/2025)
+
+---
+
+- Lottie animation support for Medias Metacomponent
+
+
+
 ### v1.0.22 (30/06/2025)
 
 ---
