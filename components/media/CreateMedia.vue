@@ -24,7 +24,7 @@
 </template>
 
 <script>
-import {acceptedFileTypes, mediaHeader, showSectionsToast} from "./medias";
+import {acceptedFileTypes, isLottieAnimation, mediaHeader, showSectionsToast} from "./medias";
 import AnimatedLoading from "../AnimatedLoading";
 
 export default {
@@ -132,6 +132,24 @@ export default {
         data.append('type', fileData.type && fileData.type.includes('image') ? 'image' : 'document');
         data.append('private_status', 'public');
         data.append('locked_status', 'unlocked');
+
+        function readFileAsText(file) {
+          return new Promise((resolve, reject) => {
+            const reader = new FileReader()
+            reader.onload = e => resolve(e.target.result)
+            reader.onerror = reject
+            reader.readAsText(file)
+          })
+        }
+
+        try {
+          const fileText = await readFileAsText(fileData)
+          const isLottie = isLottieAnimation(JSON.parse(fileText))
+          if (isLottie) {
+            data.append('metadata[type]', 'lottie')
+          }
+        } catch {}
+
         if(this.mediaByIdUri !== '') {
           const response = await this.$axios.post(this.mediaByIdUri,
             data,
