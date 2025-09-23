@@ -89,12 +89,13 @@ export default {
     html: {
       async handler() {
         this.settings = this.html
-        await this.initializeLottie(this.$refs.myQuillEditor)
+        await this.initializeLottie(this.$refs.myQuillEditor?.$el)
       },
       deep: true,
       immediate: true
     },
     async selectedMedia(mediaObject) {
+      this.editableMediaId = null
       const media = {
         media_id: "",
         url: "",
@@ -130,7 +131,7 @@ export default {
           'media-id': media.media_id,
           'media-type': media.metadata?.type || 'image',
         }, Quill.sources.USER);
-        await this.initializeLottie(this.$refs.myQuillEditor)
+        await this.initializeLottie(this.$refs.myQuillEditor?.$el)
       } else {
         this.$refs.myQuillEditor.quill.insertEmbed(this.selectedRange ? this.selectedRange.index : range ? range.index : 0, 'image', media.url);
       }
@@ -920,7 +921,7 @@ export default {
           });
         })
 
-        await this.initializeLottie(this.$refs.myQuillEditor)
+        await this.initializeLottie(this.$refs.myQuillEditor?.$el)
 
       })
     })
@@ -930,7 +931,7 @@ export default {
       return true;
     },
     uploadFunction(mediaId = null) {
-      this.$refs.sectionsMediaComponent.openModal(mediaId, null)
+      this.$refs.sectionsMediaComponent.openModal(mediaId || this.editableMediaId, null)
     },
     saveFormat() {
       const selection = this.$refs.myQuillEditor.quill.getSelection();

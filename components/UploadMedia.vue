@@ -13,17 +13,18 @@
                           alt="empty"
                           class="section-module-upload-media-image"/>
               <div v-if="media.length > 0 && media[0].url !== ''">
-                <div v-if="isDocument">
+                <div v-if="isMediaDocument && media[0].metadata?.type !== 'lottie'">
                   <div class="section-module-upload-media-document">
                     <div class="section-module-upload-media-document-inner">
                       <IconsMediaDocument />
                     </div>
                   </div>
                 </div>
-                <img
+                <UniversalViewer
                   v-else-if="media.length > 0 && media[0].url !== ''"
                   :src="media[0].url"
                   :alt="media[0].seo_tag"
+                  :type="media[0].metadata?.type || 'image'"
                   class="section-module-upload-media-image"
                 />
               </div>
@@ -51,13 +52,15 @@
 import IconsEmptyImage from "./icons/EmptyImage.vue";
 import IconsMediaDocument from "./icons/mediaDocument.vue";
 import IconsCross from "./icons/cross.vue";
+import UniversalViewer from "./UniversalViewer.vue";
 
 export default {
   name: 'UploadMedia',
   components: {
     IconsEmptyImage,
     IconsMediaDocument,
-    IconsCross
+    IconsCross,
+    UniversalViewer
   },
   props: {
     mediaLabel: {
@@ -85,6 +88,11 @@ export default {
       default() {
         return []
       }
+    }
+  },
+  computed: {
+    isMediaDocument() {
+      return this.media?.[0]?.metadata?.type === 'lottie' || this.isDocument
     }
   }
 }
