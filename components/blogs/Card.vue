@@ -20,7 +20,7 @@
 
       <div class="w-350px" :class="canOpenBlog ? 'md:cursor-pointer' : ''" @click="openBlog">
         <div v-if="mediaSrc">
-          <img :src="mediaSrc" class="w-full h-200px object-cover">
+          <UniversalViewer :src="mediaSrc" :type="mediaMetadataType" class="w-full h-200px object-cover" />
         </div>
         <div v-else>
           <div class="flex w-full h-200px justify-center items-center object-cover">
@@ -59,11 +59,13 @@
 
 <script>
 import Buttons from "../Buttons.vue";
+import UniversalViewer from "../UniversalViewer.vue";
 
 export default {
   name: "Card",
   components: {
-    Buttons
+    Buttons,
+    UniversalViewer
   },
   props: {
     containerStyle: {
@@ -125,6 +127,10 @@ export default {
     mediaSrc: {
       type: String,
       default: '../assets/images/temp2.svg'
+    },
+    mediaMetadataType: {
+      type: String,
+      default: ''
     },
     descriptionStyle: {
       type: String,

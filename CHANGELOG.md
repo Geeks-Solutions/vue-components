@@ -7,7 +7,7 @@
 
 ---
 
-- Lottie animation support for Medias Metacomponent
+- Lottie animation support for Medias Metacomponent and Blogs Metacomponent
 
 
 

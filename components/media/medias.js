@@ -81,15 +81,17 @@ export const initLottieFromHtml = (htmlElement) => {
           target.innerHTML = ""
         }
 
-        if (window.lottie) {
-          window.lottie.loadAnimation({
-            container: target,
-            renderer: 'canvas',
-            loop: true,
-            autoplay: true,
-            path: src
-          });
-        }
+        setTimeout(() => {
+          if (window.lottie && !target.hasChildNodes()) {
+            window.lottie.loadAnimation({
+              container: target,
+              renderer: 'canvas',
+              loop: true,
+              autoplay: true,
+              path: src
+            });
+          }
+        }, 200)
       });
     }
   } catch {}
