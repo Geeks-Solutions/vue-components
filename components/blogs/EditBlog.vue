@@ -212,15 +212,15 @@
             :select-wrapper-style="''"
             @itemSelected="(val) => {article.suggested = val}"
           >
-            <template #selected-option="{ key, translation, image }">
+            <template #selected-option="{ key, translation, image, imageType }">
               <div style="display: flex; flex-direction: row; align-items: center">
-                <img :src="image" alt="" style="width: 100px; object-fit: cover;" />
+                <UniversalViewer :src="image" :type="imageType" alt="" style="width: 100px; object-fit: cover;" />
                 <span style="margin: 0.5rem 0.5rem;">{{ translation }}</span>
               </div>
             </template>
-            <template #option="{ key, translation, image }">
+            <template #option="{ key, translation, image, imageType }">
               <div style="display: flex; flex-direction: row; align-items: center">
-                <img :src="image" alt="" style="width: 100px; object-fit: cover;" />
+                <UniversalViewer :src="image" :type="imageType" alt="" style="width: 100px; object-fit: cover;" />
                 <span style="margin: 0.5rem 0.5rem;">{{ translation }}</span>
               </div>
             </template>
@@ -274,6 +274,7 @@ import MediaComponent from "../MediaComponent";
 import UploadMedia from "../UploadMedia";
 import wysiwyg from "../wysiwyg";
 import IconsCross from "../icons/cross.vue";
+import UniversalViewer from "../UniversalViewer.vue";
 import {mediaHeader, showSectionsToast} from "../media/medias";
 import LocaleTranslations from "../blogs/LocaleTranslations.vue";
 import {scrollToFirstError, languagesList, filterArrayByObjectValues} from "../../utils/constants";
@@ -297,7 +298,8 @@ export default {
     UploadMedia,
     IconsCross,
     LocaleTranslations,
-    wysiwyg
+    wysiwyg,
+    UniversalViewer
   },
   props: {
     appliedFilters: {
@@ -1032,7 +1034,8 @@ export default {
               {
                 key: article.id.toString(),
                 translation: article.title,
-                image: article.medias && article.medias[0] && article.medias[0].files && article.medias[0].files[0] && article.medias[0].files[0].thumbnail_url ? article.medias[0].files[0].thumbnail_url : null
+                image: article.medias && article.medias[0] && article.medias[0].files && article.medias[0].files[0] && article.medias[0].files[0].thumbnail_url ? article.medias?.[0]?.metadata?.type === 'lottie' ? article.medias?.[0]?.files?.[0]?.url : article.medias[0].files[0].thumbnail_url : null,
+                imageType: article.medias && article.medias[0] && article.medias[0].metadata && article.medias[0].metadata.type ? article.medias[0].metadata.type : 'image'
               }
           )
         })

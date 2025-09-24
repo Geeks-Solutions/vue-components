@@ -51,3 +51,48 @@ export const parseDate = (timestamp) => {
     year: 'numeric',
   })
 }
+
+export const isLottieAnimation = (json) => {
+  try {
+    if (typeof json !== 'object' || json === null) return false;
+
+    const requiredKeys = ["v", "fr", "ip", "op", "w", "h", "layers"];
+
+    return requiredKeys.every(key => key in json);
+  } catch {
+    return false
+  }
+}
+
+export const initLottieFromHtml = (htmlElement) => {
+  try {
+    // Select all matching divs
+    const lottieDivs = htmlElement.querySelectorAll('div[lottie-id][media-type="lottie"]');
+    if (lottieDivs && lottieDivs.length > 0) {
+      lottieDivs.forEach(div => {
+        const src = div.getAttribute('src');
+        const lottieId = div.getAttribute('lottie-id');
+
+        // Find the corresponding element in the real DOM
+        const target = htmlElement.querySelector(`div[lottie-id="${lottieId}"][media-type="lottie"]`);
+        if (!target) return;
+
+        if (target.hasChildNodes()) {
+          target.innerHTML = ""
+        }
+
+        setTimeout(() => {
+          if (window.lottie && !target.hasChildNodes()) {
+            window.lottie.loadAnimation({
+              container: target,
+              renderer: 'canvas',
+              loop: true,
+              autoplay: true,
+              path: src
+            });
+          }
+        }, 200)
+      });
+    }
+  } catch {}
+}
