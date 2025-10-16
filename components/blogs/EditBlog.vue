@@ -243,8 +243,11 @@
           <div class="text-error text-sm md:text-lg">{{ $t(mediaTranslationPrefix + 'blogs.deleteArticle') }}</div>
           <span class="icon-trashCan2 text-md pb-1 px-2"></span>
         </div>
-        <div v-if="blogsUri !== '' && isCreateBlog !== true && (blogsUserRoleProp.includes('publisher') || (blogsUserRoleProp.includes('admin') && article.published === false))" class="publish-btn" @click.stop.prevent="publishBlogByID(article.published)">
+        <div v-if="(!article.scheduled_publication || (!isoDateInFuture(article.scheduled_publication))) && !selectedDate && blogsUri !== '' && isCreateBlog !== true && (blogsUserRoleProp.includes('publisher') || (blogsUserRoleProp.includes('admin') && article.published === false))" class="publish-btn" @click.stop.prevent="publishBlogByID(article.published)">
           <Buttons :button-text="article.published ? $t(mediaTranslationPrefix + 'blogs.unpublish') : $t(mediaTranslationPrefix + 'blogs.publish')" :button-style="saveButtonStyle" class="ml-12" :with-icon="false" />
+        </div>
+        <div v-if="isCreateBlog !== true && (blogsUserRoleProp.includes('publisher') || (blogsUserRoleProp.includes('admin') && article.published === false)) && dashboardInfo.limits?.can_schedule_publication" class="flex items-center cursor-pointer mr-2">
+          <Schedule :with-scheduled-for="true" :edit-style="saveButtonStyle" :scheduled-publication="article.scheduled_publication" @schedule-publish="schedulePublish(blogId, selectedDate)" @cancel-schedule="schedulePublish(blogId, null)" @update:date="(val) => selectedDate = val" />
         </div>
         <div @click.stop.prevent="blogsUri !== '' && isCreateBlog !== true ? updateBlogByID() : createArticle()">
           <Buttons :button-text="$t(mediaTranslationPrefix + 'save')" :button-style="saveButtonStyle" :with-icon="false" />
@@ -268,6 +271,7 @@ import AlertPopup from "../AlertPopup";
 import AutoComplete from "../AutoComplete";
 import Inputs from "../Inputs";
 import Buttons from "../Buttons";
+import Schedule from "./Schedule";
 import AnimatedLoading from "../AnimatedLoading";
 import HeaderContainer from "../HeaderContainer";
 import MediaComponent from "../MediaComponent";
@@ -277,7 +281,7 @@ import IconsCross from "../icons/cross.vue";
 import UniversalViewer from "../UniversalViewer.vue";
 import {mediaHeader, showSectionsToast} from "../media/medias";
 import LocaleTranslations from "../blogs/LocaleTranslations.vue";
-import {scrollToFirstError, languagesList, filterArrayByObjectValues} from "../../utils/constants";
+import {scrollToFirstError, languagesList, filterArrayByObjectValues, isoDateInFuture} from "../../utils/constants";
 
 /* eslint-disable vue/return-in-computed-property */
 export default {
@@ -292,6 +296,7 @@ export default {
     AutoComplete,
     Inputs,
     Buttons,
+    Schedule,
     AlertPopup,
     AnimatedLoading,
     MediaComponent,
@@ -405,6 +410,12 @@ export default {
     contentUsedKey: {
       type: String,
       default: ""
+    },
+    dashboardInfo: {
+      type: Object,
+      default() {
+        return {}
+      }
     }
   },
   data() {
@@ -459,7 +470,8 @@ export default {
       popupContent: '',
       backLabel: '<',
       projectLangs: [],
-      selectedTranslationLang: ''
+      selectedTranslationLang: '',
+      selectedDate: null,
     }
   },
   computed: {
@@ -868,7 +880,7 @@ export default {
         if (this.nuxtSections) {
           showSectionsToast(this.$toast, 'success', this.$t(this.mediaTranslationPrefix + 'blogs.articleUpdated'))
         } else {
-          this.backClicked()
+          await this.getBlogByID()
           this.$toast.show(
             {
               message: this.article.published === true ? this.$t(this.mediaTranslationPrefix + 'blogs.draftUpdated', {name: `${this.article.title}`}) : this.$t(this.mediaTranslationPrefix + 'blogs.articleUpdated'),
@@ -945,6 +957,55 @@ export default {
           this.$toast.show(
             {
               message: this.$t(this.mediaTranslationPrefix + 'blogs.articlePublished'),
+              classToast: 'bg-Blue',
+              classMessage: 'text-white',
+            }
+          )
+        }
+      }
+      this.loading = false
+    },
+    async schedulePublish(blogId, date) {
+      let isoDate = 'cancel'
+      if (date) {
+        isoDate = new Date(date).toISOString()
+      }
+      this.loading = true
+      const token = this.token
+
+      const response = await this.$axios.put(`${this.blogsUri}/articles/${blogId}/schedule/${isoDate}`,
+        {},
+        {
+          headers: mediaHeader({token}, this.projectId)
+        }).catch((e) => {
+        this.loading = false
+        let errorMessage = ''
+        if (e.response.data.errors) {
+          errorMessage = e.response.data.errors.files[0]
+        } else {
+          errorMessage = e.response.data.error ? `${e.response.data.error}` : e.response.data.message
+        }
+        if (this.nuxtSections) {
+          showSectionsToast(this.$toast, 'error', `${e.response.data.error}`)
+        } else if (errorMessage) {
+          this.$toast.show(
+            {
+              message: errorMessage,
+              timeout: 5,
+              classToast: 'bg-error',
+              classMessage: 'text-white',
+            }
+          )
+        }
+      })
+      if(response) {
+        await this.getBlogByID()
+        if (this.nuxtSections) {
+          showSectionsToast(this.$toast, 'success', date ? this.$t('dashboard.publishScheduled') : this.$t('dashboard.publishScheduleCanceled'))
+        } else {
+          this.$toast.show(
+            {
+              message: date ? this.$t('dashboard.publishScheduled') : this.$t('dashboard.publishScheduleCanceled'),
               classToast: 'bg-Blue',
               classMessage: 'text-white',
             }
@@ -1041,7 +1102,8 @@ export default {
         })
       }
       this.loading = false
-    }
+    },
+    isoDateInFuture
   }
 }
 </script>

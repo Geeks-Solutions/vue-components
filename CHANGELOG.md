@@ -3,6 +3,14 @@
 ---
 
 
+### v1.0.24 (16/10/2025)
+
+---
+
+- Blogs Metacomponents updated to support publish schedules
+
+
+
 ### v1.0.23 (19/09/2025)
 
 ---
