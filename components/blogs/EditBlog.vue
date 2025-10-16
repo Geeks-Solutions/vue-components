@@ -246,7 +246,7 @@
         <div v-if="(!article.scheduled_publication || (!isoDateInFuture(article.scheduled_publication))) && !selectedDate && blogsUri !== '' && isCreateBlog !== true && (blogsUserRoleProp.includes('publisher') || (blogsUserRoleProp.includes('admin') && article.published === false))" class="publish-btn" @click.stop.prevent="publishBlogByID(article.published)">
           <Buttons :button-text="article.published ? $t(mediaTranslationPrefix + 'blogs.unpublish') : $t(mediaTranslationPrefix + 'blogs.publish')" :button-style="saveButtonStyle" class="ml-12" :with-icon="false" />
         </div>
-        <div v-if="isCreateBlog !== true && (blogsUserRoleProp.includes('publisher') || (blogsUserRoleProp.includes('admin') && article.published === false)) && dashboardInfo.limits?.can_schedule_publication" class="flex items-center cursor-pointer mr-2">
+        <div v-if="isCreateBlog !== true && (blogsUserRoleProp.includes('publisher') || (blogsUserRoleProp.includes('admin') && article.published === false)) && dashboardInfo.limits?.can_schedule_publication && article.published === false" class="flex items-center cursor-pointer mr-2">
           <Schedule :with-scheduled-for="true" :edit-style="saveButtonStyle" :scheduled-publication="article.scheduled_publication" @schedule-publish="schedulePublish(blogId, selectedDate)" @cancel-schedule="schedulePublish(blogId, null)" @update:date="(val) => selectedDate = val" />
         </div>
         <div @click.stop.prevent="blogsUri !== '' && isCreateBlog !== true ? updateBlogByID() : createArticle()">
