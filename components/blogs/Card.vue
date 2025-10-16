@@ -4,15 +4,23 @@
 
       <div class="flex p-3 justify-between items-center w-full">
 
-        <div class="flex">
-          <span v-if="!published" :class="iconNotPublished"></span>
-          <span v-else :class="iconPublished"></span>
+        <div class="flex flex-col relative">
+          <div class="flex">
+            <span v-if="!published" :class="iconNotPublished"></span>
+            <span v-else :class="iconPublished"></span>
+          </div>
+          <div v-if="scheduledPublication && isoDateInFuture(scheduledPublication)" class="absolute top-7 left-0 whitespace-nowrap scheduledFor" :class="lastUpdateStyle">
+            {{ $t('dashboard.scheduledFor') }} {{ formatIsoDateTime(scheduledPublication) }}
+          </div>
         </div>
 
         <div class="flex items-center cursor-pointer">
           <span v-if="canDelete" :class="iconDelete" @click="$emit('delete-blog')"></span>
-          <div @click.stop.prevent="editBlog">
+          <div v-if="!selectedDate && (!scheduledPublication || (scheduledPublication && !isoDateInFuture(scheduledPublication)))" @click.stop.prevent="editBlog">
             <Buttons :button-text="editLabel" :button-style="editStyle" :with-icon="false" />
+          </div>
+          <div v-if="canSchedule" class="flex items-center cursor-pointer">
+            <Schedule :edit-style="editStyle" :scheduled-publication="scheduledPublication" @schedule-publish="$emit('schedule-publish', selectedDate)" @cancel-schedule="$emit('cancel-schedule', null)" @update:date="(val) => selectedDate = val" />
           </div>
         </div>
 
@@ -59,12 +67,15 @@
 
 <script>
 import Buttons from "../Buttons.vue";
+import Schedule from "./Schedule.vue";
 import UniversalViewer from "../UniversalViewer.vue";
+import {formatIsoDateTime, isoDateInFuture} from "../../utils/constants"
 
 export default {
   name: "Card",
   components: {
     Buttons,
+    Schedule,
     UniversalViewer
   },
   props: {
@@ -95,6 +106,10 @@ export default {
     canOpenBlog: {
       type: Boolean,
       default: true
+    },
+    canSchedule: {
+      type: Boolean,
+      default: false
     },
     iconDelete: {
       type: String,
@@ -167,7 +182,26 @@ export default {
     openBlog: {
       type: Function,
       default: (item) => {}
+    },
+    dashboardInfo: {
+      type: Object,
+      default() {
+        return {}
+      }
+    },
+    scheduledPublication: {
+      type: String,
+      default: ''
     }
+  },
+  data() {
+    return {
+      selectedDate: null,
+    }
+  },
+  methods: {
+    formatIsoDateTime,
+    isoDateInFuture
   }
 }
 </script>
@@ -178,5 +212,8 @@ export default {
 }
 .bg-mediaLocked {
   background-color: #FFE5DD;
+}
+.scheduledFor {
+  font-size: 8px !important;
 }
 </style>
