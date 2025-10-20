@@ -243,11 +243,13 @@
           <div class="text-error text-sm md:text-lg">{{ $t(mediaTranslationPrefix + 'blogs.deleteArticle') }}</div>
           <span class="icon-trashCan2 text-md pb-1 px-2"></span>
         </div>
-        <div v-if="(!article.scheduled_publication || (!isoDateInFuture(article.scheduled_publication))) && !selectedDate && blogsUri !== '' && isCreateBlog !== true && (blogsUserRoleProp.includes('publisher') || (blogsUserRoleProp.includes('admin') && article.published === false))" class="publish-btn" @click.stop.prevent="publishBlogByID(article.published)">
-          <Buttons :button-text="article.published ? $t(mediaTranslationPrefix + 'blogs.unpublish') : $t(mediaTranslationPrefix + 'blogs.publish')" :button-style="saveButtonStyle" class="ml-12" :with-icon="false" />
-        </div>
-        <div v-if="isCreateBlog !== true && (blogsUserRoleProp.includes('publisher') || (blogsUserRoleProp.includes('admin') && article.published === false)) && dashboardInfo.limits?.can_schedule_publication && article.published === false" class="flex items-center cursor-pointer mr-2">
-          <Schedule :with-scheduled-for="true" :edit-style="saveButtonStyle" :scheduled-publication="article.scheduled_publication" @schedule-publish="schedulePublish(blogId, selectedDate)" @cancel-schedule="schedulePublish(blogId, null)" @update:date="(val) => selectedDate = val" />
+        <div class="relative">
+          <div v-if="(!article.scheduled_publication || (article.scheduled_publication && !isoDateInFuture(article.scheduled_publication))) && !selectedDate && blogsUri !== '' && isCreateBlog !== true && (blogsUserRoleProp.includes('publisher') || (blogsUserRoleProp.includes('admin') && article.published === false))" class="publish-btn" @click.stop.prevent="publishBlogByID(article.published)">
+            <Buttons :button-text="article.published ? $t(mediaTranslationPrefix + 'blogs.unpublish') : $t(mediaTranslationPrefix + 'blogs.publish')" :button-style="saveButtonStyle" class="ml-12" :with-icon="false" />
+          </div>
+          <div v-if="!loading && isCreateBlog !== true && (blogsUserRoleProp.includes('publisher') || (blogsUserRoleProp.includes('admin') && article.published === false)) && dashboardInfo.limits?.can_schedule_publication && article.published === false" class="flex items-center cursor-pointer mr-2" :class="{'absolute top-3 right-2': !selectedDate && (!article.scheduled_publication || (!isoDateInFuture(article.scheduled_publication)))}">
+            <Schedule :with-scheduled-for="true" :edit-style="saveButtonStyle" :scheduled-publication="article.scheduled_publication" @schedule-publish="schedulePublish(blogId, selectedDate)" @cancel-schedule="schedulePublish(blogId, null)" @update:date="(val) => selectedDate = val" />
+          </div>
         </div>
         <div @click.stop.prevent="blogsUri !== '' && isCreateBlog !== true ? updateBlogByID() : createArticle()">
           <Buttons :button-text="$t(mediaTranslationPrefix + 'save')" :button-style="saveButtonStyle" :with-icon="false" />
@@ -953,7 +955,6 @@ export default {
         if (this.nuxtSections) {
           showSectionsToast(this.$toast, 'success', this.$t(this.mediaTranslationPrefix + 'blogs.articlePublished'))
         } else {
-          this.backClicked()
           this.$toast.show(
             {
               message: this.$t(this.mediaTranslationPrefix + 'blogs.articlePublished'),
@@ -1000,6 +1001,10 @@ export default {
       })
       if(response) {
         await this.getBlogByID()
+        this.selectedDate = null
+        if (!date) {
+          this.article.scheduled_publication = null
+        }
         if (this.nuxtSections) {
           showSectionsToast(this.$toast, 'success', date ? this.$t('dashboard.publishScheduled') : this.$t('dashboard.publishScheduleCanceled'))
         } else {
