@@ -37,7 +37,7 @@
           v-else
           @click="(!scheduledPublication || (scheduledPublication && !isoDateInFuture(scheduledPublication))) ? clearDate() : $emit('cancel-schedule')"
           class="cursor-pointer text-xl text-error"
-          :class="[{'absolute top-2 right-5': selectedDate && withScheduledFor}, {'absolute top-1 right-2': selectedDate && !withScheduledFor}]"
+          :class="[{'absolute top-2 right-5': withScheduledFor}, {'absolute top-1 right-2': !withScheduledFor}]"
         >
           <IconsCross color="#E81C4F" style="width: 18px;" />
         </span>
@@ -83,6 +83,13 @@ export default {
     },
   },
   components: { Buttons, IconsCross },
+  watch: {
+    scheduledPublication() {
+      if (this.scheduledPublication && this.isoDateInFuture(this.scheduledPublication)) {
+        this.selectedDate = null
+      }
+    }
+  },
   data() {
     return {
       selectedDate: null,
@@ -107,12 +114,11 @@ export default {
       this.$emit("update:date", this.selectedDate);
     },
     schedulePublish() {
-      this.selectedDate = null
       this.$emit('schedule-publish')
     },
     isoDateInFuture,
     formatIsoDateTime,
-  },
+  }
 };
 </script>
 

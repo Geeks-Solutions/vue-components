@@ -247,7 +247,7 @@
           <div v-if="(!article.scheduled_publication || (article.scheduled_publication && !isoDateInFuture(article.scheduled_publication))) && !selectedDate && blogsUri !== '' && isCreateBlog !== true && (blogsUserRoleProp.includes('publisher') || (blogsUserRoleProp.includes('admin') && article.published === false))" class="publish-btn" @click.stop.prevent="publishBlogByID(article.published)">
             <Buttons :button-text="article.published ? $t(mediaTranslationPrefix + 'blogs.unpublish') : $t(mediaTranslationPrefix + 'blogs.publish')" :button-style="saveButtonStyle" class="ml-12" :with-icon="false" />
           </div>
-          <div v-if="!loading && isCreateBlog !== true && (blogsUserRoleProp.includes('publisher') || (blogsUserRoleProp.includes('admin') && article.published === false)) && dashboardInfo.limits?.can_schedule_publication && article.published === false" class="flex items-center cursor-pointer mr-2" :class="{'absolute top-3 right-2': !selectedDate && (!article.scheduled_publication || (!isoDateInFuture(article.scheduled_publication)))}">
+          <div v-if="isCreateBlog !== true && (blogsUserRoleProp.includes('publisher') || (blogsUserRoleProp.includes('admin') && article.published === false)) && dashboardInfo.limits?.can_schedule_publication && article.published === false" class="flex items-center cursor-pointer mr-2" :class="{'absolute top-3 right-2': !selectedDate && (!article.scheduled_publication || (!isoDateInFuture(article.scheduled_publication)))}">
             <Schedule :with-scheduled-for="true" :edit-style="saveButtonStyle" :scheduled-publication="article.scheduled_publication" @schedule-publish="schedulePublish(blogId, selectedDate)" @cancel-schedule="schedulePublish(blogId, null)" @update:date="(val) => selectedDate = val" />
           </div>
         </div>
@@ -669,10 +669,10 @@ export default {
         }
       })
       if(response && response.data && !response.data.error) {
+        this.$emit('article-created')
         if (this.nuxtSections) {
           showSectionsToast(this.$toast, 'success', this.$t(this.mediaTranslationPrefix + 'blogs.articleCreated'))
         } else {
-          this.backClicked()
           this.$toast.show(
               {
                 message: this.$t(this.mediaTranslationPrefix + 'blogs.articleCreated'),
