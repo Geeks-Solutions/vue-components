@@ -24,7 +24,7 @@
 
         <div class="py-8 flex flex-wrap" :class="nuxtSections ? '' : 'md:pl-16'">
           <div v-for="(blog, idx) in blogsResponse" :key="`blog--${blog.id}`" class="m-2">
-            <Card :can-delete="(blogsUserRoleProp.includes('admin') || blogsUserRoleProp.includes('author'))" :description="blog.description" :edit-label="blogsUserRoleProp.includes('publisher') ? blog.published ? $t(mediaTranslationPrefix + 'blogs.unpublish') : $t(mediaTranslationPrefix + 'blogs.publish') : $t(mediaTranslationPrefix + 'blogs.editContent')" :published="blog.published" :draft-of="blog.draft_of ? $t(mediaTranslationPrefix + 'blogs.draftOf', {id: blog.draft_of}) : ''" :media-src="blog.medias && blog.medias[0] && blog.medias[0].files ? blog.medias[0].files[0].url : ''" :blog-title="blog.title && blog.title !== '' && blog.title !== 'null' ? blog.title : blog.medias && blog.medias[0] && blog.medias[0].files ? blog.medias[0].files[0].filename : ''" :blog-title-style="'w-200px overflow-hidden text-ellipsis white whitespace-nowrap'" :blog-author="getAuthorName(blog.author_id)" :is-author="blog.author_id === blogsUserId" :last-update-date="blog.updated ? $t(mediaTranslationPrefix + 'blogs.lastUpdateDate') + parseDate(blog.updated) : ''" :media-metadata-type="blog.medias?.[0]?.metadata?.type || 'image'" :can-open-blog="!canNotOpenBlog(blog)" :open-blog="() => {canNotOpenBlog(blog) ? null : openBlog(blog.id, blog.author_id, blog.default_locale)}" :edit-blog="() => {blogsUserRoleProp.includes('publisher') ? publishBlogByID(blog.id, blog.published, idx) : openBlog(blog.id, blog.author_id, blog.default_locale)}" @delete-blog="blogId = blog.id; showPopup = true" @open-original-blog="openBlog(blog.draft_of, blog.author_id, blog.default_locale)" />
+            <Card :loading="loading" :dashboard-info="dashboardInfo" :can-delete="(blogsUserRoleProp.includes('admin') || blogsUserRoleProp.includes('author'))" :description="blog.description" :can-schedule="blogsUserRoleProp.includes('publisher') && dashboardInfo.limits?.can_schedule_publication && !blog.published" :edit-label="blogsUserRoleProp.includes('publisher') ? blog.published ? $t(mediaTranslationPrefix + 'blogs.unpublish') : $t(mediaTranslationPrefix + 'blogs.publish') : $t(mediaTranslationPrefix + 'blogs.editContent')" :published="blog.published" :draft-of="blog.draft_of ? $t(mediaTranslationPrefix + 'blogs.draftOf', {id: blog.draft_of}) : ''" :media-src="blog.medias && blog.medias[0] && blog.medias[0].files ? blog.medias[0].files[0].url : ''" :blog-title="blog.title && blog.title !== '' && blog.title !== 'null' ? blog.title : blog.medias && blog.medias[0] && blog.medias[0].files ? blog.medias[0].files[0].filename : ''" :blog-title-style="'w-200px overflow-hidden text-ellipsis white whitespace-nowrap'" :blog-author="getAuthorName(blog.author_id)" :is-author="blog.author_id === blogsUserId" :last-update-date="blog.updated ? $t(mediaTranslationPrefix + 'blogs.lastUpdateDate') + parseDate(blog.updated) : ''" :media-metadata-type="blog.medias?.[0]?.metadata?.type || 'image'" :scheduled-publication="blog.scheduled_publication" :can-open-blog="!canNotOpenBlog(blog)" :open-blog="() => {canNotOpenBlog(blog) ? null : openBlog(blog.id, blog.author_id, blog.default_locale)}" :edit-blog="() => {blogsUserRoleProp.includes('publisher') ? publishBlogByID(blog.id, blog.published, idx) : openBlog(blog.id, blog.author_id, blog.default_locale)}" @delete-blog="blogId = blog.id; showPopup = true" @open-original-blog="openBlog(blog.draft_of, blog.author_id, blog.default_locale)" @schedule-publish="(val) => schedulePublish(blog.id, val)" @cancel-schedule="schedulePublish(blog.id, null)" />
           </div>
         </div>
 
@@ -241,6 +241,12 @@ export default {
           errorOccurred:  false,
           withIcon:  false,
         }
+      }
+    },
+    dashboardInfo: {
+      type: Object,
+      default() {
+        return {}
       }
     }
   },
@@ -696,6 +702,56 @@ export default {
       }
       this.loading = false
     },
+    async schedulePublish(blogId, date) {
+      let isoDate = 'cancel'
+      if (date) {
+        isoDate = new Date(date).toISOString()
+      }
+      this.loading = true
+      const token = this.token
+
+      const response = await this.$axios.put(`${this.blogsUri}/articles/${blogId}/schedule/${isoDate}`,
+        {},
+        {
+          headers: mediaHeader({token}, this.projectId)
+        }).catch((e) => {
+        this.loading = false
+        let errorMessage = ''
+        if (e.response.data.errors) {
+          errorMessage = e.response.data.errors.files[0]
+        } else {
+          errorMessage = e.response.data.error ? `${e.response.data.error}` : e.response.data.message
+        }
+        if (this.nuxtSections) {
+          showSectionsToast(this.$toast, 'error', `${e.response.data.error}`)
+        } else if (errorMessage) {
+          this.$toast.show(
+            {
+              message: errorMessage,
+              timeout: 5,
+              classToast: 'bg-error',
+              classMessage: 'text-white',
+            }
+          )
+        }
+      })
+      if(response) {
+        await this.getAllBlogs()
+        this.$emit('publication-schedule-updated')
+        if (this.nuxtSections) {
+          showSectionsToast(this.$toast, 'success', date ? this.$t('dashboard.publishScheduled') : this.$t('dashboard.publishScheduleCanceled'))
+        } else {
+          this.$toast.show(
+            {
+              message: date ? this.$t('dashboard.publishScheduled') : this.$t('dashboard.publishScheduleCanceled'),
+              classToast: 'bg-Blue',
+              classMessage: 'text-white',
+            }
+          )
+        }
+      }
+      this.loading = false
+    },
     setPage(pageNumber) {
       this.currentPage = pageNumber
       this.pageNumber = pageNumber
@@ -711,7 +767,36 @@ export default {
         }
       }
     },
-    openCreateBlog() {
+    async getArticleLimits() {
+      return await this.$axios.get(`${this.blogsUri}/dashboard`, {
+        headers: mediaHeader({ token: this.token })
+      })
+    },
+    async openCreateBlog() {
+      this.loading = true
+      const response = await this.getArticleLimits()
+      const syncedLimits = response.data
+      this.loading = false
+      if (syncedLimits && syncedLimits.limits.next_article_creation_date === 'never') {
+        this.$toast.show(
+          {
+            message: this.$t("dashboard.articleLimitReached"),
+            classToast: 'bg-error',
+            classMessage: 'text-white',
+          }
+        )
+        return
+      } else if (syncedLimits && syncedLimits.limits && syncedLimits.limits.next_article_creation_date && !isNaN(new Date(syncedLimits.limits.next_article_creation_date).getTime()) && new Date(syncedLimits.limits.next_article_creation_date).getTime() > new Date().getTime()) {
+        this.$toast.show(
+          {
+            message: this.$t("dashboard.waitNextArticle", {dateTime: (new Date(syncedLimits.limits.next_article_creation_date)).toString()}),
+            classToast: 'bg-error',
+            classMessage: 'text-white',
+            timeout: 4
+          }
+        )
+        return
+      }
       if (this.createBlogPath) {
         this.$router.push(this.localePath({path: this.createBlogPath, query: {filters: this.$route.query.filters, isCreateBlog: true}}))
       } else this.$emit('updateBlogsComponent', {name: 'BlogsEditBlog', appliedFilters: this.filtersQuery, isCreateBlog: true})
@@ -730,6 +815,7 @@ export default {
             {
               headers: mediaHeader({token}, this.projectId)
             })
+          this.$emit('article-deleted', response.data)
           if (this.nuxtSections) {
             showSectionsToast(this.$toast, 'success', response.data.message)
           } else {

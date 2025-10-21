@@ -41,3 +41,38 @@ export function hasValuesExcept(obj, excludeKey) {
 export function filterArrayByObjectValues(array, excludeKey) {
   return array.filter(obj => hasValuesExcept(obj, excludeKey));
 }
+
+export function formatIsoDateTime(isoString) {
+    const date = new Date(isoString)
+
+    // Weekday and month names
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+    const months = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+    ]
+
+    const dayName = days[date.getDay()]
+    const day = date.getDate()
+    const monthName = months[date.getMonth()]
+    const hours = date.getHours().toString().padStart(2, '0')
+    const minutes = date.getMinutes().toString().padStart(2, '0')
+
+    // Add ordinal suffix (st, nd, rd, th)
+    const suffix =
+        day % 10 === 1 && day !== 11 ? 'st' :
+            day % 10 === 2 && day !== 12 ? 'nd' :
+                day % 10 === 3 && day !== 13 ? 'rd' : 'th'
+
+    return `${dayName} ${day}${suffix} of ${monthName} at ${hours}h${minutes}`
+}
+
+
+export function isoDateInFuture(isoString) {
+    try {
+        const date = new Date(isoString)
+        return date.getTime() > Date.now()
+    } catch {
+        return false
+    }
+}

@@ -1,5 +1,5 @@
 <template>
-  <component :is="componentsPrefix + componentName" :content-used-key="contentUsedKey" :blogs-user-role-prop="blogsUserRoleProp" :blogs-uri-prop="blogsUriProp" :create-blog-uri-prop="createBlogUriProp" :authors-uri-prop="authorsUriProp" :categories-uri-prop="categoriesUriProp" :project-id-prop="projectIdProp" :auth-token="authToken" :author-id="authorId" :blogs-user-id-prop="blogsUserIdProp" :blogs-user-name-prop="blogsUserNameProp" :media-translation-prefix="mediaTranslationPrefix" :show-create-blog-button="showCreateBlogButton" :blogs-response-prop="blogsResponseProp" :blog-by-id-uri-prop="blogByIdUriProp" :blog-by-id-response-prop="blogByIdResponseProp" :blog-id-prop="blogId" :default-lang-prop="defaultLang" :create-blog-path="createBlogPath" :edit-blog-path="editBlogPath" :blogs-path="blogsPath" :bo-usage="boUsage" :categories="categories" :server-url="serverUrl" @updateBlogsComponent="onBlogsComponentUpdate" :with-select-blog-button="withSelectBlogButton" :nuxt-sections="nuxtSections" :is-create-blog="isCreateBlog" :blog-id-editing="blogIdEditing" :applied-filters="appliedFilters" @onBlogSelected="(blog) => $emit('getSelectedBlog', blog)"  />
+  <component :is="componentsPrefix + componentName" :dashboard-info="dashboardInfo" :content-used-key="contentUsedKey" :blogs-user-role-prop="blogsUserRoleProp" :blogs-uri-prop="blogsUriProp" :create-blog-uri-prop="createBlogUriProp" :authors-uri-prop="authorsUriProp" :categories-uri-prop="categoriesUriProp" :project-id-prop="projectIdProp" :auth-token="authToken" :author-id="authorId" :blogs-user-id-prop="blogsUserIdProp" :blogs-user-name-prop="blogsUserNameProp" :media-translation-prefix="mediaTranslationPrefix" :show-create-blog-button="showCreateBlogButton" :blogs-response-prop="blogsResponseProp" :blog-by-id-uri-prop="blogByIdUriProp" :blog-by-id-response-prop="blogByIdResponseProp" :blog-id-prop="blogId" :default-lang-prop="defaultLang" :create-blog-path="createBlogPath" :edit-blog-path="editBlogPath" :blogs-path="blogsPath" :bo-usage="boUsage" :categories="categories" :server-url="serverUrl" @updateBlogsComponent="onBlogsComponentUpdate" :with-select-blog-button="withSelectBlogButton" :nuxt-sections="nuxtSections" :is-create-blog="isCreateBlog" :blog-id-editing="blogIdEditing" :applied-filters="appliedFilters" @onBlogSelected="(blog) => $emit('getSelectedBlog', blog)" @article-created="$emit('article-created')" @article-deleted="$emit('article-deleted')" @publication-schedule-updated="$emit('publication-schedule-updated')"  />
 </template>
 
 <script>
@@ -134,6 +134,12 @@ export default {
     contentUsedKey: {
       type: String,
       default: ""
+    },
+    dashboardInfo: {
+      type: Object,
+      default() {
+        return {}
+      }
     }
   },
   computed: {

@@ -4,15 +4,32 @@
 
       <div class="flex p-3 justify-between items-center w-full">
 
-        <div class="flex">
-          <span v-if="!published" :class="iconNotPublished"></span>
-          <span v-else :class="iconPublished"></span>
+        <div class="flex flex-col relative">
+          <div class="flex">
+            <span v-if="!published" :class="iconNotPublished"></span>
+            <span v-else :class="iconPublished"></span>
+          </div>
+          <div v-if="scheduledPublication && isoDateInFuture(scheduledPublication)" class="absolute top-5 left-0 whitespace-nowrap" :class="lastUpdateStyle">
+            <div class="flex flex-row gap-2 relative pt-2 pr-2">
+              <span>
+                {{ $t('dashboard.scheduledFor') }} {{ formatIsoDateTime(scheduledPublication) }}
+              </span>
+              <span @click="$emit('cancel-schedule', null)" class="cursor-pointer text-error absolute cancel-schedule-x">
+                <IconsCross color="#E81C4F" style="width: 6px;" />
+              </span>
+            </div>
+          </div>
         </div>
 
         <div class="flex items-center cursor-pointer">
           <span v-if="canDelete" :class="iconDelete" @click="$emit('delete-blog')"></span>
-          <div @click.stop.prevent="editBlog">
-            <Buttons :button-text="editLabel" :button-style="editStyle" :with-icon="false" />
+          <div class="relative">
+            <div v-if="!selectedDate && (!scheduledPublication || (scheduledPublication && !isoDateInFuture(scheduledPublication)))" @click.stop.prevent="editBlog">
+              <Buttons :button-text="editLabel" :button-style="canSchedule ? scheduleEditStyle : editStyle" :with-icon="false" />
+            </div>
+            <div v-if="!loading && canSchedule && (!scheduledPublication || (scheduledPublication && !isoDateInFuture(scheduledPublication)))" class="flex items-center cursor-pointer" :class="{'absolute top-2 right-2': !selectedDate && (!scheduledPublication || (scheduledPublication && !isoDateInFuture(scheduledPublication)))}">
+              <Schedule :edit-style="scheduleEditStyle" :scheduled-publication="scheduledPublication" @schedule-publish="schedulePublish()" @cancel-schedule="$emit('cancel-schedule', null)" @update:date="(val) => selectedDate = val" />
+            </div>
           </div>
         </div>
 
@@ -59,13 +76,18 @@
 
 <script>
 import Buttons from "../Buttons.vue";
+import IconsCross from "../icons/cross.vue";
+import Schedule from "./Schedule.vue";
 import UniversalViewer from "../UniversalViewer.vue";
+import {formatIsoDateTime, isoDateInFuture} from "../../utils/constants"
 
 export default {
   name: "Card",
   components: {
     Buttons,
-    UniversalViewer
+    Schedule,
+    UniversalViewer,
+    IconsCross
   },
   props: {
     containerStyle: {
@@ -96,6 +118,14 @@ export default {
       type: Boolean,
       default: true
     },
+    canSchedule: {
+      type: Boolean,
+      default: false
+    },
+    loading: {
+      type: Boolean,
+      default: false
+    },
     iconDelete: {
       type: String,
       default: 'icon-trashCan2 text-md'
@@ -107,6 +137,10 @@ export default {
     editStyle: {
       type: String,
       default: 'py-1.5 px-3 ml-2 text-white rounded-xl bg-Blue hover:bg-white hover:text-Blue border border-Blue hover:border-Blue'
+    },
+    scheduleEditStyle: {
+      type: String,
+      default: 'py-1.5 px-12 ml-2 text-white rounded-xl bg-Blue hover:bg-white hover:text-Blue border border-Blue hover:border-Blue'
     },
     blogTitle: {
       type: String,
@@ -167,6 +201,31 @@ export default {
     openBlog: {
       type: Function,
       default: (item) => {}
+    },
+    dashboardInfo: {
+      type: Object,
+      default() {
+        return {}
+      }
+    },
+    scheduledPublication: {
+      type: String,
+      default: ''
+    }
+  },
+  data() {
+    return {
+      selectedDate: null,
+    }
+  },
+  methods: {
+    formatIsoDateTime,
+    isoDateInFuture,
+    schedulePublish() {
+      this.$emit('schedule-publish', this.selectedDate)
+      this.$nextTick(() => {
+        this.selectedDate = null
+      })
     }
   }
 }
@@ -178,5 +237,9 @@ export default {
 }
 .bg-mediaLocked {
   background-color: #FFE5DD;
+}
+.cancel-schedule-x {
+  top: -4px;
+  right: -2px;
 }
 </style>
