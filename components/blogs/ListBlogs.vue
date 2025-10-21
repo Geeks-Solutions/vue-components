@@ -766,8 +766,17 @@ export default {
         }
       }
     },
-    openCreateBlog() {
-      if (this.dashboardInfo.available_articles_creation === 0) {
+    async getArticleLimits() {
+      return await this.$axios.get(`${this.blogsUri}/dashboard`, {
+        headers: mediaHeader({ token: this.token })
+      })
+    },
+    async openCreateBlog() {
+      this.loading = true
+      const response = await this.getArticleLimits()
+      const syncedLimits = response.data
+      this.loading = false
+      if (syncedLimits && syncedLimits.limits.next_article_creation_date === 'never') {
         this.$toast.show(
           {
             message: this.$t("dashboard.articleLimitReached"),
@@ -776,10 +785,10 @@ export default {
           }
         )
         return
-      } else if (this.dashboardInfo.limits && this.dashboardInfo.limits.next_article_creation_date && !isNaN(new Date(this.dashboardInfo.limits.next_article_creation_date).getTime()) && new Date(this.dashboardInfo.limits.next_article_creation_date).getTime() > new Date().getTime()) {
+      } else if (syncedLimits && syncedLimits.limits && syncedLimits.limits.next_article_creation_date && !isNaN(new Date(syncedLimits.limits.next_article_creation_date).getTime()) && new Date(syncedLimits.limits.next_article_creation_date).getTime() > new Date().getTime()) {
         this.$toast.show(
           {
-            message: this.$t("dashboard.waitNextArticle", {dateTime: (new Date(Number(this.dashboardInfo.limits.next_article_creation_date))).toString()}),
+            message: this.$t("dashboard.waitNextArticle", {dateTime: (new Date(syncedLimits.limits.next_article_creation_date)).toString()}),
             classToast: 'bg-error',
             classMessage: 'text-white',
             timeout: 4
