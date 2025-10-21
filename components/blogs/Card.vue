@@ -76,6 +76,7 @@
 
 <script>
 import Buttons from "../Buttons.vue";
+import IconsCross from "../icons/cross.vue";
 import Schedule from "./Schedule.vue";
 import UniversalViewer from "../UniversalViewer.vue";
 import {formatIsoDateTime, isoDateInFuture} from "../../utils/constants"
@@ -85,7 +86,8 @@ export default {
   components: {
     Buttons,
     Schedule,
-    UniversalViewer
+    UniversalViewer,
+    IconsCross
   },
   props: {
     containerStyle: {
