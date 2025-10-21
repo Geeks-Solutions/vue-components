@@ -110,7 +110,7 @@
             />
           </div>
         </fieldset>
-        <div v-if="isCreateBlog !== true">
+        <div v-if="isCreateBlogVal !== true">
           <Inputs
             id="article-author"
             :input-model="authorName"
@@ -226,7 +226,7 @@
             </template>
           </AutoComplete>
         </div>
-        <div v-if="blogsUri !== '' && isCreateBlog !== true" class="flex flex-row gap-2 text-sm">
+        <div v-if="blogsUri !== '' && isCreateBlogVal !== true" class="flex flex-row gap-2 text-sm">
           <div>{{ $t(mediaTranslationPrefix + 'filterOptions.publishedStatus') }}: </div>
           <div>{{ article.published ? $t(mediaTranslationPrefix + 'published') : $t(mediaTranslationPrefix + 'notPublished') }} </div>
         </div>
@@ -239,19 +239,19 @@
     <div class="sticky bottom-0 py-2 m-4 rounded-md shadow z-20">
 
       <div class="flex w-full items-center justify-end bg-white">
-        <div v-if="blogsUri !== '' && isCreateBlog !== true" class="cursor-pointer flex items-center" @click="showPopup = true">
+        <div v-if="blogsUri !== '' && isCreateBlogVal !== true" class="cursor-pointer flex items-center" @click="showPopup = true">
           <div class="text-error text-sm md:text-lg">{{ $t(mediaTranslationPrefix + 'blogs.deleteArticle') }}</div>
           <span class="icon-trashCan2 text-md pb-1 px-2"></span>
         </div>
         <div class="relative">
-          <div v-if="(!article.scheduled_publication || (article.scheduled_publication && !isoDateInFuture(article.scheduled_publication))) && !selectedDate && blogsUri !== '' && isCreateBlog !== true && (blogsUserRoleProp.includes('publisher') || (blogsUserRoleProp.includes('admin') && article.published === false))" class="publish-btn" @click.stop.prevent="publishBlogByID(article.published)">
+          <div v-if="(!article.scheduled_publication || (article.scheduled_publication && !isoDateInFuture(article.scheduled_publication))) && !selectedDate && blogsUri !== '' && isCreateBlogVal !== true && (blogsUserRoleProp.includes('publisher') || (blogsUserRoleProp.includes('admin') && article.published === false))" class="publish-btn" @click.stop.prevent="publishBlogByID(article.published)">
             <Buttons :button-text="article.published ? $t(mediaTranslationPrefix + 'blogs.unpublish') : $t(mediaTranslationPrefix + 'blogs.publish')" :button-style="saveButtonStyle" class="ml-12" :with-icon="false" />
           </div>
-          <div v-if="isCreateBlog !== true && (blogsUserRoleProp.includes('publisher') || (blogsUserRoleProp.includes('admin') && article.published === false)) && dashboardInfo.limits?.can_schedule_publication && article.published === false" class="flex items-center cursor-pointer mr-2" :class="{'absolute top-3 right-2': !selectedDate && (!article.scheduled_publication || (!isoDateInFuture(article.scheduled_publication)))}">
+          <div v-if="isCreateBlogVal !== true && (blogsUserRoleProp.includes('publisher') || (blogsUserRoleProp.includes('admin') && article.published === false)) && dashboardInfo.limits?.can_schedule_publication && article.published === false" class="flex items-center cursor-pointer mr-2" :class="{'absolute top-3 right-2': !selectedDate && (!article.scheduled_publication || (!isoDateInFuture(article.scheduled_publication)))}">
             <Schedule :with-scheduled-for="true" :edit-style="saveButtonStyle" :scheduled-publication="article.scheduled_publication" @schedule-publish="schedulePublish(blogId, selectedDate)" @cancel-schedule="schedulePublish(blogId, null)" @update:date="(val) => selectedDate = val" />
           </div>
         </div>
-        <div @click.stop.prevent="blogsUri !== '' && isCreateBlog !== true ? updateBlogByID() : createArticle()">
+        <div @click.stop.prevent="blogsUri !== '' && isCreateBlogVal !== true ? updateBlogByID() : createArticle()">
           <Buttons :button-text="$t(mediaTranslationPrefix + 'save')" :button-style="saveButtonStyle" :with-icon="false" />
         </div>
         <div @click.stop.prevent="$emit('onBlogSelected', article)">
@@ -350,6 +350,10 @@ export default {
       default: ""
     },
     blogsPath: {
+      type: String,
+      default: ""
+    },
+    editBlogPath: {
       type: String,
       default: ""
     },
@@ -474,6 +478,8 @@ export default {
       projectLangs: [],
       selectedTranslationLang: '',
       selectedDate: null,
+      authorIdVal: null,
+      isCreateBlogVal: false,
     }
   },
   computed: {
@@ -578,13 +584,27 @@ export default {
       deep: true,
       immediate: true
     },
+    authorId: {
+      handler(val) {
+        this.authorIdVal = val
+      },
+      deep: true,
+      immediate: true
+    },
+    isCreateBlog: {
+      handler(val) {
+        this.isCreateBlogVal = val
+      },
+      deep: true,
+      immediate: true
+    },
     selectedMedia(mediaObject) {
       this.$set(this.article.medias, this.selectedMediaIndex, mediaObject)
       this.$refs['sectionsMediaComponent'].closeModal()
     }
   },
   async mounted() {
-    if(this.blogsUri !== '' && this.isCreateBlog !== true) {
+    if(this.blogsUri !== '' && this.isCreateBlogVal !== true) {
       await this.getBlogByID()
       await this.getAuthorByID()
     } else if (this.blogsUri !== '') {
@@ -669,10 +689,17 @@ export default {
         }
       })
       if(response && response.data && !response.data.error) {
-        this.$emit('article-created')
+        this.$emit('article-created', response.data)
         if (this.nuxtSections) {
           showSectionsToast(this.$toast, 'success', this.$t(this.mediaTranslationPrefix + 'blogs.articleCreated'))
         } else {
+          this.$router.push(this.localePath({path: this.editBlogPath, query: {id: response.data.id, defaultLang: response.data.default_locale, userId: response.data.author_id}}))
+          this.isCreateBlogVal = false
+          this.blogId = response.data.id
+          this.defaultLang = response.data.default_locale
+          this.authorIdVal = response.data.author_id
+          this.initArticleData(response)
+          await this.getAuthorByID()
           this.$toast.show(
               {
                 message: this.$t(this.mediaTranslationPrefix + 'blogs.articleCreated'),
@@ -701,17 +728,17 @@ export default {
     async getAuthorByID() {
       this.loading = true
       const token = this.token
-      const response = await this.$axios.get(`${this.blogsUri}/author/${this.authorId}`,
+      const response = await this.$axios.get(`${this.blogsUri}/author/${this.authorIdVal}`,
         {
           headers: mediaHeader({token}, this.projectId)
         }).catch(() => {
         this.loading = false
-        this.authorName = this.authorId
+        this.authorName = this.authorIdVal
       })
       if(response && response.data) {
         if (response.data.full_name) {
           this.authorName = response.data.full_name
-        } else this.authorName = this.authorId
+        } else this.authorName = this.authorIdVal
       }
       this.loading = false
     },
@@ -748,6 +775,30 @@ export default {
       }
       this.loading = false
     },
+    initArticleData(response) {
+      this.article = [response.data].map(article => {
+        article.suggested = article.suggested.map(sug => sug.id.toString())
+        article.categories = article.categories.map(cat => cat.id.toString())
+        // if (!article.tags || article.tags.length === 0) {
+        //   article.tags = [""]
+        // }
+        if (article.metadata && article.metadata.duration !== null) {
+          article.metadata.duration = article.metadata.duration.toString()
+        }
+        if (article.metadata === null) {
+          article.metadata = {
+            label: "",
+            unit: "s",
+            duration: ""
+          }
+        }
+        return article
+      })[0]
+      this.selectedSuggested = this.article.suggested
+      this.selectedCategories = this.article.categories
+
+      this.initializeTranslations()
+    },
     async getBlogByID() {
       await this.getProjectInfo()
       this.loading = true
@@ -772,28 +823,7 @@ export default {
         this.backClicked()
       })
       if(response && response.data) {
-        this.article = [response.data].map(article => {
-          article.suggested = article.suggested.map(sug => sug.id.toString())
-          article.categories = article.categories.map(cat => cat.id.toString())
-          // if (!article.tags || article.tags.length === 0) {
-          //   article.tags = [""]
-          // }
-          if (article.metadata && article.metadata.duration !== null) {
-            article.metadata.duration = article.metadata.duration.toString()
-          }
-          if (article.metadata === null) {
-            article.metadata = {
-              label: "",
-              unit: "s",
-              duration: ""
-            }
-          }
-          return article
-        })[0]
-        this.selectedSuggested = this.article.suggested
-        this.selectedCategories = this.article.categories
-
-        this.initializeTranslations()
+        this.initArticleData(response)
       }
       this.loading = false
     },
@@ -1005,6 +1035,7 @@ export default {
         if (!date) {
           this.article.scheduled_publication = null
         }
+        this.$emit('publication-schedule-updated')
         if (this.nuxtSections) {
           showSectionsToast(this.$toast, 'success', date ? this.$t('dashboard.publishScheduled') : this.$t('dashboard.publishScheduleCanceled'))
         } else {
@@ -1029,6 +1060,7 @@ export default {
               headers: mediaHeader({token}, this.projectId)
             })
           if (response && response.data) {
+            this.$emit('article-deleted', response.data)
             if (this.nuxtSections) {
               showSectionsToast(this.$toast, 'success', response.data.message)
             } else {

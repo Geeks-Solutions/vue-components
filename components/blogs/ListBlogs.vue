@@ -737,6 +737,7 @@ export default {
       })
       if(response) {
         await this.getAllBlogs()
+        this.$emit('publication-schedule-updated')
         if (this.nuxtSections) {
           showSectionsToast(this.$toast, 'success', date ? this.$t('dashboard.publishScheduled') : this.$t('dashboard.publishScheduleCanceled'))
         } else {
@@ -814,6 +815,7 @@ export default {
             {
               headers: mediaHeader({token}, this.projectId)
             })
+          this.$emit('article-deleted', response.data)
           if (this.nuxtSections) {
             showSectionsToast(this.$toast, 'success', response.data.message)
           } else {
