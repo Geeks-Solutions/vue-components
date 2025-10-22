@@ -198,7 +198,7 @@
               </div>
               <div class="absolute top-1/3 left-1/3 -translate-x-1/3 -translate-y-1/3" @click="imagePick.click()">
                 <span class="icon-reload text-8xl cursor-pointer"></span>
-                <input ref="imagePick" type="file" class="hidden" :accept="fileTypes" @change="onFileSelected" />
+                <input ref="imagePick" type="file" class="hidden" :accept="acceptedFileTypes" @change="onFileSelected" />
               </div>
             </div>
           </div>
@@ -208,7 +208,7 @@
               <LazyGUniversalViewer :src="media.files[0].url" :type="media.metadata?.type || 'image'" alt="" class="rounded-md md:w-[400px] w-[300px]" />
               <div class="absolute top-1/3 left-1/3 -translate-x-1/3 -translate-y-1/3" @click="imagePick.click()">
                 <span class="icon-reload text-8xl cursor-pointer"></span>
-                <input ref="imagePick" type="file" class="hidden" accept="image/*" @change="onFileSelected" />
+                <input ref="imagePick" type="file" class="hidden" :accept="acceptedFileTypes" @change="onFileSelected" />
               </div>
             </div>
           </div>
@@ -304,7 +304,8 @@ import {
   watch,
 } from '#imports'
 
-import {acceptedFileTypes, isLottieAnimation, mediaHeader, showToast} from './medias.js'
+import {isLottieAnimation, mediaHeader, showToast} from './medias.js'
+import {isFileTypeSupported} from "../../utils/constants.js";
 
 const { t } = useI18n()
 
@@ -392,6 +393,10 @@ const props = defineProps({
   requestPreSent: {
     type: Function,
     default: () => {}
+  },
+  acceptedFileTypes: {
+    type: String,
+    default: ''
   }
 })
 
@@ -476,7 +481,6 @@ const showPopupCode = ref(false)
 const popupContent = ref('')
 const backLabel = '<'
 const isEditingMedia = ref(false)
-const fileTypes = acceptedFileTypes
 
 // Computed
 const allowedPermission = computed(() => {
@@ -755,6 +759,12 @@ async function deleteMediaByID() {
 }
 
 function onFileSelected(e) {
+
+  if (!isFileTypeSupported(e.target.files[0], props.acceptedFileTypes)) {
+    showToast('Error', 'error', t(props.mediaTranslationPrefix + 'unsupportedFileType'))
+    return
+  }
+
   const reader = new FileReader()
   reader.onload = (e) => {
     if (e) media.value.files[0].url = e.target.result

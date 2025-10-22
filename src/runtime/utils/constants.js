@@ -41,3 +41,12 @@ export function hasValuesExcept(obj, excludeKey) {
 export function filterArrayByObjectValues(array, excludeKey) {
   return array.filter(obj => hasValuesExcept(obj, excludeKey));
 }
+
+export function isFileTypeSupported(fileData, supportedTypes) {
+    const match = fileData.name.match(/\.[^.]+$/)
+    const extension = match ? match[0].toLowerCase() : ''
+
+    const supportedExtensions = supportedTypes.split(',').map(ext => ext.trim().toLowerCase())
+
+    return !!supportedExtensions.includes(extension);
+}

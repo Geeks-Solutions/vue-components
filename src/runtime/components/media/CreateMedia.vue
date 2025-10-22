@@ -35,7 +35,7 @@
           id="dropzone-file"
           ref="imageUploaded"
           type="file"
-          :accept="mediaCategory === 'document' ? fileTypes : null"
+          :accept="acceptedFileTypes"
           class="hidden"
           @change="onFileSelected"
         />
@@ -49,7 +49,8 @@
 <script setup>
 import { useI18n, ref, useRoute, navigateTo, useLocalePath, watch, useFetch } from '#imports'
 
-import {acceptedFileTypes, isLottieAnimation, mediaHeader, showToast} from './medias'
+import {isLottieAnimation, mediaHeader, showToast} from './medias'
+import {isFileTypeSupported} from "../../utils/constants.js";
 
 const { t } = useI18n()
 
@@ -105,6 +106,10 @@ const props = defineProps({
   requestPreSent: {
     type: Function,
     default: () => {}
+  },
+  acceptedFileTypes: {
+    type: String,
+    default: ''
   }
 })
 
@@ -116,7 +121,6 @@ const mediaByIdUri = ref('')
 const projectId = ref('')
 const token = ref('')
 const backLabel = '<'
-const fileTypes = acceptedFileTypes
 
 // File input reference
 const imageUploaded = ref(null)
@@ -155,6 +159,12 @@ async function onFileSelected(e) {
   }
 
   if (!fileData) return
+
+  if (!isFileTypeSupported(fileData, props.acceptedFileTypes)) {
+    showToast('Error', 'error', t(props.mediaTranslationPrefix + 'unsupportedFileType'))
+    return
+  }
+
   loading.value = true
   const data = new FormData()
 

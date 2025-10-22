@@ -30,6 +30,7 @@
         :response-received="responseReceived"
         :request-pre-sent="requestPreSent"
         :alter-error-received="alterErrorReceived"
+        :accepted-file-types="acceptedFileTypes"
         @updateMediaComponent="onMediaComponentUpdate"
         @onMediaSelected="(media) => $emit('getSelectedMedia', media)"
     />
@@ -143,6 +144,10 @@ const props = defineProps({
   requestPreSent: {
     type: Function,
     default: () => {}
+  },
+  acceptedFileTypes: {
+    type: String,
+    default: ''
   }
 })
 
