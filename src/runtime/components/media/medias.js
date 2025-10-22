@@ -13,7 +13,7 @@ export const showToast = (title, variant, message, options) => {
   const $nuxt = useNuxtApp();
   const toast = $nuxt.$toast
 
-  toast[variant](
+  toast?.[variant](
       options && Object.keys(options).length > 0 ? '🔗 ' + message : message,
       {
         position: "top-right",
@@ -33,8 +33,6 @@ export const showToast = (title, variant, message, options) => {
       }
   )
 }
-
-export const acceptedFileTypes = '.pdf, .doc, .docx, .zip, .json, .css, .scss, .xlsx, .xlsb, .xltx'
 
 export const parseDate = (timestamp) => {
   const timestampInMs = timestamp * 1000;

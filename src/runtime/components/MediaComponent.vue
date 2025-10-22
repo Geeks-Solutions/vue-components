@@ -25,6 +25,7 @@
               :alter-error-received="alterErrorReceived"
               :response-received="responseReceived"
               :request-pre-sent="requestPreSent"
+              :accepted-file-types="acceptedFileTypes"
               @get-selected-media="emitMedia"
           />
         </div>
@@ -80,6 +81,10 @@ const props = defineProps({
   requestPreSent: {
     type: Function,
     default: () => {}
+  },
+  acceptedFileTypes: {
+    type: String,
+    default: ''
   }
 })
 
