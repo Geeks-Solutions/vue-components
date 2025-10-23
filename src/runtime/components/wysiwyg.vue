@@ -756,10 +756,18 @@ watch(selectedMedia, async (mediaObject) => {
 
   const range = selectedRange.value || quill.getSelection();
   let insertIndex = range ? range.index : (quill.getLength() > 0 ? quill.getLength() -1 : 0);
+  let lengthIndex
+
+  let linkAttr = null;
+  const [leaf, offset] = quill.getLeaf(range?.length);
+  if (leaf?.parent?.domNode?.href) {
+    linkAttr = leaf?.parent?.domNode?.href;
+  }
 
   if (selectedRange.value && selectedRange.value.length > 0) {
     quill.deleteText(selectedRange.value.index, selectedRange.value.length, Quill.sources.USER);
     insertIndex = selectedRange.value.index;
+    lengthIndex = selectedRange.value.length
   }
   selectedRange.value = null;
 
@@ -779,6 +787,10 @@ watch(selectedMedia, async (mediaObject) => {
       alt: media.seo_tag || '',
       loading: 'lazy'
     }, Quill.sources.USER);
+  }
+
+  if (linkAttr && lengthIndex) {
+    quill.formatText(insertIndex, lengthIndex, 'link', linkAttr);
   }
 
   quill.setSelection(insertIndex + 1, 0, Quill.sources.SILENT);

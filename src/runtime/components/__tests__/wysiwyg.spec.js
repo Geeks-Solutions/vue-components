@@ -13,6 +13,16 @@ const mockQuillInstance = {
     getContents: vi.fn(() => ({ ops: [] })),
     setContents: vi.fn(),
     insertEmbed: vi.fn(),
+    getLeaf: vi.fn(() => [
+        {
+            parent: {
+                domNode: {
+                    href: 'https://google.com'
+                }
+            }
+        },
+        0
+    ]),
     deleteText: vi.fn(),
     formatText: vi.fn(),
     getFormat: vi.fn(() => ({})),
@@ -643,6 +653,59 @@ describe('QuillEditor Component', () => {
 
             // Test applyFormat without Quill instance
             expect(() => vm.applyFormat()).not.toThrow()
+        })
+
+    })
+
+    describe('Media Content Management', () => {
+        beforeEach(async () => {
+            wrapper = shallowMount(QuillEditor, {
+                props: mockProps,
+                global: {plugins: [i18n],
+                    components: {
+                        LazyGMediaComponent,
+                        ClientOnly: {
+                            template: '<div><slot /></div>'
+                        }
+                    }
+                }
+            })
+            await flushPromises()
+        })
+
+        it('Should preserve anchor link of a media when updating one', async () => {
+
+            // Step 1: Set the settings value
+            wrapper.vm.settings = '<p><a href="https://google.com" target="_blank"><img src="https://s3.amazonaws.com/eweevtestbucketprivate/sections%2Fsections_suchi4441851b50aa040d4b297e5e647ef2eaacb65a3eb576a4f51bf73b1a31bc98f11.png" media-id="685d49b710d4b50006a4f4ad" loading="lazy"></a></p>';
+
+            // Verify initial settings value
+            expect(wrapper.vm.settings).toContain('href="https://google.com"');
+            expect(wrapper.vm.settings).toContain('<a');
+            expect(wrapper.vm.settings).toContain('</a>');
+
+            // Step 2: Trigger the watcher by setting selectedMedia
+            wrapper.vm.selectedMedia = {
+                id: '685d49b710d4b50006a4f4ad',
+                url: 'https://s3.amazonaws.com/eweevtestbucketprivate/sections%2Fsections_new_image.png',
+                seo_tag: 'New Image',
+                files: [{
+                    filename: 'new_image.png',
+                    url: 'https://s3.amazonaws.com/eweevtestbucketprivate/sections%2Fsections_new_image.png'
+                }],
+                metadata: {
+                    type: 'image'
+                }
+            };
+
+            // Wait for watcher to execute
+            await nextTick();
+            await nextTick(); // Extra tick to ensure async operations complete
+
+            // Step 3: Verify that settings still contains the anchor tag
+            expect(wrapper.vm.settings).toContain('href="https://google.com"');
+            expect(wrapper.vm.settings).toContain('<a');
+            expect(wrapper.vm.settings).toContain('</a>');
+            expect(wrapper.vm.settings).toContain('target="_blank"');
         })
 
     })
