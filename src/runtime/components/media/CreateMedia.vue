@@ -160,7 +160,7 @@ async function onFileSelected(e) {
 
   if (!fileData) return
 
-  if (!isFileTypeSupported(fileData, props.acceptedFileTypes)) {
+  if (props.acceptedFileTypes && props.acceptedFileTypes !== '' && !isFileTypeSupported(fileData, props.acceptedFileTypes)) {
     showToast('Error', 'error', t(props.mediaTranslationPrefix + 'unsupportedFileType'))
     return
   }
@@ -210,7 +210,7 @@ async function onFileSelected(e) {
     if (response.error && response.error.value) throw response.error.value
 
     try {
-      await props.responseReceived('POST', mediaByIdUri.value, data)
+      await props.responseReceived('POST', mediaByIdUri.value, data, response?.data)
     } catch {}
 
     // Direct handling of successful response

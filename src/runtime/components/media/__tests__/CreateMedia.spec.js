@@ -78,4 +78,25 @@ describe('CreateMedia', () => {
     )
   })
 
+  it('should proceed and not show a toast message if acceptedFileTypes prop is not provided', async () => {
+
+    await wrapper.setProps({
+      acceptedFileTypes: '',
+    })
+
+    const unsupportedFile = new File(['dummy content'], 'test.pdf', { type: 'application/pdf' })
+
+    const showToastSpy = vi.spyOn(medias, 'showToast')
+    const isFileTypeSupportedSpy = vi.spyOn(constants, 'isFileTypeSupported')
+
+    const e = { dataTransfer: { files: [unsupportedFile] } }
+    // Call the function with mocks
+
+    await wrapper.vm.onFileSelected(e)
+
+    expect(isFileTypeSupportedSpy).not.toHaveBeenCalled()
+
+    expect(showToastSpy).not.toHaveBeenCalled()
+  })
+
 })

@@ -685,7 +685,7 @@ async function updateMediaByID() {
 
     let responseReceivedData
     try {
-      responseReceivedData = await props.responseReceived('PUT', mediaByIdUri.value + mediaId.value, data)
+      responseReceivedData = await props.responseReceived('PUT', mediaByIdUri.value + mediaId.value, data, response?.data)
     } catch {}
 
     if (response.error && response.error.value) throw response.error.value
@@ -737,7 +737,7 @@ async function deleteMediaByID() {
     })
 
     try {
-      await props.responseReceived('DELETE', mediaByIdUri.value, mediaId.value)
+      await props.responseReceived('DELETE', mediaByIdUri.value, mediaId.value, response?.data)
     } catch {}
 
     if (response.error && response.error.value) throw response.error.value
@@ -760,7 +760,7 @@ async function deleteMediaByID() {
 
 function onFileSelected(e) {
 
-  if (!isFileTypeSupported(e.target.files[0], props.acceptedFileTypes)) {
+  if (props.acceptedFileTypes && props.acceptedFileTypes !== '' && !isFileTypeSupported(e.target.files[0], props.acceptedFileTypes)) {
     showToast('Error', 'error', t(props.mediaTranslationPrefix + 'unsupportedFileType'))
     return
   }
