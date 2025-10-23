@@ -160,7 +160,8 @@ describe('QuillEditor Component', () => {
             serverUrl: 'https://test.com',
             selectedMediaId: 'media-789',
             contentUsedKey: 'title',
-            mediaTranslationPrefix: 'mediaT.'
+            mediaTranslationPrefix: 'mediaT.',
+            fontFamilies: ['Open Sans', 'Roboto', 'Poppins']
         }
     })
 
@@ -219,6 +220,60 @@ describe('QuillEditor Component', () => {
             expect(vm.authToken).toBe('test-token')
             expect(vm.sectionsUserId).toBe('user-123')
             expect(vm.projectIdProp).toBe('project-456')
+        })
+
+        it('creates a style element with correct id and CSS for each font', () => {
+            wrapper = shallowMount(QuillEditor, {
+                props: mockProps,
+                global: {
+                    plugins: [i18n],
+                    components: {
+                        LazyGMediaComponent,
+                        ClientOnly: {
+                            template: '<div><slot /></div>'
+                        }
+                    },
+                },
+            })
+
+            const result = wrapper.vm.setupFontFamilies()
+            wrapper.vm.initEditorOptions()
+
+            const style = document.getElementById('custom-quill-fonts')
+            expect(style).toBeTruthy()
+            expect(style.tagName).toBe('STYLE')
+
+            // It should have generated CSS for each font
+            expect(style.innerHTML).toContain('.ql-font-open_sans')
+            expect(style.innerHTML).toContain('.ql-font-roboto')
+            expect(style.innerHTML).toContain('.ql-font-poppins')
+
+            // Should return normalized font names
+            expect(result).toEqual(['open_sans', 'roboto', 'poppins'])
+
+            expect(wrapper.vm.editorOptionsObject.modules.toolbar.container[2][0].font).toEqual(['open_sans', 'roboto', 'poppins'])
+        })
+
+        it('does not create duplicate style nodes if one already exists', () => {
+            wrapper = shallowMount(QuillEditor, {
+                props: mockProps,
+                global: {plugins: [i18n],
+                    components: {
+                        LazyGMediaComponent,
+                        ClientOnly: {
+                            template: '<div><slot /></div>'
+                        }
+                    }
+                }
+            })
+
+            // First call
+            wrapper.vm.setupFontFamilies()
+            // Second call (should not re-add)
+            wrapper.vm.setupFontFamilies()
+
+            const styles = document.querySelectorAll('#custom-quill-fonts')
+            expect(styles.length).toBe(1)
         })
     })
 

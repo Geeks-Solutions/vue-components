@@ -6,7 +6,6 @@
     <GMainFilter />
     <GHeaderContainer />
     <GMediaFolder />
-<!--    <GWysiwyg :html="htmlContent" :auth-token="authToken" :server-url="serverUrl" :project-id-prop="projectId" />-->
   </div>
 </template>
 
