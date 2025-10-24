@@ -347,7 +347,11 @@ const props = defineProps({
   requestPreSent: {
     type: Function,
     default: () => {}
-  }
+  },
+  forwardRequest: {
+    type: Function,
+    default: null
+  },
 })
 
 // Reactive data
@@ -552,7 +556,8 @@ async function getAllMedias (folderMediaType, filtered) {
     loading.value = true
 
     // First API call to get all media counts
-    let { data: allMediaResponse } = await useFetch(mediaUri.value, {
+    let allMediaResponse
+    const payload = {
       method: 'POST',
       body: {
         sort: {
@@ -560,7 +565,12 @@ async function getAllMedias (folderMediaType, filtered) {
         }
       },
       headers: mediaHeader({ token: token.value }, projectId.value)
-    })
+    }
+    if (props.forwardRequest) {
+      ({ data: allMediaResponse } = await props.forwardRequest(nuxtApp, payload.method, mediaUri.value, payload.body, payload, props))
+    } else {
+      ({ data: allMediaResponse } = await useFetch(mediaUri.value, payload))
+    }
 
     let responseReceivedData
     try {
@@ -634,11 +644,17 @@ async function getAllMedias (folderMediaType, filtered) {
     }
 
     // Second API call with updated filters
-    let { data: filteredResponse } = await useFetch(mediaUri.value, {
+    let filteredResponse
+    const filteredPayload = {
       method: 'POST',
       body: payloadData.value,
       headers: mediaHeader({ token: token.value }, projectId.value)
-    })
+    }
+    if (props.forwardRequest) {
+      ({ data: filteredResponse } = await props.forwardRequest(nuxtApp, filteredPayload.method, mediaUri.value, filteredPayload.body, filteredPayload, props))
+    } else {
+      ({ data: filteredResponse } = await useFetch(mediaUri.value, filteredPayload))
+    }
 
     if (mediaResponse && mediaResponse.value) {
 

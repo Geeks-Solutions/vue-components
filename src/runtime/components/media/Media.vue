@@ -29,6 +29,7 @@
         :folder-type="folderType"
         :response-received="responseReceived"
         :request-pre-sent="requestPreSent"
+        :forward-request="forwardRequest"
         :alter-error-received="alterErrorReceived"
         :accepted-file-types="acceptedFileTypes"
         @updateMediaComponent="onMediaComponentUpdate"
@@ -144,6 +145,10 @@ const props = defineProps({
   requestPreSent: {
     type: Function,
     default: () => {}
+  },
+  forwardRequest: {
+    type: Function,
+    default: null
   },
   acceptedFileTypes: {
     type: String,
