@@ -26,6 +26,7 @@
       :alter-error-received="alterErrorReceived"
       :response-received="responseReceived"
       :request-pre-sent="requestPreSent"
+      :accepted-file-types="acceptedFileTypes"
       @emittedMedia="handleEmittedMedia"
     ></LazyGMediaComponent>
   </div>
@@ -70,6 +71,10 @@ const props = defineProps({
     default() {
       return []
     }
+  },
+  acceptedFileTypes: {
+    type: String,
+    default: ''
   }
 });
 
