@@ -763,7 +763,7 @@ describe('QuillEditor Component', () => {
             expect(wrapper.vm.settings).toContain('target="_blank"');
         })
 
-        it('Should have correct index for content selection', async () => {
+        it('Should preserve anchor link values when having multiple medias in content', async () => {
 
             // Step 1: Set the settings value
             wrapper.vm.settings = '<p><a href=\"https://google.com\" target=\"_blank\"><img src=\"https://s3.amazonaws.com/eweevtestbucketprivate/sections%2Fsections_suchi4441851b50aa040d4b297e5e647ef2eaacb65a3eb576a4f51bf73b1a31bc98f11.png\" media-id=\"685d49b710d4b50006a4f4ad\" media-type=\"image\" alt=\"\" loading=\"lazy\"></a></p><p><br></p><p><a href=\"https://fb.com\" target=\"_blank\"><img src=\"https://s3.amazonaws.com/eweevtestbucketprivate/sections%2F%E6%96%B0LOGO+5-31-1+%281%29cf4e44a2a0544a00a2890f885b5cbb76.png\" media-id=\"67bf37b7abf46d0007789ebc\" media-type=\"image\" alt=\"\" loading=\"lazy\"></a></p>';
