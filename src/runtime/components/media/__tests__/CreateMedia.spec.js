@@ -51,7 +51,7 @@ describe('CreateMedia', () => {
         }
       },
       propsData: {
-        acceptedFileTypes: '.jpg, .png',
+        acceptedFileTypes: '.jpg, .jpeg, .png, .webp, .gif, .svg, .json, .pdf, .css, .js',
         mediaTranslationPrefix: 'mediaT.'
       }
     })
@@ -59,7 +59,7 @@ describe('CreateMedia', () => {
   })
 
   it('should show toast and stop if file type is not supported', async () => {
-    const unsupportedFile = new File(['dummy content'], 'test.pdf', { type: 'application/pdf' })
+    const unsupportedFile = new File(['dummy content'], 'test.xslx', { type: 'application/pdf' })
 
     const showToastSpy = vi.spyOn(medias, 'showToast')
     const isFileTypeSupportedSpy = vi.spyOn(constants, 'isFileTypeSupported')
@@ -69,7 +69,7 @@ describe('CreateMedia', () => {
 
     await wrapper.vm.onFileSelected(e)
 
-    expect(isFileTypeSupportedSpy).toHaveBeenCalledWith(unsupportedFile, '.jpg, .png')
+    expect(isFileTypeSupportedSpy).toHaveBeenCalledWith(unsupportedFile, '.jpg, .jpeg, .png, .webp, .gif, .svg, .json, .pdf, .css, .js')
 
     expect(showToastSpy).toHaveBeenCalledWith(
         'Error',
