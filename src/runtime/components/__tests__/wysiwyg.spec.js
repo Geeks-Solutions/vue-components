@@ -763,6 +763,43 @@ describe('QuillEditor Component', () => {
             expect(wrapper.vm.settings).toContain('target="_blank"');
         })
 
+        it('Should preserve anchor link values when having multiple medias in content', async () => {
+
+            // Step 1: Set the settings value
+            wrapper.vm.settings = '<p><a href=\"https://google.com\" target=\"_blank\"><img src=\"https://s3.amazonaws.com/eweevtestbucketprivate/sections%2Fsections_suchi4441851b50aa040d4b297e5e647ef2eaacb65a3eb576a4f51bf73b1a31bc98f11.png\" media-id=\"685d49b710d4b50006a4f4ad\" media-type=\"image\" alt=\"\" loading=\"lazy\"></a></p><p><br></p><p><a href=\"https://fb.com\" target=\"_blank\"><img src=\"https://s3.amazonaws.com/eweevtestbucketprivate/sections%2F%E6%96%B0LOGO+5-31-1+%281%29cf4e44a2a0544a00a2890f885b5cbb76.png\" media-id=\"67bf37b7abf46d0007789ebc\" media-type=\"image\" alt=\"\" loading=\"lazy\"></a></p>';
+
+            // Verify initial settings value
+            expect(wrapper.vm.settings).toContain('href="https://google.com"');
+            expect(wrapper.vm.settings).toContain('href="https://fb.com"');
+            expect(wrapper.vm.settings).toContain('<a');
+            expect(wrapper.vm.settings).toContain('</a>');
+
+            // Step 2: Trigger the watcher by setting selectedMedia
+            wrapper.vm.selectedMedia = {
+                id: '685d49b710d4b50006a4f4ad',
+                url: 'https://s3.amazonaws.com/eweevtestbucketprivate/sections%2Fsections_new_image.png',
+                seo_tag: 'New Image',
+                files: [{
+                    filename: 'new_image.png',
+                    url: 'https://s3.amazonaws.com/eweevtestbucketprivate/sections%2Fsections_new_image.png'
+                }],
+                metadata: {
+                    type: 'image'
+                }
+            };
+
+            // Wait for watcher to execute
+            await nextTick();
+            await nextTick(); // Extra tick to ensure async operations complete
+
+            // Step 3: Verify that settings still contains the anchor tag
+            expect(wrapper.vm.settings).toContain('href="https://google.com"');
+            expect(wrapper.vm.settings).toContain('href="https://fb.com"');
+            expect(wrapper.vm.settings).toContain('<a');
+            expect(wrapper.vm.settings).toContain('</a>');
+            expect(wrapper.vm.settings).toContain('target="_blank"');
+        })
+
     })
 })
 

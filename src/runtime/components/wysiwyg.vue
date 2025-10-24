@@ -820,7 +820,7 @@ watch(selectedMedia, async (mediaObject) => {
   let lengthIndex
 
   let linkAttr = null;
-  const [leaf, offset] = quill.getLeaf(range?.length);
+  const [leaf, offset] = quill.getLeaf(insertIndex);
   if (leaf?.parent?.domNode?.href) {
     linkAttr = leaf?.parent?.domNode?.href;
   }
