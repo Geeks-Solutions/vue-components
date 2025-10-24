@@ -850,7 +850,6 @@ watch(selectedMedia, async (mediaObject) => {
     }, Quill.sources.USER);
   }
 
-  console.log('linkAttr', linkAttr)
   if (linkAttr && lengthIndex) {
     quill.formatText(insertIndex, lengthIndex, 'link', linkAttr);
   }
