@@ -2,6 +2,15 @@
 
 ---
 
+### v3.0.5 (01/09/2025)
+
+---
+
+- Update Media metacomponent to support customizing media file types through a prop "acceptedFileTypes"
+- Fixed Wysiwyg Media Links bug
+- Add support for routing the media api calls into an optional function prop "forwardRequest"
+
+
 ### v3.0.4 (27/08/2025)
 
 ---

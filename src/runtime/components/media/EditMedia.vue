@@ -198,7 +198,7 @@
               </div>
               <div class="absolute top-1/3 left-1/3 -translate-x-1/3 -translate-y-1/3" @click="imagePick.click()">
                 <span class="icon-reload text-8xl cursor-pointer"></span>
-                <input ref="imagePick" type="file" class="hidden" :accept="fileTypes" @change="onFileSelected" />
+                <input ref="imagePick" type="file" class="hidden" :accept="acceptedFileTypes" @change="onFileSelected" />
               </div>
             </div>
           </div>
@@ -208,7 +208,7 @@
               <LazyGUniversalViewer :src="media.files[0].url" :type="media.metadata?.type || 'image'" alt="" class="rounded-md md:w-[400px] w-[300px]" />
               <div class="absolute top-1/3 left-1/3 -translate-x-1/3 -translate-y-1/3" @click="imagePick.click()">
                 <span class="icon-reload text-8xl cursor-pointer"></span>
-                <input ref="imagePick" type="file" class="hidden" accept="image/*" @change="onFileSelected" />
+                <input ref="imagePick" type="file" class="hidden" :accept="acceptedFileTypes" @change="onFileSelected" />
               </div>
             </div>
           </div>
@@ -301,12 +301,14 @@ import {
   navigateTo,
   useLocalePath,
   onMounted,
-  watch,
+  watch, useNuxtApp,
 } from '#imports'
 
-import {acceptedFileTypes, isLottieAnimation, mediaHeader, showToast} from './medias.js'
+import {isLottieAnimation, mediaHeader, showToast} from './medias.js'
+import {isFileTypeSupported} from "../../utils/constants.js";
 
 const { t } = useI18n()
+const nuxtApp = useNuxtApp()
 
 const props = defineProps({
   contentUsedKey: {
@@ -392,6 +394,14 @@ const props = defineProps({
   requestPreSent: {
     type: Function,
     default: () => {}
+  },
+  forwardRequest: {
+    type: Function,
+    default: null
+  },
+  acceptedFileTypes: {
+    type: String,
+    default: ''
   }
 })
 
@@ -476,7 +486,6 @@ const showPopupCode = ref(false)
 const popupContent = ref('')
 const backLabel = '<'
 const isEditingMedia = ref(false)
-const fileTypes = acceptedFileTypes
 
 // Computed
 const allowedPermission = computed(() => {
@@ -591,10 +600,16 @@ onMounted(() => {
 async function getMediaByID() {
   try {
     loading.value = true
-    let response = await useFetch(mediaByIdUri.value + mediaId.value, {
+    let response
+    const payload = {
       method: 'GET',
       headers: mediaHeader({ token: token.value }, projectId.value)
-    })
+    }
+    if (props.forwardRequest) {
+      response = await props.forwardRequest(nuxtApp, payload.method, mediaByIdUri.value + mediaId.value, {}, payload, props)
+    } else {
+      response = await useFetch(mediaByIdUri.value + mediaId.value, payload)
+    }
 
     if (response.error && response.error.value) throw response.error.value
 
@@ -673,15 +688,21 @@ async function updateMediaByID() {
       }
     } catch {}
 
-    const response = await useFetch(mediaByIdUri.value + mediaId.value, {
+    let response
+    const payload = {
       method: 'PUT',
       headers: mediaHeader({ token: token.value }, projectId.value),
       body: data
-    })
+    }
+    if (props.forwardRequest) {
+      response = await props.forwardRequest(nuxtApp, payload.method, mediaByIdUri.value + mediaId.value, data, payload, props)
+    } else {
+      response = await useFetch(mediaByIdUri.value + mediaId.value, payload)
+    }
 
     let responseReceivedData
     try {
-      responseReceivedData = await props.responseReceived('PUT', mediaByIdUri.value + mediaId.value, data)
+      responseReceivedData = await props.responseReceived('PUT', mediaByIdUri.value + mediaId.value, data, response?.data)
     } catch {}
 
     if (response.error && response.error.value) throw response.error.value
@@ -727,13 +748,19 @@ async function deleteMediaByID() {
   if (mediaByIdUri.value === '') return
   try {
     loading.value = true
-    const response = await useFetch(mediaByIdUri.value + mediaId.value, {
+    let response
+    const payload = {
       method: 'DELETE',
       headers: mediaHeader({ token: token.value }, projectId.value)
-    })
+    }
+    if (props.forwardRequest) {
+      response = await props.forwardRequest(nuxtApp, payload.method, mediaByIdUri.value + mediaId.value, {}, payload, props)
+    } else {
+      response = await useFetch(mediaByIdUri.value + mediaId.value, payload)
+    }
 
     try {
-      await props.responseReceived('DELETE', mediaByIdUri.value, mediaId.value)
+      await props.responseReceived('DELETE', mediaByIdUri.value, mediaId.value, response?.data)
     } catch {}
 
     if (response.error && response.error.value) throw response.error.value
@@ -755,6 +782,12 @@ async function deleteMediaByID() {
 }
 
 function onFileSelected(e) {
+
+  if (props.acceptedFileTypes && props.acceptedFileTypes !== '' && !isFileTypeSupported(e.target.files[0], props.acceptedFileTypes)) {
+    showToast('Error', 'error', t(props.mediaTranslationPrefix + 'unsupportedFileType'))
+    return
+  }
+
   const reader = new FileReader()
   reader.onload = (e) => {
     if (e) media.value.files[0].url = e.target.result

@@ -3,6 +3,9 @@ import EditMedia from "../EditMedia.vue";
 
 import { createI18n } from 'vue-i18n'
 import {ref, watch, nextTick} from "#imports"
+import {expect, it, vi} from "vitest";
+import * as medias from "../medias.js";
+import * as constants from "../../../utils/constants.js";
 
 const i18n = createI18n({
   legacy: false,
@@ -56,7 +59,8 @@ describe('EditMedia', () => {
       },
       propsData: {
         contentUsedKey: 'name',
-        mediaTranslationPrefix: 'mediaT.'
+        mediaTranslationPrefix: 'mediaT.',
+        acceptedFileTypes: '.jpg, .png',
       }
     })
   })
@@ -139,4 +143,46 @@ describe('EditMedia', () => {
     expect(headerItems.value[3].value).toBe('Video')
     expect(headerItems.value[4].value).toBe(42)
   })
+
+  it('should show toast and stop if file type is not supported', async () => {
+    const unsupportedFile = new File(['dummy content'], 'test.pdf', { type: 'application/pdf' })
+
+    const showToastSpy = vi.spyOn(medias, 'showToast')
+    const isFileTypeSupportedSpy = vi.spyOn(constants, 'isFileTypeSupported')
+
+    const e = { target: { files: [unsupportedFile] } }
+    // Call the function with mocks
+
+    await wrapper.vm.onFileSelected(e)
+
+    expect(isFileTypeSupportedSpy).toHaveBeenCalledWith(unsupportedFile, '.jpg, .png')
+
+    expect(showToastSpy).toHaveBeenCalledWith(
+        'Error',
+        'error',
+        'mediaT.unsupportedFileType'
+    )
+  })
+
+  it('should proceed and not show a toast message if acceptedFileTypes prop is not provided', async () => {
+
+    await wrapper.setProps({
+      acceptedFileTypes: '',
+    })
+
+    const unsupportedFile = new File(['dummy content'], 'test.pdf', { type: 'application/pdf' })
+
+    const showToastSpy = vi.spyOn(medias, 'showToast')
+    const isFileTypeSupportedSpy = vi.spyOn(constants, 'isFileTypeSupported')
+
+    const e = { target: { files: [unsupportedFile] } }
+    // Call the function with mocks
+
+    await wrapper.vm.onFileSelected(e)
+
+    expect(isFileTypeSupportedSpy).not.toHaveBeenCalled()
+
+    expect(showToastSpy).not.toHaveBeenCalled()
+  })
+
 })

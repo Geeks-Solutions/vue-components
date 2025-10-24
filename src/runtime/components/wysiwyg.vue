@@ -26,6 +26,8 @@
       :alter-error-received="alterErrorReceived"
       :response-received="responseReceived"
       :request-pre-sent="requestPreSent"
+      :forward-request="forwardRequest"
+      :accepted-file-types="acceptedFileTypes"
       @emittedMedia="handleEmittedMedia"
     ></LazyGMediaComponent>
   </div>
@@ -64,6 +66,20 @@ const props = defineProps({
   requestPreSent: {
     type: Function,
     default: () => {}
+  },
+  forwardRequest: {
+    type: Function,
+    default: null
+  },
+  fontFamilies: {
+    type: Array,
+    default() {
+      return []
+    }
+  },
+  acceptedFileTypes: {
+    type: String,
+    default: ''
   }
 });
 
@@ -630,8 +646,56 @@ const defineQuillModules = async () => {
 
 };
 
+const setupFontFamilies = () => {
+  const styleId = 'custom-quill-fonts';
+
+  function getFontName(font) {
+    return font.toLowerCase().replace(/\s/g, "_");
+  }
+
+  const fontNames = props.fontFamilies.map(font => getFontName(font));
+
+  if (Quill) {
+    const FontAttributor = Quill.import('attributors/class/font');
+    FontAttributor.whitelist = fontNames;
+    Quill.register(FontAttributor, true);
+  }
+
+  // Check if the style node already exists
+  if (document.getElementById(styleId)) {
+    return fontNames;
+  }
+
+  let fontStyles = "";
+  props.fontFamilies.forEach(function(font) {
+    const fontName = getFontName(font);
+    fontStyles += `
+      .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="${fontName}"]::before,
+      .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="${fontName}"]::before {
+        content: '${font}';
+        font-family: '${font}', sans-serif;
+      }
+      .ql-font-${fontName} {
+        font-family: '${font}', sans-serif;
+      }
+    `;
+  });
+
+  const node = document.createElement('style');
+  node.id = styleId;
+  node.innerHTML = fontStyles;
+  document.body.appendChild(node);
+
+  return fontNames;
+}
+
 // Initialize editor options
 const initEditorOptions = () => {
+  let fontNames = props.fontFamilies
+  if (props.fontFamilies && props.fontFamilies.length > 0) {
+    fontNames = setupFontFamilies()
+  }
+
   if (props.editorOptions && Object.keys(props.editorOptions).length > 0 && props.editorOptions.modules) {
     editorOptionsObject.value = props.editorOptions;
   } else if (props.sectionsWysiwygEditorOptions && Object.keys(props.sectionsWysiwygEditorOptions).length > 0 && props.sectionsWysiwygEditorOptions.modules) {
@@ -645,7 +709,7 @@ const initEditorOptions = () => {
           container: [
             ["save-format", "apply-format"],
             [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-            [{ 'font': [] }],
+            [{ 'font': fontNames }],
             [{ 'size': fontsArray }],
             ['bold', 'italic', 'underline', 'strike'],
             [{ 'color': ['#51aec3', '#fce085', '#03b1c7', '#61035b', '#ffffff', '#868686', '#011321', '#000000', '#e60000', '#ff9900', '#ffff00', '#008a00', '#0066cc', '#9933ff', '#ffffff', '#facccc', '#ffebcc', '#ffffcc', '#cce8cc', '#cce0f5', '#ebd6ff', '#bbbbbb', '#f06666', '#ffc266', '#ffff66', '#66b966', '#66a3e0', '#c285ff', '#888888', '#a10000', '#b26b00', '#b2b200', '#006100', '#0047b2', '#6b24b2', '#444444', '#5c0000', '#663d00', '#666600', '#003700', '#002966', '#3d1466'] }, { 'background': ['#51aec3', '#fce085', '#03B1C7', '#61035B', '#ffffff', '#868686', '#011321', '#000000', '#e60000', '#ff9900', '#ffff00', '#008a00', '#0066cc', '#9933ff', '#ffffff', '#facccc', '#ffebcc', '#ffffcc', '#cce8cc', '#cce0f5', '#ebd6ff', '#bbbbbb', '#f06666', '#ffc266', '#ffff66', '#66b966', '#66a3e0', '#c285ff', '#888888', '#a10000', '#b26b00', '#b2b200', '#006100', '#0047b2', '#6b24b2', '#444444', '#5c0000', '#663d00', '#666600', '#003700', '#002966', '#3d1466'] }],
@@ -676,7 +740,9 @@ const initEditorOptions = () => {
 
   }
 
-  QuillEditorComponent = new Quill(quillContainer.value, editorOptionsObject.value)
+  if (Quill) {
+    QuillEditorComponent = new Quill(quillContainer.value, editorOptionsObject.value)
+  }
 
 };
 
@@ -756,10 +822,18 @@ watch(selectedMedia, async (mediaObject) => {
 
   const range = selectedRange.value || quill.getSelection();
   let insertIndex = range ? range.index : (quill.getLength() > 0 ? quill.getLength() -1 : 0);
+  let lengthIndex
+
+  let linkAttr = null;
+  const [leaf, offset] = quill.getLeaf(insertIndex);
+  if (leaf?.parent?.domNode?.href) {
+    linkAttr = leaf?.parent?.domNode?.href;
+  }
 
   if (selectedRange.value && selectedRange.value.length > 0) {
     quill.deleteText(selectedRange.value.index, selectedRange.value.length, Quill.sources.USER);
     insertIndex = selectedRange.value.index;
+    lengthIndex = selectedRange.value.length
   }
   selectedRange.value = null;
 
@@ -779,6 +853,10 @@ watch(selectedMedia, async (mediaObject) => {
       alt: media.seo_tag || '',
       loading: 'lazy'
     }, Quill.sources.USER);
+  }
+
+  if (linkAttr && lengthIndex) {
+    quill.formatText(insertIndex, lengthIndex, 'link', linkAttr);
   }
 
   quill.setSelection(insertIndex + 1, 0, Quill.sources.SILENT);
@@ -1212,5 +1290,8 @@ main.sections-main .input.wyzywig-wrapper {
 .ql-toolbar.ql-snow .ql-formats:has(button.ql-html),
 .ql-toolbar.ql-snow .ql-formats:has(button.ql-table-button) {
   display: none;
+}
+.quill-editor .ql-snow .ql-picker.ql-font {
+  width: 168px;
 }
 </style>

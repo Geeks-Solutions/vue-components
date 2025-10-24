@@ -13,6 +13,16 @@ const mockQuillInstance = {
     getContents: vi.fn(() => ({ ops: [] })),
     setContents: vi.fn(),
     insertEmbed: vi.fn(),
+    getLeaf: vi.fn(() => [
+        {
+            parent: {
+                domNode: {
+                    href: 'https://google.com'
+                }
+            }
+        },
+        0
+    ]),
     deleteText: vi.fn(),
     formatText: vi.fn(),
     getFormat: vi.fn(() => ({})),
@@ -150,7 +160,8 @@ describe('QuillEditor Component', () => {
             serverUrl: 'https://test.com',
             selectedMediaId: 'media-789',
             contentUsedKey: 'title',
-            mediaTranslationPrefix: 'mediaT.'
+            mediaTranslationPrefix: 'mediaT.',
+            fontFamilies: ['Open Sans', 'Roboto', 'Poppins']
         }
     })
 
@@ -209,6 +220,60 @@ describe('QuillEditor Component', () => {
             expect(vm.authToken).toBe('test-token')
             expect(vm.sectionsUserId).toBe('user-123')
             expect(vm.projectIdProp).toBe('project-456')
+        })
+
+        it('creates a style element with correct id and CSS for each font', () => {
+            wrapper = shallowMount(QuillEditor, {
+                props: mockProps,
+                global: {
+                    plugins: [i18n],
+                    components: {
+                        LazyGMediaComponent,
+                        ClientOnly: {
+                            template: '<div><slot /></div>'
+                        }
+                    },
+                },
+            })
+
+            const result = wrapper.vm.setupFontFamilies()
+            wrapper.vm.initEditorOptions()
+
+            const style = document.getElementById('custom-quill-fonts')
+            expect(style).toBeTruthy()
+            expect(style.tagName).toBe('STYLE')
+
+            // It should have generated CSS for each font
+            expect(style.innerHTML).toContain('.ql-font-open_sans')
+            expect(style.innerHTML).toContain('.ql-font-roboto')
+            expect(style.innerHTML).toContain('.ql-font-poppins')
+
+            // Should return normalized font names
+            expect(result).toEqual(['open_sans', 'roboto', 'poppins'])
+
+            expect(wrapper.vm.editorOptionsObject.modules.toolbar.container[2][0].font).toEqual(['open_sans', 'roboto', 'poppins'])
+        })
+
+        it('does not create duplicate style nodes if one already exists', () => {
+            wrapper = shallowMount(QuillEditor, {
+                props: mockProps,
+                global: {plugins: [i18n],
+                    components: {
+                        LazyGMediaComponent,
+                        ClientOnly: {
+                            template: '<div><slot /></div>'
+                        }
+                    }
+                }
+            })
+
+            // First call
+            wrapper.vm.setupFontFamilies()
+            // Second call (should not re-add)
+            wrapper.vm.setupFontFamilies()
+
+            const styles = document.querySelectorAll('#custom-quill-fonts')
+            expect(styles.length).toBe(1)
         })
     })
 
@@ -643,6 +708,96 @@ describe('QuillEditor Component', () => {
 
             // Test applyFormat without Quill instance
             expect(() => vm.applyFormat()).not.toThrow()
+        })
+
+    })
+
+    describe('Media Content Management', () => {
+        beforeEach(async () => {
+            wrapper = shallowMount(QuillEditor, {
+                props: mockProps,
+                global: {plugins: [i18n],
+                    components: {
+                        LazyGMediaComponent,
+                        ClientOnly: {
+                            template: '<div><slot /></div>'
+                        }
+                    }
+                }
+            })
+            await flushPromises()
+        })
+
+        it('Should preserve anchor link of a media when updating one', async () => {
+
+            // Step 1: Set the settings value
+            wrapper.vm.settings = '<p><a href="https://google.com" target="_blank"><img src="https://s3.amazonaws.com/eweevtestbucketprivate/sections%2Fsections_suchi4441851b50aa040d4b297e5e647ef2eaacb65a3eb576a4f51bf73b1a31bc98f11.png" media-id="685d49b710d4b50006a4f4ad" loading="lazy"></a></p>';
+
+            // Verify initial settings value
+            expect(wrapper.vm.settings).toContain('href="https://google.com"');
+            expect(wrapper.vm.settings).toContain('<a');
+            expect(wrapper.vm.settings).toContain('</a>');
+
+            // Step 2: Trigger the watcher by setting selectedMedia
+            wrapper.vm.selectedMedia = {
+                id: '685d49b710d4b50006a4f4ad',
+                url: 'https://s3.amazonaws.com/eweevtestbucketprivate/sections%2Fsections_new_image.png',
+                seo_tag: 'New Image',
+                files: [{
+                    filename: 'new_image.png',
+                    url: 'https://s3.amazonaws.com/eweevtestbucketprivate/sections%2Fsections_new_image.png'
+                }],
+                metadata: {
+                    type: 'image'
+                }
+            };
+
+            // Wait for watcher to execute
+            await nextTick();
+            await nextTick(); // Extra tick to ensure async operations complete
+
+            // Step 3: Verify that settings still contains the anchor tag
+            expect(wrapper.vm.settings).toContain('href="https://google.com"');
+            expect(wrapper.vm.settings).toContain('<a');
+            expect(wrapper.vm.settings).toContain('</a>');
+            expect(wrapper.vm.settings).toContain('target="_blank"');
+        })
+
+        it('Should preserve anchor link values when having multiple medias in content', async () => {
+
+            // Step 1: Set the settings value
+            wrapper.vm.settings = '<p><a href=\"https://google.com\" target=\"_blank\"><img src=\"https://s3.amazonaws.com/eweevtestbucketprivate/sections%2Fsections_suchi4441851b50aa040d4b297e5e647ef2eaacb65a3eb576a4f51bf73b1a31bc98f11.png\" media-id=\"685d49b710d4b50006a4f4ad\" media-type=\"image\" alt=\"\" loading=\"lazy\"></a></p><p><br></p><p><a href=\"https://fb.com\" target=\"_blank\"><img src=\"https://s3.amazonaws.com/eweevtestbucketprivate/sections%2F%E6%96%B0LOGO+5-31-1+%281%29cf4e44a2a0544a00a2890f885b5cbb76.png\" media-id=\"67bf37b7abf46d0007789ebc\" media-type=\"image\" alt=\"\" loading=\"lazy\"></a></p>';
+
+            // Verify initial settings value
+            expect(wrapper.vm.settings).toContain('href="https://google.com"');
+            expect(wrapper.vm.settings).toContain('href="https://fb.com"');
+            expect(wrapper.vm.settings).toContain('<a');
+            expect(wrapper.vm.settings).toContain('</a>');
+
+            // Step 2: Trigger the watcher by setting selectedMedia
+            wrapper.vm.selectedMedia = {
+                id: '685d49b710d4b50006a4f4ad',
+                url: 'https://s3.amazonaws.com/eweevtestbucketprivate/sections%2Fsections_new_image.png',
+                seo_tag: 'New Image',
+                files: [{
+                    filename: 'new_image.png',
+                    url: 'https://s3.amazonaws.com/eweevtestbucketprivate/sections%2Fsections_new_image.png'
+                }],
+                metadata: {
+                    type: 'image'
+                }
+            };
+
+            // Wait for watcher to execute
+            await nextTick();
+            await nextTick(); // Extra tick to ensure async operations complete
+
+            // Step 3: Verify that settings still contains the anchor tag
+            expect(wrapper.vm.settings).toContain('href="https://google.com"');
+            expect(wrapper.vm.settings).toContain('href="https://fb.com"');
+            expect(wrapper.vm.settings).toContain('<a');
+            expect(wrapper.vm.settings).toContain('</a>');
+            expect(wrapper.vm.settings).toContain('target="_blank"');
         })
 
     })

@@ -35,7 +35,7 @@
           id="dropzone-file"
           ref="imageUploaded"
           type="file"
-          :accept="mediaCategory === 'document' ? fileTypes : null"
+          :accept="acceptedFileTypes"
           class="hidden"
           @change="onFileSelected"
         />
@@ -47,9 +47,10 @@
 </template>
 
 <script setup>
-import { useI18n, ref, useRoute, navigateTo, useLocalePath, watch, useFetch } from '#imports'
+import {useI18n, ref, useRoute, navigateTo, useLocalePath, watch, useFetch, useNuxtApp} from '#imports'
 
-import {acceptedFileTypes, isLottieAnimation, mediaHeader, showToast} from './medias'
+import {isLottieAnimation, mediaHeader, showToast} from './medias'
+import {isFileTypeSupported} from "../../utils/constants.js";
 
 const { t } = useI18n()
 
@@ -105,8 +106,18 @@ const props = defineProps({
   requestPreSent: {
     type: Function,
     default: () => {}
+  },
+  forwardRequest: {
+    type: Function,
+    default: null
+  },
+  acceptedFileTypes: {
+    type: String,
+    default: ''
   }
 })
+
+const nuxtApp = useNuxtApp()
 
 const emit = defineEmits(['updateMediaComponent'])
 
@@ -116,7 +127,6 @@ const mediaByIdUri = ref('')
 const projectId = ref('')
 const token = ref('')
 const backLabel = '<'
-const fileTypes = acceptedFileTypes
 
 // File input reference
 const imageUploaded = ref(null)
@@ -155,6 +165,12 @@ async function onFileSelected(e) {
   }
 
   if (!fileData) return
+
+  if (props.acceptedFileTypes && props.acceptedFileTypes !== '' && !isFileTypeSupported(fileData, props.acceptedFileTypes)) {
+    showToast('Error', 'error', t(props.mediaTranslationPrefix + 'unsupportedFileType'))
+    return
+  }
+
   loading.value = true
   const data = new FormData()
 
@@ -190,17 +206,23 @@ async function onFileSelected(e) {
   } catch {}
 
   try {
-    // $fetch returns the response directly, not an object with .value properties
-    const response = await useFetch(mediaByIdUri.value, {
+    let response
+    const payload = {
       method: 'POST',
       headers: mediaHeader({ token: token.value }, projectId.value),
       body: data
-    })
+    }
+    if (props.forwardRequest) {
+      response = await props.forwardRequest(nuxtApp, payload.method, mediaByIdUri.value, data, payload, props)
+    } else {
+      response = await useFetch(mediaByIdUri.value, payload)
+      console.log('got here 2', response)
+    }
 
     if (response.error && response.error.value) throw response.error.value
 
     try {
-      await props.responseReceived('POST', mediaByIdUri.value, data)
+      await props.responseReceived('POST', mediaByIdUri.value, data, response?.data)
     } catch {}
 
     // Direct handling of successful response

@@ -38,7 +38,64 @@ import('quill/dist/quill.snow.css')
 
 const loadScript = inject('loadScript')
 
+// Global set to track injected font styles across all component instances
+const injectedFonts = new Set()
+
+// Function to inject font styles only once globally
+const injectFontStyles = (htmlContent) => {
+  try {
+    if (!htmlContent) return
+
+    // Regular expression to find ql-font-{fontName} classes (including dashes)
+    const fontClassRegex = /ql-font-([\w-]+)/g
+    const matches = htmlContent.matchAll(fontClassRegex)
+    const fontNames = new Set()
+
+    for (const match of matches) {
+      fontNames.add(match[1])
+    }
+
+    if (fontNames.size === 0) return
+
+    // Check if styles already exist in the HTML content
+    const existingStyles = htmlContent.match(/<style[^>]*>([\s\S]*?)<\/style>/gi) || []
+    const existingStyleContent = existingStyles.join('')
+
+    // Get or create the global style element for font styles
+    let styleElement = document.getElementById('quill-font-styles')
+    if (!styleElement) {
+      styleElement = document.createElement('style')
+      styleElement.id = 'quill-font-styles'
+      document.head.appendChild(styleElement)
+    }
+
+    // Generate CSS for fonts that haven't been injected yet
+    let newCss = ''
+    for (const fontName of fontNames) {
+      const stylePattern = new RegExp(`\\.ql-font-${fontName.replace(/[_]/g, '\\-')}\\s*{`, 'i')
+
+      // Check if style exists in HTML content or already injected globally
+      if (!existingStyleContent.match(stylePattern) && !injectedFonts.has(fontName)) {
+        // Convert fontName to a proper font family name (e.g., open-sans -> Open Sans)
+        const fontFamily = fontName.split('_').map(word =>
+            word.charAt(0).toUpperCase() + word.slice(1)
+        ).join(' ')
+
+        newCss += `.ql-font-${fontName} {\n  font-family: '${fontFamily}', sans-serif;\n}\n`
+        injectedFonts.add(fontName)
+      }
+    }
+
+    if (newCss) {
+      styleElement.textContent += newCss
+    }
+  } catch {}
+}
+
 onMounted(async () => {
+  // Inject font styles
+  injectFontStyles(props.htmlContent)
+
   // Handle internal link clicks
   const quillEditor = document.querySelector('.ql-editor')
   if (quillEditor) {
@@ -65,6 +122,9 @@ onMounted(async () => {
 })
 
 watch(() => props.htmlContent, async () => {
+  // Inject font styles when content changes
+  injectFontStyles(props.htmlContent)
+
   if (loadScript) {
     await nextTick()
     const lottieDivs = articleContainerRef.value.querySelectorAll('div[lottie-id][media-type="lottie"]');
