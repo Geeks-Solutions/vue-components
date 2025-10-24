@@ -301,13 +301,14 @@ import {
   navigateTo,
   useLocalePath,
   onMounted,
-  watch,
+  watch, useNuxtApp,
 } from '#imports'
 
 import {isLottieAnimation, mediaHeader, showToast} from './medias.js'
 import {isFileTypeSupported} from "../../utils/constants.js";
 
 const { t } = useI18n()
+const nuxtApp = useNuxtApp()
 
 const props = defineProps({
   contentUsedKey: {
@@ -393,6 +394,10 @@ const props = defineProps({
   requestPreSent: {
     type: Function,
     default: () => {}
+  },
+  forwardRequest: {
+    type: Function,
+    default: null
   },
   acceptedFileTypes: {
     type: String,
@@ -595,10 +600,16 @@ onMounted(() => {
 async function getMediaByID() {
   try {
     loading.value = true
-    let response = await useFetch(mediaByIdUri.value + mediaId.value, {
+    let response
+    const payload = {
       method: 'GET',
       headers: mediaHeader({ token: token.value }, projectId.value)
-    })
+    }
+    if (props.forwardRequest) {
+      response = await props.forwardRequest(nuxtApp, payload.method, mediaByIdUri.value + mediaId.value, {}, payload, props)
+    } else {
+      response = await useFetch(mediaByIdUri.value + mediaId.value, payload)
+    }
 
     if (response.error && response.error.value) throw response.error.value
 
@@ -677,11 +688,17 @@ async function updateMediaByID() {
       }
     } catch {}
 
-    const response = await useFetch(mediaByIdUri.value + mediaId.value, {
+    let response
+    const payload = {
       method: 'PUT',
       headers: mediaHeader({ token: token.value }, projectId.value),
       body: data
-    })
+    }
+    if (props.forwardRequest) {
+      response = await props.forwardRequest(nuxtApp, payload.method, mediaByIdUri.value + mediaId.value, data, payload, props)
+    } else {
+      response = await useFetch(mediaByIdUri.value + mediaId.value, payload)
+    }
 
     let responseReceivedData
     try {
@@ -731,10 +748,16 @@ async function deleteMediaByID() {
   if (mediaByIdUri.value === '') return
   try {
     loading.value = true
-    const response = await useFetch(mediaByIdUri.value + mediaId.value, {
+    let response
+    const payload = {
       method: 'DELETE',
       headers: mediaHeader({ token: token.value }, projectId.value)
-    })
+    }
+    if (props.forwardRequest) {
+      response = await props.forwardRequest(nuxtApp, payload.method, mediaByIdUri.value + mediaId.value, {}, payload, props)
+    } else {
+      response = await useFetch(mediaByIdUri.value + mediaId.value, payload)
+    }
 
     try {
       await props.responseReceived('DELETE', mediaByIdUri.value, mediaId.value, response?.data)

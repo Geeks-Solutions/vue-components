@@ -99,4 +99,22 @@ describe('CreateMedia', () => {
     expect(showToastSpy).not.toHaveBeenCalled()
   })
 
+  it('falls back to useFetch and API works if forwardRequest is not provided', async () => {
+    const file = new Blob(['test'], { type: 'image/png' })
+    Object.defineProperty(file, 'name', { value: 'test.png' })
+
+    const fileInput = {
+      dataTransfer: { files: [file] }
+    }
+
+    const forwardSpy = vi.fn()
+    wrapper.setProps({ forwardRequest: forwardSpy })
+    wrapper.setProps({ forwardRequest: null })
+
+    await wrapper.vm.onFileSelected(fileInput)
+
+    // Assert
+    expect(forwardSpy).not.toHaveBeenCalled()
+  })
+
 })
