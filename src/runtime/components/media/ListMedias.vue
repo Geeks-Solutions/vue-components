@@ -724,9 +724,16 @@ function seeMoreMedias() {
 async function getAuthors() {
   try {
     loading.value = true
-    const response = await $fetch(authorsUri.value, {
+    let response
+    const payload = {
+      method: 'GET',
       headers: mediaHeader({ token: token.value }, projectId.value)
-    })
+    }
+    if (props.forwardRequest) {
+      response = await props.forwardRequest(nuxtApp, payload.method, authorsUri.value, null, payload, props)
+    } else {
+      response = await $fetch(authorsUri.value, payload)
+    }
     response.data.forEach((project) => {
       filterMap.author.filterOptions.push({
         key: project.id,
