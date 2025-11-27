@@ -606,7 +606,7 @@ async function getMediaByID() {
       headers: mediaHeader({ token: token.value }, projectId.value)
     }
     if (props.forwardRequest) {
-      response = await props.forwardRequest(nuxtApp, payload.method, mediaByIdUri.value + mediaId.value, {}, payload, props)
+      response = await props.forwardRequest(mediaByIdUri.value + mediaId.value, payload)
     } else {
       response = await useFetch(mediaByIdUri.value + mediaId.value, payload)
     }
@@ -695,7 +695,7 @@ async function updateMediaByID() {
       body: data
     }
     if (props.forwardRequest) {
-      response = await props.forwardRequest(nuxtApp, payload.method, mediaByIdUri.value + mediaId.value, data, payload, props)
+      response = await props.forwardRequest(mediaByIdUri.value + mediaId.value, payload)
     } else {
       response = await useFetch(mediaByIdUri.value + mediaId.value, payload)
     }
@@ -754,7 +754,7 @@ async function deleteMediaByID() {
       headers: mediaHeader({ token: token.value }, projectId.value)
     }
     if (props.forwardRequest) {
-      response = await props.forwardRequest(nuxtApp, payload.method, mediaByIdUri.value + mediaId.value, {}, payload, props)
+      response = await props.forwardRequest(mediaByIdUri.value + mediaId.value, payload)
     } else {
       response = await useFetch(mediaByIdUri.value + mediaId.value, payload)
     }

@@ -213,7 +213,7 @@ async function onFileSelected(e) {
       body: data
     }
     if (props.forwardRequest) {
-      response = await props.forwardRequest(nuxtApp, payload.method, mediaByIdUri.value, data, payload, props)
+      response = await props.forwardRequest(mediaByIdUri.value, payload)
     } else {
       response = await useFetch(mediaByIdUri.value, payload)
       console.log('got here 2', response)

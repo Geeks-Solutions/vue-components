@@ -567,7 +567,7 @@ async function getAllMedias (folderMediaType, filtered) {
       headers: mediaHeader({ token: token.value }, projectId.value)
     }
     if (props.forwardRequest) {
-      ({ data: allMediaResponse } = await props.forwardRequest(nuxtApp, payload.method, mediaUri.value, payload.body, payload, props))
+      ({ data: allMediaResponse } = await props.forwardRequest(mediaUri.value, payload))
     } else {
       ({ data: allMediaResponse } = await useFetch(mediaUri.value, payload))
     }
@@ -651,13 +651,12 @@ async function getAllMedias (folderMediaType, filtered) {
       headers: mediaHeader({ token: token.value }, projectId.value)
     }
     if (props.forwardRequest) {
-      ({ data: filteredResponse } = await props.forwardRequest(nuxtApp, filteredPayload.method, mediaUri.value, filteredPayload.body, filteredPayload, props))
+      ({ data: filteredResponse } = await props.forwardRequest(mediaUri.value, filteredPayload))
     } else {
       ({ data: filteredResponse } = await useFetch(mediaUri.value, filteredPayload))
     }
 
     if (mediaResponse && mediaResponse.value) {
-
       let responseReceivedData
       try {
         responseReceivedData = await props.responseReceived('POST', mediaUri.value, {
@@ -730,7 +729,7 @@ async function getAuthors() {
       headers: mediaHeader({ token: token.value }, projectId.value)
     }
     if (props.forwardRequest) {
-      response = await props.forwardRequest(nuxtApp, payload.method, authorsUri.value, null, payload, props)
+      response = await props.forwardRequest(authorsUri.value, payload)
     } else {
       response = await $fetch(authorsUri.value, payload)
     }
