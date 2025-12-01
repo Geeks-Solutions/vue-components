@@ -866,8 +866,27 @@ watch(selectedMedia, async (mediaObject) => {
   } catch {}
 });
 
-// Helper functions
-function handleEmittedMedia(media) {
+const injectedTransformer = inject(Symbol.for('mediaURLTransformer'), null)
+
+async function handleEmittedMedia(media) {
+  if (injectedTransformer && typeof injectedTransformer === 'function' && media.files && Array.isArray(media.files)) {
+    for (const file of media.files) {
+      if (file.url) {
+        try {
+          file.url = await injectedTransformer(file.url)
+        } catch (e) {
+          console.error('Error transforming media URL:', e)
+        }
+      }
+      if (file.thumbnail_url) {
+        try {
+          file.thumbnail_url = await injectedTransformer(file.thumbnail_url)
+        } catch (e) {
+          console.error('Error transforming media thumbnail URL:', e)
+        }
+      }
+    }
+  }
   selectedMedia.value = media;
 }
 
