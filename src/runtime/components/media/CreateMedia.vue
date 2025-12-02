@@ -216,7 +216,6 @@ async function onFileSelected(e) {
       response = await props.forwardRequest(mediaByIdUri.value, payload)
     } else {
       response = await useFetch(mediaByIdUri.value, payload)
-      console.log('got here 2', response)
     }
 
     if (response.error && response.error.value) throw response.error.value
