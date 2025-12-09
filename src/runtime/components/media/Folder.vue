@@ -14,7 +14,7 @@
             </div>
             <!-- Display image otherwise -->
             <div v-else>
-              <img :src="media.url" :width="props.mediasWidth" :height="props.mediasHeight" :class="props.mediaStyle"/>
+              <LazyGUniversalViewer :src="media.url" :width="props.mediasWidth" :height="props.mediasHeight" :type="media.type" :class="props.mediaStyle" />
             </div>
           </div>
           <div class="self-end">...</div>
