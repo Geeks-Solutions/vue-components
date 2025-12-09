@@ -1,5 +1,13 @@
 # Releases
 
+### V3.0.6 (09/12/2025)
+
+---
+
+- Update the Media api calls to be forwarded to a function prop `forwardRequest`
+- Add a new transformer function prop to be able to transform the URL of a media before it is displayed
+- Use the `lazyGUniversalViewer` component to display medias inside the media folder component
+
 ---
 
 ### v3.0.5 (01/09/2025)
