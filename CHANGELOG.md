@@ -6,6 +6,7 @@
 
 - Fix for UniversalViewer component to support dynamic src on Lottie animations
 - Watch lottie animation src to correctly animate when MediaUrlTransformer is used
+- Add support for Lottie animations as base64 strings
 
 ### V3.0.6 (09/12/2025)
 
