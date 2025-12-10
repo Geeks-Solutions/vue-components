@@ -44,7 +44,9 @@ That's it! You can now use Vue Components in your Nuxt app ✨
   npm run test:watch
   
   # Release new version
-  npm run release
+  npm install
+  npm run prepack
+  npm publish
   ```
 
 </details>
