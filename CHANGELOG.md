@@ -1,5 +1,12 @@
 # Releases
 
+### V3.0.7 (10/12/2025)
+
+---
+
+- Fix for UniversalViewer component to support dynamic src on Lottie animations
+- Watch lottie animation src to correctly animate when MediaUrlTransformer is used
+
 ### V3.0.6 (09/12/2025)
 
 ---
