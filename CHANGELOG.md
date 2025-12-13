@@ -1,5 +1,12 @@
 # Releases
 
+### V3.0.8 (13/12/2025)
+
+---
+
+- Bump Quill to v2.0.3
+- Stop silencing errors in the wysiwyg editor
+
 ### V3.0.7 (10/12/2025)
 
 ---
