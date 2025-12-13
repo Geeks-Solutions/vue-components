@@ -561,6 +561,7 @@ const defineQuillModules = async () => {
       visibility: visible;
     }
     .quill-editor .html-edit-overlay {
+      display: inline;
       position: absolute;
       top: 8px;
       right: 8px;
