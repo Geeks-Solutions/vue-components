@@ -560,9 +560,6 @@ const defineQuillModules = async () => {
     .quill-editor .ql-custom-html:hover::before {
       visibility: visible;
     }
-    .ql-editor .html-edit-overlay{
-      display: none;
-    }
     .quill-editor .html-edit-overlay {
       position: absolute;
       top: 8px;
