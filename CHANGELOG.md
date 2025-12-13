@@ -6,6 +6,7 @@
 
 - Bump Quill to v2.0.3
 - Stop silencing errors in the wysiwyg editor
+- Fix edit html icon display in wysiwyg content view
 
 ### V3.0.7 (10/12/2025)
 
