@@ -3,6 +3,7 @@
       v-if="computedType === 'lottie'"
       ref="lottieRef"
       v-bind="$attrs"
+      :src="computedSrc"
   />
   <NuxtImg
       v-else
@@ -59,8 +60,12 @@ const resolveSrc = async () => {
   }
 }
 
-watch(() => [props.src, attrs.src], () => {
-  resolveSrc()
-}, { immediate: true })
+watch(
+  () => [props.src, attrs.src],
+  () => {
+    resolveSrc()
+  },
+  { immediate: true }
+)
 
 </script>

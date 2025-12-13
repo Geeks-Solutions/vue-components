@@ -127,21 +127,17 @@ const defineQuillModules = async () => {
 
   // Load and register EmojiJS library
   if (!EmojiLib) {
-    try {
       await import("@devdcodes9/quill-emojijs/dist/quill-emoji.css")
       EmojiLib = await import("@devdcodes9/quill-emojijs");
       Quill.register("modules/emoji-toolbar", EmojiLib.default.ToolbarEmoji);
       Quill.register('formats/emoji', EmojiLib.default.EmojiBlot);
-    } catch {}
   }
 
   // Load and register Table UI library
   if (!QuillTableUILib) {
-    try {
       await import('quill-table-ui/dist/index.css');
       QuillTableUILib = await import('quill-table-ui');
       Quill.register({ 'modules/tableUI': QuillTableUILib.default }, true);
-    } catch {}
   }
 
   // Register custom image blot
@@ -565,6 +561,7 @@ const defineQuillModules = async () => {
       visibility: visible;
     }
     .quill-editor .html-edit-overlay {
+      display: inline;
       position: absolute;
       top: 8px;
       right: 8px;
@@ -767,7 +764,9 @@ const initializeLottie = async (htmlElement) => {
       });
       initLottieFromHtml(htmlElement)
     }
-  } catch {}
+  } catch (e){
+    console.error('Lottie init failed', e)
+  }
 }
 
 // Watch for changes to settings
@@ -863,7 +862,9 @@ watch(selectedMedia, async (mediaObject) => {
   emit('wysiwygMedia', media);
   try {
     sectionsMediaComponentRef.value?.closeModal();
-  } catch {}
+  } catch (e) {
+    console.error('Error closing media modal:', e)
+  }
 });
 
 const injectedTransformer = inject(Symbol.for('mediaURLTransformer'), null)
@@ -1225,7 +1226,9 @@ onMounted(async () => {
 
       await onQuillEditorReady(QuillEditorComponent);
 
-    } catch {}
+    } catch (e) {
+      console.error('onMounted Quill init failed', e)
+    }
   }
 });
 

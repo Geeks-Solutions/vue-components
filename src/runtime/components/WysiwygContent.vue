@@ -225,6 +225,9 @@ button.quill-button-container {
 .ql-editor p {
   font-size: 1rem;
 }
+.ql-editor .html-edit-overlay{
+  display: none;
+}
 div .ql-editor {
   word-wrap: normal;
 }

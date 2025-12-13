@@ -23,8 +23,11 @@ That's it! You can now use Vue Components in your Nuxt app ✨
   ```bash
   # Install dependencies
   npm install
+
+  # Declare the library for NPM
+  npm link
   
-  # Generate type stubs
+  # Generate type stubs so /dist points to src for live development
   npm run dev:prepare
   
   # Develop with the playground
@@ -41,7 +44,9 @@ That's it! You can now use Vue Components in your Nuxt app ✨
   npm run test:watch
   
   # Release new version
-  npm run release
+  npm install
+  npm run prepack
+  npm publish
   ```
 
 </details>

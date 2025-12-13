@@ -1,5 +1,21 @@
 # Releases
 
+### V3.0.8 (13/12/2025)
+
+---
+
+- Bump Quill to v2.0.3
+- Stop silencing errors in the wysiwyg editor
+- Fix edit html icon display in wysiwyg content view
+
+### V3.0.7 (10/12/2025)
+
+---
+
+- Fix for UniversalViewer component to support dynamic src on Lottie animations
+- Watch lottie animation src to correctly animate when MediaUrlTransformer is used
+- Add support for Lottie animations as base64 strings
+
 ### V3.0.6 (09/12/2025)
 
 ---
