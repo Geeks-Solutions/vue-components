@@ -9,10 +9,7 @@
     <div
       class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0"
     >
-      <div
-        class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
-        aria-hidden="false"
-      />
+      <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="false" />
 
       <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="false"
         >&#8203;</span
@@ -31,7 +28,7 @@
             </div>
 
             <div v-if="props.canBeDeleted" class="w-full justify-center pt-16 mb-24">
-              <span :class="props.alertIcon"/>
+              <span :class="props.alertIcon" />
               <div class="flex w-full justify-center text-center">
                 <div :class="props.titleDeleteStyle">
                   {{ props.titleDelete }}
@@ -59,7 +56,7 @@
             </div>
 
             <div v-else class="w-full flex flex-col justify-center">
-              <span :class="props.alertIcon"/>
+              <span :class="props.alertIcon" />
               <div class="flex w-full justify-center text-center">
                 <div :class="props.titleNoDeleteStyle">
                   {{ props.titleNoDelete }}

@@ -1,5 +1,5 @@
 <template>
-  <div ref="lottieContainer" :style="{ width, height }"/>
+  <div ref="lottieContainer" :style="{ width, height }" />
 </template>
 
 <script setup>

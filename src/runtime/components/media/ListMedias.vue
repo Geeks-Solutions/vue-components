@@ -69,7 +69,7 @@
               }
             "
           />
-          <div v-if="selectedFolder === 'all'" class="h-10px bg-Blue flex mt-6"/>
+          <div v-if="selectedFolder === 'all'" class="h-10px bg-Blue flex mt-6" />
         </div>
 
         <div v-show="mediaCategory !== 'document'" class="self-center md:self-start">
@@ -89,7 +89,7 @@
               }
             "
           />
-          <div v-if="selectedFolder === 'image'" class="h-10px bg-Blue flex mt-6"/>
+          <div v-if="selectedFolder === 'image'" class="h-10px bg-Blue flex mt-6" />
         </div>
 
         <div
@@ -113,7 +113,7 @@
               }
             "
           />
-          <div v-if="selectedFolder === 'video'" class="h-10px bg-Blue flex mt-6"/>
+          <div v-if="selectedFolder === 'video'" class="h-10px bg-Blue flex mt-6" />
         </div>
 
         <div class="self-center md:self-start">
@@ -134,11 +134,11 @@
               }
             "
           />
-          <div v-if="selectedFolder === 'document'" class="h-10px bg-Blue flex mt-6"/>
+          <div v-if="selectedFolder === 'document'" class="h-10px bg-Blue flex mt-6" />
         </div>
       </div>
 
-      <div class="h-10px flex mx-16 mb-8 mobileHidden" :style="lineSeparatorStyle"/>
+      <div class="h-10px flex mx-16 mb-8 mobileHidden" :style="lineSeparatorStyle" />
 
       <div v-show="mediaResponse.length !== 0">
         <div

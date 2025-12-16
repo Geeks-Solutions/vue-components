@@ -36,13 +36,13 @@
             "
           >
             <template #selected-option="{ selected, label }">
-              <slot name="selected-option" :selected="selected" :label="label"/>
+              <slot name="selected-option" :selected="selected" :label="label" />
             </template>
             <template #option="{ option, label }">
-              <slot name="option" :option="option" :label="label"/>
+              <slot name="option" :option="option" :label="label" />
             </template>
           </v-select>
-          <span v-if="withIcon" :class="filterIconIcomoon"/>
+          <span v-if="withIcon" :class="filterIconIcomoon" />
         </div>
       </div>
     </div>

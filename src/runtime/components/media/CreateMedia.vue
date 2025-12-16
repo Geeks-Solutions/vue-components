@@ -24,7 +24,7 @@
         class="flex flex-col justify-center items-center w-full h-64 bg-gray-50 rounded-lg border-2 border-BorderGray border-dashed cursor-pointer bg-mediaUploadGray"
       >
         <div class="flex flex-col justify-center items-center pt-5 pb-6">
-          <img src="../../assets/images/upload.svg" alt="" class="pb-4" width="100" >
+          <img src="../../assets/images/upload.svg" alt="" class="pb-4" width="100" />
           <div class="text-grayText">
             {{ $t(mediaTranslationPrefix + 'dragDrop') }}
             <a class="text-Blue underline">{{ $t(mediaTranslationPrefix + 'browse') }}</a>
@@ -38,7 +38,7 @@
           :accept="acceptedFileTypes"
           class="hidden"
           @change="onFileSelected"
-        >
+        />
       </label>
     </div>
 

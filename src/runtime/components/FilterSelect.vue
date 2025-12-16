@@ -59,7 +59,7 @@
             "
             :class="props.inputStyle"
             @input="emitFilter()"
-          >
+          />
           <div
             v-if="props.filter_map[mainFilter].description"
             :class="
@@ -210,7 +210,7 @@
               :placeholder="capitalize(props.filter_map[mainFilter].subTitle1)"
               :class="props.inputStyle"
               @input="emitFilter()"
-            >
+            />
             <div
               v-if="props.filter_map[mainFilter].description1"
               :class="
@@ -229,7 +229,7 @@
               :placeholder="capitalize(props.filter_map[mainFilter].subTitle2)"
               :class="props.inputStyle"
               @input="emitFilter()"
-            >
+            />
             <div
               v-if="props.filter_map[mainFilter].description2"
               :class="

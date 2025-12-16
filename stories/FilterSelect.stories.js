@@ -36,7 +36,7 @@ const defaultControls = {
       ]
     },
   },
-   
+
   filter_map: {
     type: Object,
     default() {

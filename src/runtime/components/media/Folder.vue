@@ -17,7 +17,7 @@
               :class="[props.mediaStyle, props.documentClass]"
               :style="props.documentStyle"
             >
-              <span class="icon-mediaDocument text-xl"/>
+              <span class="icon-mediaDocument text-xl" />
             </div>
             <!-- Display image otherwise -->
             <div v-else>
@@ -38,7 +38,7 @@
         </div>
 
         <div class="flex items-center pt-2 pl-3">
-          <span v-if="!props.all" :class="props.categoryIcon"/>
+          <span v-if="!props.all" :class="props.categoryIcon" />
           <div :class="!props.all ? props.categoryValueStyle : props.allStyle">
             {{ !props.all ? props.categoryValue : props.allText }}
           </div>

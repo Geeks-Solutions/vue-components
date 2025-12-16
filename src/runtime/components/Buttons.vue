@@ -20,7 +20,7 @@
         :class="active ? iconStyle.activeIconStyle : iconStyle.inActiveIconStyle"
         :src="iconStyle.src"
         alt="rotate"
-      >
+      />
     </button>
   </div>
 </template>

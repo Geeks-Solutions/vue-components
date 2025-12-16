@@ -8,7 +8,7 @@
       {{ backLabel }}
     </div>
 
-    <div v-if="privateStatus === 'public' && lockedStatus === 'unlocked'"/>
+    <div v-if="privateStatus === 'public' && lockedStatus === 'unlocked'" />
 
     <div
       v-else-if="
@@ -17,7 +17,7 @@
       "
       class="flex justify-center items-start bg-purpleInfo py-2 my-4 mx-4"
     >
-      <span class="icon-iconInfo2 pt-1 pr-2"/>
+      <span class="icon-iconInfo2 pt-1 pr-2" />
       <div class="flex flex-col text-white font-light">
         <div class="flex gap-1">
           <span>{{ $t(mediaTranslationPrefix + 'noPermission') }}</span>
@@ -41,7 +41,7 @@
           <input
             v-model="media.title"
             class="border border-SmallTextGray shadow rounded-md outline-none py-1 px-2 mt-3 mr-16"
-          >
+          />
         </div>
         <div v-else>{{ media.title }}</div>
 
@@ -50,19 +50,19 @@
           <input
             v-model="media.seo_tag"
             class="border border-SmallTextGray shadow rounded-md outline-none py-1 px-2 mt-3 mr-16"
-          >
+          />
         </div>
         <div v-else>{{ media.seo_tag }}</div>
 
         <label class="mt-8 text-lg">{{ $t(mediaTranslationPrefix + 'EditMedia.type') }}</label>
         <div class="mt-3 flex">
-          <div class="w-[7px] [h-6px] bg-Blue rounded-full mt-2.5 mr-2"/>
+          <div class="w-[7px] [h-6px] bg-Blue rounded-full mt-2.5 mr-2" />
           <div class="text-md text-mediaTextGray">
             {{ $t(mediaTranslationPrefix + 'EditMedia.privateDesc') }}
           </div>
         </div>
         <div class="mt-3 flex">
-          <div class="w-[7px] [h-6px] bg-Blue rounded-full mt-2.5 mr-2"/>
+          <div class="w-[7px] [h-6px] bg-Blue rounded-full mt-2.5 mr-2" />
           <div class="text-md text-mediaTextGray">
             {{ $t(mediaTranslationPrefix + 'EditMedia.publicDesc') }}
           </div>
@@ -82,13 +82,13 @@
 
         <label class="mt-8 text-lg">{{ $t(mediaTranslationPrefix + 'EditMedia.state') }}</label>
         <div class="mt-3 flex">
-          <div class="w-[7px] [h-6px] bg-Blue rounded-full mt-2.5 mr-2"/>
+          <div class="w-[7px] [h-6px] bg-Blue rounded-full mt-2.5 mr-2" />
           <div class="text-md text-mediaTextGray">
             {{ $t(mediaTranslationPrefix + 'EditMedia.lockedDesc') }}
           </div>
         </div>
         <div class="mt-3 flex">
-          <div class="w-[7px] [h-6px] bg-Blue rounded-full mt-2.5 mr-2"/>
+          <div class="w-[7px] [h-6px] bg-Blue rounded-full mt-2.5 mr-2" />
           <div class="text-md text-mediaTextGray">
             {{ $t(mediaTranslationPrefix + 'EditMedia.unlockedDesc') }}
           </div>
@@ -103,8 +103,8 @@
           "
           @click="toggleLockStatus"
         >
-          <span v-if="media.locked_status === 'locked'" class="icon-locked text-xl"/>
-          <span v-else class="icon-unlocked text-xl"/>
+          <span v-if="media.locked_status === 'locked'" class="icon-locked text-xl" />
+          <span v-else class="icon-unlocked text-xl" />
         </div>
       </div>
 
@@ -132,12 +132,9 @@
                 <div class="sm:items-start">
                   <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
                     <div class="flex justify-between pt-1">
-                      <div/>
+                      <div />
                       <div class="sticky">
-                        <span
-                          class="icon-cross cursor-pointer"
-                          @click="showPopupCode = false"
-                        />
+                        <span class="icon-cross cursor-pointer" @click="showPopupCode = false" />
                       </div>
                     </div>
                     <div
@@ -150,7 +147,7 @@
                         :key="content.id"
                         class="flex flex-row items-center p-1"
                       >
-                        <div class="w-[2.5] h-[2.5] mr-3 rounded-full bg-darkBlue"/>
+                        <div class="w-[2.5] h-[2.5] mr-3 rounded-full bg-darkBlue" />
                         <div class="content-used font-medium text-lg pr-3">
                           {{
                             `${contentUsedKey ? content[contentUsedKey] : content.name} (${content.id}) ${$t(
@@ -238,7 +235,7 @@
             class="my-8 p-2 px-2 cursor-pointer flex rounded-md shadow text-sm text-SmallTextGray font-light w-max"
             @click="downloadMedia"
           >
-            <img src="../../assets/images/downloadMedia.svg" alt="" class="pr-2" >
+            <img src="../../assets/images/downloadMedia.svg" alt="" class="pr-2" />
             <div>{{ $t(mediaTranslationPrefix + 'EditMedia.downloadMedia') }}</div>
           </div>
 
@@ -248,20 +245,20 @@
               :style="hiddenContainerStyle"
             >
               <div class="flex flex-col items-center gap-4">
-                <span class="icon-mediaDocument text-6xl"/>
+                <span class="icon-mediaDocument text-6xl" />
               </div>
               <div
                 class="absolute top-1/3 left-1/3 -translate-x-1/3 -translate-y-1/3"
                 @click="imagePick.click()"
               >
-                <span class="icon-reload text-8xl cursor-pointer"/>
+                <span class="icon-reload text-8xl cursor-pointer" />
                 <input
                   ref="imagePick"
                   type="file"
                   class="hidden"
                   :accept="acceptedFileTypes"
                   @change="onFileSelected"
-                >
+                />
               </div>
             </div>
           </div>
@@ -278,14 +275,14 @@
                 class="absolute top-1/3 left-1/3 -translate-x-1/3 -translate-y-1/3"
                 @click="imagePick.click()"
               >
-                <span class="icon-reload text-8xl cursor-pointer"/>
+                <span class="icon-reload text-8xl cursor-pointer" />
                 <input
                   ref="imagePick"
                   type="file"
                   class="hidden"
                   :accept="acceptedFileTypes"
                   @change="onFileSelected"
-                >
+                />
               </div>
             </div>
           </div>
@@ -305,7 +302,7 @@
         <div v-else class="w-[400px] cursor-pointer rounded-xl mt-8" style="background: #ededed">
           <div class="flex w-full h-[200px] justify-center items-center object-cover">
             <div class="flex flex-col items-center gap-4">
-              <span class="icon-alert text-4xl"/>
+              <span class="icon-alert text-4xl" />
               <div class="text-center font-light">
                 {{ $t(mediaTranslationPrefix + 'previewNotAvailable') }}
               </div>
@@ -337,7 +334,7 @@
           <div class="text-error text-sm md:text-lg">
             {{ $t(mediaTranslationPrefix + 'EditMedia.deleteMedia') }}
           </div>
-          <span class="icon-trashCan2 text-md pb-1 px-2"/>
+          <span class="icon-trashCan2 text-md pb-1 px-2" />
         </div>
 
         <div @click.stop.prevent="updateMediaByID">

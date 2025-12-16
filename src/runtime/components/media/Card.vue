@@ -10,18 +10,18 @@
                 : 'rounded-full bg-mediaUnLocked flex items-center justify-center'
             "
           >
-            <span v-if="props.locked" :class="props.iconLocked"/>
-            <span v-else :class="props.iconUnlocked"/>
+            <span v-if="props.locked" :class="props.iconLocked" />
+            <span v-else :class="props.iconUnlocked" />
           </div>
 
           <div class="pl-4">
-            <span v-if="props.hidden" :class="props.iconHidden"/>
-            <span v-else :class="props.iconSeen"/>
+            <span v-if="props.hidden" :class="props.iconHidden" />
+            <span v-else :class="props.iconSeen" />
           </div>
         </div>
 
         <div class="flex items-center cursor-pointer" @click="props.copyLink">
-          <span :class="props.iconAttach"/>
+          <span :class="props.iconAttach" />
           <div :class="props.copyLinkStyle">
             {{ props.copyLinkLabel }}
           </div>
@@ -39,7 +39,7 @@
             :style="props.hiddenContainerStyle"
           >
             <div class="flex flex-col items-center gap-4">
-              <span class="icon-mediaDocument text-6xl"/>
+              <span class="icon-mediaDocument text-6xl" />
             </div>
           </div>
         </div>
@@ -49,7 +49,7 @@
             :style="props.hiddenContainerStyle"
           >
             <div class="flex flex-col items-center gap-4">
-              <span class="icon-photograpg text-8xl"/>
+              <span class="icon-photograpg text-8xl" />
               <!-- Assuming icon-photograph is correct -->
             </div>
           </div>
@@ -70,7 +70,7 @@
       >
         <div class="flex w-full h-[200px] justify-center items-center object-cover">
           <div class="flex flex-col items-center gap-4">
-            <span :class="props.hiddenMediaSrc"/>
+            <span :class="props.hiddenMediaSrc" />
             <div class="text-center font-light">
               {{ props.hiddenMessage }}
             </div>

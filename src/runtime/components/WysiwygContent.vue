@@ -1,10 +1,6 @@
 <template>
   <div :class="[wrapperDefaultClasses, wrapperClasses]">
-    <article
-      ref="articleContainerRef"
-      :class="[defaultClasses, classes]"
-      v-html="htmlContent"
-    />
+    <article ref="articleContainerRef" :class="[defaultClasses, classes]" v-html="htmlContent" />
   </div>
 </template>
 
