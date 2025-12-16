@@ -24,7 +24,7 @@
         class="flex flex-col justify-center items-center w-full h-64 bg-gray-50 rounded-lg border-2 border-BorderGray border-dashed cursor-pointer bg-mediaUploadGray"
       >
         <div class="flex flex-col justify-center items-center pt-5 pb-6">
-          <img src="../../assets/images/upload.svg" alt="" class="pb-4" width="100" />
+          <img src="../../assets/images/upload.svg" alt="" class="pb-4" width="100" >
           <div class="text-grayText">
             {{ $t(mediaTranslationPrefix + 'dragDrop') }}
             <a class="text-Blue underline">{{ $t(mediaTranslationPrefix + 'browse') }}</a>
@@ -38,7 +38,7 @@
           :accept="acceptedFileTypes"
           class="hidden"
           @change="onFileSelected"
-        />
+        >
       </label>
     </div>
 
@@ -47,74 +47,83 @@
 </template>
 
 <script setup>
-import {useI18n, ref, useRoute, navigateTo, useLocalePath, watch, useFetch, useNuxtApp} from '#imports'
+import {
+  useI18n,
+  ref,
+  useRoute,
+  navigateTo,
+  useLocalePath,
+  watch,
+  useFetch,
+  useNuxtApp,
+} from '#imports'
 
-import {isLottieAnimation, mediaHeader, showToast} from './medias'
-import {isFileTypeSupported} from "../../utils/constants.js";
+import { isLottieAnimation, mediaHeader, showToast } from './medias'
+import { isFileTypeSupported } from '../../utils/constants.js'
 
 const { t } = useI18n()
 
 const props = defineProps({
   appliedFilters: {
     type: String,
-    default: ''
+    default: '',
   },
   folderType: {
     type: String,
-    default: ''
+    default: '',
   },
   mediaByIdUriProp: {
     type: String,
-    default: ''
+    default: '',
   },
   projectIdProp: {
     type: String,
-    default: ''
+    default: '',
   },
   authToken: {
     type: String,
-    default: ''
+    default: '',
   },
   mediaTranslationPrefix: {
     type: String,
-    default: 'mediaT.'
+    default: 'mediaT.',
   },
   editMediaPath: {
     type: String,
-    default: ''
+    default: '',
   },
   mediasPath: {
     type: String,
-    default: ''
+    default: '',
   },
   boUsage: {
     type: Boolean,
-    default: true
+    default: true,
   },
   nuxtSections: {
     type: Boolean,
-    default: false
+    default: false,
   },
   mediaCategory: {
     type: String,
-    default: ''
+    default: '',
   },
   responseReceived: {
     type: Function,
-    default: () => {}
+    default: () => {},
   },
   requestPreSent: {
     type: Function,
-    default: () => {}
+    default: () => {},
   },
   forwardRequest: {
     type: Function,
-    default: null
+    default: null,
   },
   acceptedFileTypes: {
     type: String,
-    default: ''
-  }
+    default: '',
+  },
 })
 
 const nuxtApp = useNuxtApp()
@@ -166,7 +175,11 @@ async function onFileSelected(e) {
 
   if (!fileData) return
 
-  if (props.acceptedFileTypes && props.acceptedFileTypes !== '' && !isFileTypeSupported(fileData, props.acceptedFileTypes)) {
+  if (
+    props.acceptedFileTypes &&
+    props.acceptedFileTypes !== '' &&
+    !isFileTypeSupported(fileData, props.acceptedFileTypes)
+  ) {
     showToast('Error', 'error', t(props.mediaTranslationPrefix + 'unsupportedFileType'))
     return
   }
@@ -183,7 +196,7 @@ async function onFileSelected(e) {
   function readFileAsText(file) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader()
-      reader.onload = e => resolve(e.target.result)
+      reader.onload = (e) => resolve(e.target.result)
       reader.onerror = reject
       reader.readAsText(file)
     })
@@ -210,7 +223,7 @@ async function onFileSelected(e) {
     const payload = {
       method: 'POST',
       headers: mediaHeader({ token: token.value }, projectId.value),
-      body: data
+      body: data,
     }
     if (props.forwardRequest) {
       response = await props.forwardRequest(mediaByIdUri.value, payload)
@@ -230,20 +243,28 @@ async function onFileSelected(e) {
     }
 
     if (props.editMediaPath) {
-      navigateTo(useLocalePath({ path: props.editMediaPath, query: { id: response.data.value.id, isCreate: true } }))
+      navigateTo(
+        useLocalePath({
+          path: props.editMediaPath,
+          query: { id: response.data.value.id, isCreate: true },
+        })
+      )
     } else {
       emit('updateMediaComponent', {
         name: 'MediaEditMedia',
         mediaId: response.data.value.id,
         isCreateMedia: true,
         appliedFilters: props.appliedFilters,
-        folderType: props.folderType
+        folderType: props.folderType,
       })
     }
   } catch (e) {
     let errorMessage = ''
     // Comprehensive error handling
-    if ((e && e.request && !e.response) || (e && e.message && e.message.includes('<no response>'))) {
+    if (
+      (e && e.request && !e.response) ||
+      (e && e.message && e.message.includes('<no response>'))
+    ) {
       // Network error or request couldn't be sent
       errorMessage = t('mediaTooLarge')
     } else if (e && e.data) {
@@ -274,12 +295,14 @@ async function onFileSelected(e) {
 
 function backClicked() {
   if (props.mediasPath) {
-    navigateTo(useLocalePath({ path: props.mediasPath, query: { filters: useRoute().query.filters } }))
+    navigateTo(
+      useLocalePath({ path: props.mediasPath, query: { filters: useRoute().query.filters } })
+    )
   } else {
     emit('updateMediaComponent', {
       name: 'MediaListMedias',
       appliedFilters: props.appliedFilters,
-      folderType: props.folderType
+      folderType: props.folderType,
     })
   }
 }

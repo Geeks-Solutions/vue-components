@@ -1,34 +1,38 @@
 <template>
   <div :class="[wrapperDefaultClasses, wrapperClasses]">
-    <article ref="articleContainerRef" :class="[defaultClasses, classes]" v-html="htmlContent"></article>
+    <article
+      ref="articleContainerRef"
+      :class="[defaultClasses, classes]"
+      v-html="htmlContent"
+    />
   </div>
 </template>
 
 <script setup>
-import {useRouter, onMounted, watch, ref, inject, nextTick} from "#imports";
-import {initLottieFromHtml} from "../components/media/medias.js";
+import { useRouter, onMounted, watch, ref, inject, nextTick } from '#imports'
+import { initLottieFromHtml } from '../components/media/medias.js'
 
 const props = defineProps({
   htmlContent: {
     type: String,
-    default: ''
+    default: '',
   },
   wrapperDefaultClasses: {
     type: String,
-    default: 'ql-snow'
+    default: 'ql-snow',
   },
   wrapperClasses: {
     type: String,
-    default: ''
+    default: '',
   },
   defaultClasses: {
     type: String,
-    default: 'ql-editor'
+    default: 'ql-editor',
   },
   classes: {
     type: String,
-    default: ''
-  }
+    default: '',
+  },
 })
 
 const articleContainerRef = ref(null)
@@ -72,14 +76,15 @@ const injectFontStyles = (htmlContent) => {
     // Generate CSS for fonts that haven't been injected yet
     let newCss = ''
     for (const fontName of fontNames) {
-      const stylePattern = new RegExp(`\\.ql-font-${fontName.replace(/[_]/g, '\\-')}\\s*{`, 'i')
+      const stylePattern = new RegExp(`\\.ql-font-${fontName.replace(/_/g, '\\-')}\\s*{`, 'i')
 
       // Check if style exists in HTML content or already injected globally
       if (!existingStyleContent.match(stylePattern) && !injectedFonts.has(fontName)) {
         // Convert fontName to a proper font family name (e.g., open-sans -> Open Sans)
-        const fontFamily = fontName.split('_').map(word =>
-            word.charAt(0).toUpperCase() + word.slice(1)
-        ).join(' ')
+        const fontFamily = fontName
+          .split('_')
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(' ')
 
         newCss += `.ql-font-${fontName} {\n  font-family: '${fontFamily}', sans-serif;\n}\n`
         injectedFonts.add(fontName)
@@ -100,7 +105,7 @@ onMounted(async () => {
   const quillEditor = document.querySelector('.ql-editor')
   if (quillEditor) {
     const anchorTags = quillEditor.querySelectorAll('a')
-    anchorTags.forEach(anchorTag => {
+    anchorTags.forEach((anchorTag) => {
       const link = anchorTag.getAttribute('href')
       if (link && !link.startsWith('http')) {
         anchorTag.addEventListener('click', (event) => {
@@ -112,45 +117,73 @@ onMounted(async () => {
   }
   if (loadScript) {
     await nextTick()
-    const lottieDivs = articleContainerRef.value.querySelectorAll('div[lottie-id][media-type="lottie"]');
+    const lottieDivs = articleContainerRef.value.querySelectorAll(
+      'div[lottie-id][media-type="lottie"]'
+    )
     if (lottieDivs && lottieDivs.length > 0) {
-      await loadScript('https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.13.0/lottie.min.js', true)
+      await loadScript(
+        'https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.13.0/lottie.min.js',
+        true
+      )
     }
   }
   await nextTick()
   initLottieFromHtml(articleContainerRef.value)
 })
 
-watch(() => props.htmlContent, async () => {
-  // Inject font styles when content changes
-  injectFontStyles(props.htmlContent)
+watch(
+  () => props.htmlContent,
+  async () => {
+    // Inject font styles when content changes
+    injectFontStyles(props.htmlContent)
 
-  if (loadScript) {
+    if (loadScript) {
+      await nextTick()
+      const lottieDivs = articleContainerRef.value.querySelectorAll(
+        'div[lottie-id][media-type="lottie"]'
+      )
+      if (lottieDivs && lottieDivs.length > 0) {
+        await loadScript(
+          'https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.13.0/lottie.min.js',
+          true
+        )
+      }
+    }
     await nextTick()
-    const lottieDivs = articleContainerRef.value.querySelectorAll('div[lottie-id][media-type="lottie"]');
-    if (lottieDivs && lottieDivs.length > 0) {
-      await loadScript('https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.13.0/lottie.min.js', true)
-    }
+    initLottieFromHtml(articleContainerRef.value)
   }
-  await nextTick()
-  initLottieFromHtml(articleContainerRef.value)
-})
+)
 </script>
 
 <style>
-.ql-editor blockquote, .ql-editor h1, .ql-editor h2, .ql-editor h3, .ql-editor h4, .ql-editor h5, .ql-editor h6, .ql-editor ol, .ql-editor p, .ql-editor pre, .ql-editor ul {
+.ql-editor blockquote,
+.ql-editor h1,
+.ql-editor h2,
+.ql-editor h3,
+.ql-editor h4,
+.ql-editor h5,
+.ql-editor h6,
+.ql-editor ol,
+.ql-editor p,
+.ql-editor pre,
+.ql-editor ul {
   counter-reset: list-1 list-2 list-3 list-4 list-5 list-6 list-7 list-8 list-9;
   margin: 0;
   padding: 0;
 }
-.ql-editor ol, .ql-editor ul {
+.ql-editor ol,
+.ql-editor ul {
   padding-left: 1.5em;
 }
-.ql-editor ul>li:before {
-  content: "\2022";
+.ql-editor ul > li:before {
+  content: '\2022';
 }
-.ql-editor ol li:not([data-list="bullet"]):not([data-list="checked"]):not([data-list="unchecked"]):not(:has(span.ql-ui)):before {
-  content: counter(list-0, decimal) ". ";
+.ql-editor
+  ol
+  li:not([data-list='bullet']):not([data-list='checked']):not([data-list='unchecked']):not(
+    :has(span.ql-ui)
+  ):before {
+  content: counter(list-0, decimal) '. ';
 }
 .ql-editor ol li {
   counter-increment: list-0;
@@ -161,15 +194,17 @@ watch(() => props.htmlContent, async () => {
   white-space: nowrap;
   width: 1.2em;
 }
-.ql-editor ol>li, .ql-editor ul>li {
+.ql-editor ol > li,
+.ql-editor ul > li {
   list-style-type: none;
 }
-.ql-editor ol li:not(.ql-direction-rtl), .ql-editor ul li:not(.ql-direction-rtl) {
+.ql-editor ol li:not(.ql-direction-rtl),
+.ql-editor ul li:not(.ql-direction-rtl) {
   padding-left: 1.5em;
 }
 .ql-editor li:not(.ql-direction-rtl):before {
   margin-left: -1.5em;
-  margin-right: .3em;
+  margin-right: 0.3em;
   text-align: right;
 }
 .ql-snow .ql-editor pre.ql-syntax {
@@ -225,7 +260,7 @@ button.quill-button-container {
 .ql-editor p {
   font-size: 1rem;
 }
-.ql-editor .html-edit-overlay{
+.ql-editor .html-edit-overlay {
   display: none;
 }
 div .ql-editor {

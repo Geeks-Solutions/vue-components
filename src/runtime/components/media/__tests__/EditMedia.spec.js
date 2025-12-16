@@ -1,11 +1,11 @@
-import { shallowMount } from "@vue/test-utils";
-import EditMedia from "../EditMedia.vue";
+import { shallowMount } from '@vue/test-utils'
+import EditMedia from '../EditMedia.vue'
 
 import { createI18n } from 'vue-i18n'
-import {ref, watch, nextTick} from "#imports"
-import {expect, it, vi} from "vitest";
-import * as medias from "../medias.js";
-import * as constants from "../../../utils/constants.js";
+import { ref, watch, nextTick } from '#imports'
+import { expect, it, vi } from 'vitest'
+import * as medias from '../medias.js'
+import * as constants from '../../../utils/constants.js'
 
 const i18n = createI18n({
   legacy: false,
@@ -13,8 +13,8 @@ const i18n = createI18n({
   fallbackLocale: 'en',
   messages: {
     en: {},
-    fr: {}
-  }
+    fr: {},
+  },
 })
 
 describe('EditMedia', () => {
@@ -28,7 +28,7 @@ describe('EditMedia', () => {
           LazyGHeaderContainer: true,
           LazyGButtons: true,
           LazyGAlertPopup: true,
-          LazyGAnimatedLoading: true
+          LazyGAnimatedLoading: true,
         },
         config: {
           globalProperties: {
@@ -42,8 +42,8 @@ describe('EditMedia', () => {
               params: { pathMatch: [] },
               query: {},
             }),
-          }
-        }
+          },
+        },
       },
       data() {
         return {
@@ -51,36 +51,35 @@ describe('EditMedia', () => {
           popupContent: {
             content: [
               { id: 1, name: 'Content 1' },
-              { id: 2, name: 'Content 2' }
+              { id: 2, name: 'Content 2' },
             ],
-            author: 'Author Name'
-          }
+            author: 'Author Name',
+          },
         }
       },
       propsData: {
         contentUsedKey: 'name',
         mediaTranslationPrefix: 'mediaT.',
         acceptedFileTypes: '.jpg, .png',
-      }
+      },
     })
   })
 
   it('does not display "undefined" in content-used div', async () => {
-
     wrapper.vm.showPopupCode = true
     wrapper.vm.popupContent = {
       content: [
         { id: 1, name: 'Content 1' },
-        { id: 2, name: 'Content 2' }
+        { id: 2, name: 'Content 2' },
       ],
-          author: 'Author Name'
+      author: 'Author Name',
     }
 
     await wrapper.vm.$nextTick()
 
     const contentUsedDivs = wrapper.findAll('.content-used')
-    contentUsedDivs.forEach(div => {
-      expect(div.exists()).toBe(true);
+    contentUsedDivs.forEach((div) => {
+      expect(div.exists()).toBe(true)
       expect(div.text()).not.toContain('undefined')
     })
   })
@@ -91,10 +90,10 @@ describe('EditMedia', () => {
       creation_date: null,
       inserted_at: 1680000000000, // ms timestamp
       meta: {
-        author: ''
+        author: '',
       },
       type: '',
-      number_of_contents: 0
+      number_of_contents: 0,
     })
 
     const headerItems = ref([
@@ -102,25 +101,25 @@ describe('EditMedia', () => {
       { label: 'Date', value: '' },
       { label: 'Author', value: '' },
       { label: 'Type', value: '' },
-      { label: 'Count', value: '' }
+      { label: 'Count', value: '' },
     ])
 
     // Watcher logic from your code
     watch(
-        media,
-        () => {
-          if (Object.keys(media.value).length > 0) {
-            headerItems.value[0].value = media.value.id
-            headerItems.value[1].value = media.value.creation_date
-                ? new Date(media.value.creation_date * 1000).toLocaleDateString()
-                : new Date(media.value.inserted_at).toLocaleDateString()
-            headerItems.value[2].value = media.value.meta.author
-            headerItems.value[3].value =
-                media.value.type[0].toUpperCase() + media.value.type.substring(1)
-            headerItems.value[4].value = media.value.number_of_contents
-          }
-        },
-        { deep: true }
+      media,
+      () => {
+        if (Object.keys(media.value).length > 0) {
+          headerItems.value[0].value = media.value.id
+          headerItems.value[1].value = media.value.creation_date
+            ? new Date(media.value.creation_date * 1000).toLocaleDateString()
+            : new Date(media.value.inserted_at).toLocaleDateString()
+          headerItems.value[2].value = media.value.meta.author
+          headerItems.value[3].value =
+            media.value.type[0].toUpperCase() + media.value.type.substring(1)
+          headerItems.value[4].value = media.value.number_of_contents
+        }
+      },
+      { deep: true }
     )
 
     // Update media to trigger the watcher
@@ -129,10 +128,10 @@ describe('EditMedia', () => {
       creation_date: 1710000000, // UNIX timestamp (sec)
       inserted_at: 1680000000000,
       meta: {
-        author: 'Jane Doe'
+        author: 'Jane Doe',
       },
       type: 'video',
-      number_of_contents: 42
+      number_of_contents: 42,
     }
 
     await nextTick() // Wait for Vue to update
@@ -157,15 +156,10 @@ describe('EditMedia', () => {
 
     expect(isFileTypeSupportedSpy).toHaveBeenCalledWith(unsupportedFile, '.jpg, .png')
 
-    expect(showToastSpy).toHaveBeenCalledWith(
-        'Error',
-        'error',
-        'mediaT.unsupportedFileType'
-    )
+    expect(showToastSpy).toHaveBeenCalledWith('Error', 'error', 'mediaT.unsupportedFileType')
   })
 
   it('should proceed and not show a toast message if acceptedFileTypes prop is not provided', async () => {
-
     await wrapper.setProps({
       acceptedFileTypes: '',
     })
@@ -184,5 +178,4 @@ describe('EditMedia', () => {
 
     expect(showToastSpy).not.toHaveBeenCalled()
   })
-
 })

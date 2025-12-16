@@ -1,53 +1,76 @@
 <template>
   <div class="max-w-max">
     <div :class="props.containerStyle">
-
       <div class="flex p-3 justify-between items-center w-full">
-
         <div class="flex">
-          <div :class="props.locked ? 'rounded-full bg-mediaLocked flex items-center justify-center' : 'rounded-full bg-mediaUnLocked flex items-center justify-center'">
-            <span v-if="props.locked" :class="props.iconLocked"></span>
-            <span v-else :class="props.iconUnlocked"></span>
+          <div
+            :class="
+              props.locked
+                ? 'rounded-full bg-mediaLocked flex items-center justify-center'
+                : 'rounded-full bg-mediaUnLocked flex items-center justify-center'
+            "
+          >
+            <span v-if="props.locked" :class="props.iconLocked"/>
+            <span v-else :class="props.iconUnlocked"/>
           </div>
 
           <div class="pl-4">
-            <span v-if="props.hidden" :class="props.iconHidden"></span>
-            <span v-else :class="props.iconSeen"></span>
+            <span v-if="props.hidden" :class="props.iconHidden"/>
+            <span v-else :class="props.iconSeen"/>
           </div>
         </div>
 
         <div class="flex items-center cursor-pointer" @click="props.copyLink">
-          <span :class="props.iconAttach"></span>
+          <span :class="props.iconAttach"/>
           <div :class="props.copyLinkStyle">
             {{ props.copyLinkLabel }}
           </div>
         </div>
-
       </div>
 
-      <div v-if="!props.hidden || (props.hidden && props.isAuthor)" class="md:w-[350px] cursor-pointer card-image-wrapper" @click="props.openMedia">
+      <div
+        v-if="!props.hidden || (props.hidden && props.isAuthor)"
+        class="md:w-[350px] cursor-pointer card-image-wrapper"
+        @click="props.openMedia"
+      >
         <div v-if="props.mediaType === 'document' && props.mediaMetadataType !== 'lottie'">
-          <div class="flex w-full h-[200px] justify-center items-center object-cover" :style="props.hiddenContainerStyle">
+          <div
+            class="flex w-full h-[200px] justify-center items-center object-cover"
+            :style="props.hiddenContainerStyle"
+          >
             <div class="flex flex-col items-center gap-4">
-              <span class="icon-mediaDocument text-6xl"></span>
+              <span class="icon-mediaDocument text-6xl"/>
             </div>
           </div>
         </div>
         <div v-else-if="props.hidden &amp;&amp; props.isAuthor">
-          <div class="flex w-full h-[200px] justify-center items-center object-cover" :style="props.hiddenContainerStyle">
+          <div
+            class="flex w-full h-[200px] justify-center items-center object-cover"
+            :style="props.hiddenContainerStyle"
+          >
             <div class="flex flex-col items-center gap-4">
-              <span class="icon-photograpg text-8xl"></span> <!-- Assuming icon-photograph is correct -->
+              <span class="icon-photograpg text-8xl"/>
+              <!-- Assuming icon-photograph is correct -->
             </div>
           </div>
         </div>
         <div v-else>
-          <LazyGUniversalViewer :src="props.mediaSrc" :type="props.mediaMetadataType" class="w-full h-[200px] object-cover" />
+          <LazyGUniversalViewer
+            :src="props.mediaSrc"
+            :type="props.mediaMetadataType"
+            class="w-full h-[200px] object-cover"
+          />
         </div>
       </div>
-      <div v-else class="w-[350px] cursor-pointer card-hidden-message-wrapper" :style="props.hiddenContainerStyle" @click="props.openMedia">
+      <div
+        v-else
+        class="w-[350px] cursor-pointer card-hidden-message-wrapper"
+        :style="props.hiddenContainerStyle"
+        @click="props.openMedia"
+      >
         <div class="flex w-full h-[200px] justify-center items-center object-cover">
           <div class="flex flex-col items-center gap-4">
-            <span :class="props.hiddenMediaSrc"></span>
+            <span :class="props.hiddenMediaSrc"/>
             <div class="text-center font-light">
               {{ props.hiddenMessage }}
             </div>
@@ -103,193 +126,192 @@
           {{ props.seeMoreLabel }}
         </div>
       </div>
-
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 // Import asset
-import defaultMediaSvg from '../../assets/images/temp2.svg';
+import defaultMediaSvg from '../../assets/images/temp2.svg'
 
 const props = defineProps({
   locked: {
     type: Boolean,
-    default: false
+    default: false,
   },
   hidden: {
     type: Boolean,
-    default: false
+    default: false,
   },
   isAuthor: {
     type: Boolean,
-    default: false
+    default: false,
   },
   iconLocked: {
     type: String,
-    default: 'icon-locked pl-2.5 pr-2.5 pt-2 pb-2'
+    default: 'icon-locked pl-2.5 pr-2.5 pt-2 pb-2',
   },
   iconUnlocked: {
     type: String,
-    default: 'icon-unlocked pl-2.5 pr-2.5 pt-2 pb-2'
+    default: 'icon-unlocked pl-2.5 pr-2.5 pt-2 pb-2',
   },
   iconHidden: {
     type: String,
-    default: 'icon-hidden text-2xl'
+    default: 'icon-hidden text-2xl',
   },
   iconSeen: {
     type: String,
-    default: 'icon-seen text-2xl'
+    default: 'icon-seen text-2xl',
   },
   iconAttach: {
     type: String,
-    default: 'icon-attach'
+    default: 'icon-attach',
   },
   copyLinkLabel: {
     type: String,
-    default: 'Copy link'
+    default: 'Copy link',
   },
   copyLinkStyle: {
     type: String,
-    default: 'pl-1 text-Blue font-light'
+    default: 'pl-1 text-Blue font-light',
   },
   containerStyle: {
     type: String,
-    default: 'shadow rounded-xl h-[380px]'
+    default: 'shadow rounded-xl h-[380px]',
   },
   mediaSrc: {
     type: String,
-    default: defaultMediaSvg // Use imported asset
+    default: defaultMediaSvg, // Use imported asset
   },
   mediaMetadataType: {
     type: String,
-    default: ''
+    default: '',
   },
   hiddenMediaSrc: {
     type: String,
-    default: ''
+    default: '',
   },
   hiddenMessage: {
     type: String,
-    default: ''
+    default: '',
   },
   mediaTitle: {
     type: String,
-    default: 'Nametest.jpeg'
+    default: 'Nametest.jpeg',
   },
   mediaTitleStyle: {
     type: String,
-    default: ''
+    default: '',
   },
   hiddenContainerStyle: {
     type: String,
-    default: ''
+    default: '',
   },
   mediaAuthorStyle: {
     type: String,
-    default: 'pl-1 italic text-sm font-extralight'
+    default: 'pl-1 italic text-sm font-extralight',
   },
   mediaAuthor: {
     type: String,
-    default: '- By Lorem ipsum'
+    default: '- By Lorem ipsum',
   },
   contentStyle: {
     type: String,
-    default: 'text-sm font-extralight pr-1'
+    default: 'text-sm font-extralight pr-1',
   },
   contentvalue: {
     type: String,
-    default: '0'
+    default: '0',
   },
   contentLabel: {
     type: String,
-    default: 'content using this media'
+    default: 'content using this media',
   },
   sizeStyle: {
     type: String,
-    default: 'text-sm font-extralight pr-1'
+    default: 'text-sm font-extralight pr-1',
   },
   sizeLabel: {
     type: String,
-    default: 'Size: '
+    default: 'Size: ',
   },
   sizeValueStyle: {
     type: String,
-    default: 'text-xs text-grayText font-extralight pr-1'
+    default: 'text-xs text-grayText font-extralight pr-1',
   },
   sizeValue: {
     type: String,
-    default: '38MB - 40MB'
+    default: '38MB - 40MB',
   },
   withDuration: {
     type: Boolean,
-    default: true
+    default: true,
   },
   durationStyle: {
     type: String,
-    default: 'text-sm font-extralight pr-2'
+    default: 'text-sm font-extralight pr-2',
   },
   durationLabel: {
     type: String,
-    default: 'Duration:'
+    default: 'Duration:',
   },
   mobileLabel: {
     type: String,
-    default: 'Mobile'
+    default: 'Mobile',
   },
   mobileDesktopValueStyle: {
     type: String,
-    default: 'text-xs text-grayText font-extralight pr-3'
+    default: 'text-xs text-grayText font-extralight pr-3',
   },
   mobileDesktopLabelStyle: {
     type: String,
-    default: 'text-sm font-light pr-1'
+    default: 'text-sm font-light pr-1',
   },
   desktopLabel: {
     type: String,
-    default: 'Desktop'
+    default: 'Desktop',
   },
   mobileValue: {
     type: String,
-    default: '30min'
+    default: '30min',
   },
   desktopValue: {
     type: String,
-    default: '20min'
+    default: '20min',
   },
   seeMoreStyle: {
     type: String,
-    default: 'text-sm text-Blue italic font-extralight cursor-pointer'
+    default: 'text-sm text-Blue italic font-extralight cursor-pointer',
   },
   seeMoreLabel: {
     type: String,
-    default: 'see more'
+    default: 'see more',
   },
   mediaType: {
     type: String,
-    default: ''
+    default: '',
   },
   seeMoreClicked: {
     type: Function as PropType<(item?: any) => void>,
-    default: () => {}
+    default: () => {},
   },
   copyLink: {
     type: Function as PropType<(link?: any) => void>,
-    default: () => {}
+    default: () => {},
   },
   openMedia: {
     type: Function as PropType<(item?: any) => void>,
-    default: () => {}
-  }
-});
+    default: () => {},
+  },
+})
 </script>
 
 <style scoped>
 .bg-mediaUnLocked {
-  background-color: #DDEBFF;
+  background-color: #ddebff;
 }
 .bg-mediaLocked {
-  background-color: #FFE5DD;
+  background-color: #ffe5dd;
 }
 @media screen and (max-width: 768px) {
   .card-hidden-message-wrapper,

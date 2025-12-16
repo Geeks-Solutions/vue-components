@@ -7,27 +7,27 @@
       <div class="section-module-modal-content">
         <div>
           <Media
-              :components-prefix="'g'"
-              :content-used-key="contentUsedKey"
-              :show-create-media-button="true"
-              :media-category="mediaCategory"
-              :media-translation-prefix="mediaTranslationPrefix"
-              :media-uri-prop="mediasUri"
-              :authors-uri-prop="authorsUri"
-              :project-id-prop="projectId"
-              :auth-token="authToken"
-              :media-by-id-uri-prop="mediaByIdUri"
-              :media-id-prop="selectedMediaId"
-              :sections-user-id-prop="sectionsUserId"
-              :with-select-media-button="true"
-              :nuxt-sections="true"
-              :media-id-editing="mediaIdEditing"
-              :alter-error-received="alterErrorReceived"
-              :response-received="responseReceived"
-              :request-pre-sent="requestPreSent"
-              :forward-request="forwardRequest"
-              :accepted-file-types="acceptedFileTypes"
-              @get-selected-media="emitMedia"
+            :components-prefix="'g'"
+            :content-used-key="contentUsedKey"
+            :show-create-media-button="true"
+            :media-category="mediaCategory"
+            :media-translation-prefix="mediaTranslationPrefix"
+            :media-uri-prop="mediasUri"
+            :authors-uri-prop="authorsUri"
+            :project-id-prop="projectId"
+            :auth-token="authToken"
+            :media-by-id-uri-prop="mediaByIdUri"
+            :media-id-prop="selectedMediaId"
+            :sections-user-id-prop="sectionsUserId"
+            :with-select-media-button="true"
+            :nuxt-sections="true"
+            :media-id-editing="mediaIdEditing"
+            :alter-error-received="alterErrorReceived"
+            :response-received="responseReceived"
+            :request-pre-sent="requestPreSent"
+            :forward-request="forwardRequest"
+            :accepted-file-types="acceptedFileTypes"
+            @get-selected-media="emitMedia"
           />
         </div>
       </div>
@@ -45,52 +45,52 @@ import IconsClose from './icons/close.vue'
 const props = defineProps({
   authToken: {
     type: String,
-    default: ''
+    default: '',
   },
   sectionsUserId: {
     type: String,
-    default: ''
+    default: '',
   },
   projectId: {
     type: String,
-    default: ''
+    default: '',
   },
   serverUrl: {
     type: String,
-    default: ''
+    default: '',
   },
   selectedMediaId: {
     type: String,
-    default: ''
+    default: '',
   },
   contentUsedKey: {
     type: String,
-    default: ''
+    default: '',
   },
   mediaTranslationPrefix: {
     type: String,
-    default: 'mediaT.'
+    default: 'mediaT.',
   },
   alterErrorReceived: {
     type: Function,
-    default: () => {}
+    default: () => {},
   },
   responseReceived: {
     type: Function,
-    default: () => {}
+    default: () => {},
   },
   requestPreSent: {
     type: Function,
-    default: () => {}
+    default: () => {},
   },
   forwardRequest: {
     type: Function,
-    default: null
+    default: null,
   },
   acceptedFileTypes: {
     type: String,
-    default: ''
-  }
+    default: '',
+  },
 })
 
 // Emits
@@ -144,7 +144,7 @@ function handleOverlayClick(event) {
 // Expose methods for usage from parent components
 defineExpose({
   openModal,
-  closeModal
+  closeModal,
 })
 </script>
 

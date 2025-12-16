@@ -1,6 +1,13 @@
 <template>
   <div :class="selectWrapperStyle">
-    <div :class="[selectStyle, errorOccurredModel ? selectErrorClass : '', withIcon ? selectIconClass : '', labelOutside ? '' : labelInsideClass]">
+    <div
+      :class="[
+        selectStyle,
+        errorOccurredModel ? selectErrorClass : '',
+        withIcon ? selectIconClass : '',
+        labelOutside ? '' : labelInsideClass,
+      ]"
+    >
       <div v-if="selectLabel" :class="[labelClass, withIcon ? labelPaddingWithIcon : labelPadding]">
         {{ selectLabel }}
       </div>
@@ -21,17 +28,21 @@
             :track-by="trackBy"
             :preselect-first="preselectFirst"
             :searchable="filterSearchable"
-            @update:modelValue="(val) => emit('itemSelected', val)"
-            @search="(search) => {selectIsSearching = search !== ''}"
+            @update:model-value="(val) => emit('itemSelected', val)"
+            @search="
+              (search) => {
+                selectIsSearching = search !== ''
+              }
+            "
           >
             <template #selected-option="{ selected, label }">
-              <slot name="selected-option" :selected="selected" :label="label"></slot>
+              <slot name="selected-option" :selected="selected" :label="label"/>
             </template>
             <template #option="{ option, label }">
-              <slot name="option" :option="option" :label="label"></slot>
+              <slot name="option" :option="option" :label="label"/>
             </template>
           </v-select>
-          <span v-if="withIcon" :class="filterIconIcomoon"></span>
+          <span v-if="withIcon" :class="filterIconIcomoon"/>
         </div>
       </div>
     </div>
@@ -39,202 +50,208 @@
 </template>
 
 <script setup>
-import { ref, computed ,watch, defineAsyncComponent } from '#imports'
-
-const VSelect = defineAsyncComponent(() =>
-    import('vue-select')
-)
+import { ref, computed, watch, defineAsyncComponent } from '#imports'
 import 'vue-select/dist/vue-select.css'
+
+const VSelect = defineAsyncComponent(() => import('vue-select'))
 
 const props = defineProps({
   selectWrapperStyle: {
     type: String,
-    default: 'w-max'
+    default: 'w-max',
   },
   selectLabel: {
     type: String,
-    default: ''
+    default: '',
   },
   selectStyle: {
     type: String,
-    default: 'default-select-style-chooser relative'
+    default: 'default-select-style-chooser relative',
   },
   labelStyle: {
     type: String,
-    default: 'text-md font-base mr-2 mb-1'
+    default: 'text-md font-base mr-2 mb-1',
   },
   labelInsideStyle: {
     type: String,
-    default: 'absolute top-2 text-xs font-base text-Blue mr-2 mb-1 z-10'
+    default: 'absolute top-2 text-xs font-base text-Blue mr-2 mb-1 z-10',
   },
   labelInsideDefaultStyle: {
     type: String,
-    default: 'absolute top-3 text-md font-base text-darkGray mr-2 mb-1 defaultSearching z-10'
+    default: 'absolute top-3 text-md font-base text-darkGray mr-2 mb-1 defaultSearching z-10',
   },
   labelPaddingWithIcon: {
     type: String,
-    default: 'left-12'
+    default: 'left-12',
   },
   labelPadding: {
     type: String,
-    default: 'left-3'
+    default: 'left-3',
   },
   selectErrorClass: {
     type: String,
-    default: 'select-error-class'
+    default: 'select-error-class',
   },
   selectIconClass: {
     type: String,
-    default: 'select-icon-class'
+    default: 'select-icon-class',
   },
   labelInsideClass: {
     type: String,
-    default: 'label-inside-class'
+    default: 'label-inside-class',
   },
   trackBy: {
     type: String,
-    default: ''
+    default: '',
   },
   focused: {
     type: Boolean,
-    default: false
+    default: false,
   },
   filterDisabled: {
     type: Boolean,
-    default: false
+    default: false,
   },
   multiple: {
     type: Boolean,
-    default: false
+    default: false,
   },
   closeOnSelect: {
     type: Boolean,
-    default: true
+    default: true,
   },
   preserveSearch: {
     type: Boolean,
-    default: false
+    default: false,
   },
   preselectFirst: {
     type: Boolean,
-    default: false
+    default: false,
   },
   clearOnSelect: {
     type: Boolean,
-    default: false
+    default: false,
   },
   multipleSelection: {
     type: Boolean,
-    default: false
+    default: false,
   },
   reduce: {
     type: Function,
-    default: (val) => val
+    default: (val) => val,
   },
   labelOutside: {
     type: Boolean,
-    default: true
+    default: true,
   },
   mainFilter: {
     type: Object,
-    default: null
+    default: null,
   },
   selectPlaceholder: {
     type: String,
-    default: ''
+    default: '',
   },
   filterLabelProp: {
     type: String,
-    default: 'value'
+    default: 'value',
   },
   filterIconIcomoon: {
     type: String,
-    default: 'absolute top-4.5 left-4 icon-filterIcon icon-filterIcon filterIconStyle'
+    default: 'absolute top-4.5 left-4 icon-filterIcon icon-filterIcon filterIconStyle',
   },
   focusStyle: {
     type: String,
-    default: 'border border-Blue rounded-xl'
+    default: 'border border-Blue rounded-xl',
   },
   focusMarginStyle: {
     type: String,
-    default: 'px-0.5 py-0.5'
+    default: 'px-0.5 py-0.5',
   },
   filterClearable: {
     type: Boolean,
-    default: false
+    default: false,
   },
   filterSearchable: {
     type: Boolean,
-    default: true
+    default: true,
   },
   errorOccurred: {
     type: Boolean,
-    default: false
+    default: false,
   },
   withIcon: {
     type: Boolean,
-    default: false
+    default: false,
   },
   filterOptions: {
     type: Array,
-    default: () => []
-  }
-});
+    default: () => [],
+  },
+})
 
-const emit = defineEmits(['itemSelected']);
+const emit = defineEmits(['itemSelected'])
 
-const filterModel = ref(props.mainFilter || null);
-const errorOccurredModel = ref(props.errorOccurred);
-const selectIsSearching = ref(false);
+const filterModel = ref(props.mainFilter || null)
+const errorOccurredModel = ref(props.errorOccurred)
+const selectIsSearching = ref(false)
 
-watch(() => props.mainFilter, (newVal) => {
-  filterModel.value = newVal;
-}, { immediate: true, deep: true });
+watch(
+  () => props.mainFilter,
+  (newVal) => {
+    filterModel.value = newVal
+  },
+  { immediate: true, deep: true }
+)
 
-watch(() => props.errorOccurred, (newVal) => {
-  errorOccurredModel.value = newVal;
-}, { immediate: true, deep: true });
+watch(
+  () => props.errorOccurred,
+  (newVal) => {
+    errorOccurredModel.value = newVal
+  },
+  { immediate: true, deep: true }
+)
 
 const labelClass = computed(() => {
   if (props.labelOutside) {
-    return props.labelStyle;
+    return props.labelStyle
   } else {
     if (filterModel.value !== undefined && filterModel.value !== null) {
       if (filterModel.value.length === 0 && !selectIsSearching.value) {
-        return props.labelInsideDefaultStyle;
+        return props.labelInsideDefaultStyle
       } else {
-        return props.labelInsideStyle;
+        return props.labelInsideStyle
       }
     } else {
       if (!selectIsSearching.value) {
-        return props.labelInsideDefaultStyle;
+        return props.labelInsideDefaultStyle
       } else {
-        return props.labelInsideStyle;
+        return props.labelInsideStyle
       }
     }
   }
-});
+})
 
 // Method to clear the selection
 // TODO: Revisit during testing. Consider if multiple=true needs different reset logic (e.g., empty array).
 const clear = () => {
-  filterModel.value = null; // Reset the model value
-};
+  filterModel.value = null // Reset the model value
+}
 
 // Expose the clear method
 defineExpose({
   clear,
-});
+})
 </script>
 
 <style>
-@media only screen and (max-width:480px) {
+@media only screen and (max-width: 480px) {
   .default-select-style-chooser .vs--searchable .vs__dropdown-toggle {
     min-width: 220px;
     max-width: 320px;
   }
 }
-@media only screen and (min-width:769px) {
+@media only screen and (min-width: 769px) {
   .default-select-style-chooser .vs--searchable .vs__dropdown-toggle {
     min-width: 250px;
   }
@@ -253,19 +270,19 @@ defineExpose({
   padding-bottom: 0;
 }
 .default-select-style-chooser.select-error-class .vs--searchable .vs__dropdown-toggle {
-  border: 1px solid #BA0202;
+  border: 1px solid #ba0202;
 }
 .default-select-style-chooser.select-error-class .vs__open-indicator {
-  fill: #BA0202;
+  fill: #ba0202;
 }
 .default-select-style-chooser.select-error-class .vs--searchable .vs__dropdown-toggle:hover {
-  border: 1px solid #BA0202;
+  border: 1px solid #ba0202;
 }
 .default-select-style-chooser .vs--searchable .vs__dropdown-toggle:hover {
   border: 1px solid #737373;
 }
 .default-select-style-chooser .vs--searchable .vs__dropdown-toggle:focus {
-  border: 1px solid #03B1C7;
+  border: 1px solid #03b1c7;
 }
 .default-select-style-chooser.selected .vs--searchable .vs__dropdown-toggle {
   padding-left: unset;
@@ -289,7 +306,8 @@ defineExpose({
   margin-top: 5px;
   margin-bottom: 5px;
 }
-.default-select-style-chooser.label-inside-class .vs--single.vs--loading .vs__selected, .vs--single.vs--open .vs__selected {
+.default-select-style-chooser.label-inside-class .vs--single.vs--loading .vs__selected,
+.vs--single.vs--open .vs__selected {
   position: relative !important;
 }
 .default-select-style-chooser .vs__selected {
@@ -299,7 +317,8 @@ defineExpose({
   margin: 12px 0 0 4px;
 }
 
-.default-select-style-chooser.label-inside-class .vs__search, .vs__search:focus {
+.default-select-style-chooser.label-inside-class .vs__search,
+.vs__search:focus {
   padding-top: 5px;
   font-size: 12px;
 }
@@ -310,13 +329,13 @@ defineExpose({
   color: #737373;
   font-size: 12px;
 }
-@media only screen and (max-width:480px) {
+@media only screen and (max-width: 480px) {
   .default-select-style-chooser .vs--unsearchable .vs__dropdown-toggle {
     min-width: 220px;
     max-width: 320px;
   }
 }
-@media only screen and (min-width:768px) {
+@media only screen and (min-width: 768px) {
   .default-select-style-chooser .vs--unsearchable .vs__dropdown-toggle {
     min-width: 250px;
   }
@@ -340,22 +359,21 @@ defineExpose({
   padding-bottom: 0;
 }
 .default-select-style-chooser.select-error-class .vs--unsearchable .vs__dropdown-toggle {
-  border: 1px solid #BA0202;
+  border: 1px solid #ba0202;
 }
 .default-select-style-chooser.select-error-class .vs__open-indicator {
-  fill: #BA0202;
+  fill: #ba0202;
 }
 .default-select-style-chooser.select-error-class .vs--unsearchable .vs__dropdown-toggle:hover {
-  border: 1px solid #BA0202;
+  border: 1px solid #ba0202;
 }
 .default-select-style-chooser .vs--unsearchable .vs__dropdown-toggle:hover {
   border: 1px solid #737373;
 }
 .default-select-style-chooser .vs--unsearchable .vs__dropdown-toggle:focus {
-  border: 1px solid #03B1C7;
+  border: 1px solid #03b1c7;
 }
 .default-select-style-chooser.selected .vs--unsearchable .vs__dropdown-toggle {
   padding-left: unset;
 }
-
 </style>

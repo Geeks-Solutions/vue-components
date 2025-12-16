@@ -1,6 +1,8 @@
 <template>
   <div class="mt-4" :class="nuxtSections ? 'ml-4' : ''">
-    <div class="flex flex-col md:flex-row items-start md:items-start w-full justify-between md:pr-4 pl-2 md:pl-0">
+    <div
+      class="flex flex-col md:flex-row items-start md:items-start w-full justify-between md:pr-4 pl-2 md:pl-0"
+    >
       <div class="flex" :class="nuxtSections ? '' : 'md:pl-16'">
         <ClientOnly>
           <LazyGMainFilter
@@ -26,9 +28,9 @@
             :multi-select-placeholder="multiSelectPlaceholder"
             :single-select-filter-options="singleSelectFilterOptions"
             :multi-select-filter-options="multiSelectFilterOptions"
-            @getFilter="getFilter"
+            @get-filter="getFilter"
             @remove_filter="removeFilter"
-            @clearFilters="clearFilters"
+            @clear-filters="clearFilters"
             @apply_filter="filterMedias"
           />
         </ClientOnly>
@@ -44,7 +46,10 @@
     </div>
 
     <div>
-      <div class="flex flex-row pt-8 gap-16 overflow-x-scroll" :class="nuxtSections ? '' : 'md:pl-16'">
+      <div
+        class="flex flex-row pt-8 gap-16 overflow-x-scroll"
+        :class="nuxtSections ? '' : 'md:pl-16'"
+      >
         <div v-show="mediaCategory !== 'document'" class="self-center md:self-start">
           <LazyGMediaFolder
             :is-selected="selectedFolder === 'all'"
@@ -57,9 +62,14 @@
             :total-value="allMediasLength.toString()"
             folder-style="font-size: 185px"
             :media-style="'rounded-full ml-2 h-[40px] w-[40px]'"
-            :folder-clicked="() => { selectedFolder = 'all'; getAllMedias('all'); }"
+            :folder-clicked="
+              () => {
+                selectedFolder = 'all'
+                getAllMedias('all')
+              }
+            "
           />
-          <div v-if="selectedFolder === 'all'" class="h-10px bg-Blue flex mt-6"></div>
+          <div v-if="selectedFolder === 'all'" class="h-10px bg-Blue flex mt-6"/>
         </div>
 
         <div v-show="mediaCategory !== 'document'" class="self-center md:self-start">
@@ -72,12 +82,20 @@
             :total-value="imageMediasLength.toString()"
             folder-style="font-size: 185px"
             :media-style="'rounded-full ml-2 h-[40px] w-[40px]'"
-            :folder-clicked="() => { selectedFolder = 'image'; getAllMedias('image'); }"
+            :folder-clicked="
+              () => {
+                selectedFolder = 'image'
+                getAllMedias('image')
+              }
+            "
           />
-          <div v-if="selectedFolder === 'image'" class="h-10px bg-Blue flex mt-6"></div>
+          <div v-if="selectedFolder === 'image'" class="h-10px bg-Blue flex mt-6"/>
         </div>
 
-        <div v-show="videoMedias.length !== 0 && mediaCategory !== 'document'" class="self-center md:self-start">
+        <div
+          v-show="videoMedias.length !== 0 && mediaCategory !== 'document'"
+          class="self-center md:self-start"
+        >
           <LazyGMediaFolder
             :is-selected="selectedFolder === 'video'"
             :medias="videoMedias"
@@ -88,9 +106,14 @@
             :category-icon="'icon-play pr-2'"
             folder-style="font-size: 185px"
             :media-style="'rounded-full ml-2 h-[40px] w-[40px]'"
-            :folder-clicked="() => { selectedFolder = 'video'; getAllMedias('video'); }"
+            :folder-clicked="
+              () => {
+                selectedFolder = 'video'
+                getAllMedias('video')
+              }
+            "
           />
-          <div v-if="selectedFolder === 'video'" class="h-10px bg-Blue flex mt-6"></div>
+          <div v-if="selectedFolder === 'video'" class="h-10px bg-Blue flex mt-6"/>
         </div>
 
         <div class="self-center md:self-start">
@@ -104,17 +127,30 @@
             :category-icon="'icon-mediaDocumentBlue pr-2'"
             folder-style="font-size: 185px"
             :media-style="'rounded-full ml-2 h-[40px] w-[40px]'"
-            :folder-clicked="() => { selectedFolder = 'document'; getAllMedias('document'); }"
+            :folder-clicked="
+              () => {
+                selectedFolder = 'document'
+                getAllMedias('document')
+              }
+            "
           />
-          <div v-if="selectedFolder === 'document'" class="h-10px bg-Blue flex mt-6"></div>
+          <div v-if="selectedFolder === 'document'" class="h-10px bg-Blue flex mt-6"/>
         </div>
       </div>
 
-      <div class="h-10px flex mx-16 mb-8 mobileHidden" :style="lineSeparatorStyle"></div>
+      <div class="h-10px flex mx-16 mb-8 mobileHidden" :style="lineSeparatorStyle"/>
 
       <div v-show="mediaResponse.length !== 0">
-        <div class="flex justify-center md:justify-start text-FieldGray pt-2" :class="nuxtSections ? 'pl-4' : 'md:pl-16'">
-          {{ mediaResponse.length + ` ${$t(mediaTranslationPrefix + 'of')} ` + totalMedias + ` ${$t(mediaTranslationPrefix + 'medias')} ` }}
+        <div
+          class="flex justify-center md:justify-start text-FieldGray pt-2"
+          :class="nuxtSections ? 'pl-4' : 'md:pl-16'"
+        >
+          {{
+            mediaResponse.length +
+            ` ${$t(mediaTranslationPrefix + 'of')} ` +
+            totalMedias +
+            ` ${$t(mediaTranslationPrefix + 'medias')} `
+          }}
         </div>
         <div class="py-8 flex flex-wrap" :class="nuxtSections ? '' : 'md:pl-16'">
           <div v-for="media in mediaResponse" :key="`media--${media.id}`" class="m-2">
@@ -126,15 +162,31 @@
               :hidden="media.private_status !== 'public'"
               :media-src="media.files[0].url"
               :media-metadata-type="media.metadata?.type || 'image'"
-              :media-title="media.title && media.title !== '' && media.title !== 'null' ? media.title : media.files[0].filename"
+              :media-title="
+                media.title && media.title !== '' && media.title !== 'null'
+                  ? media.title
+                  : media.files[0].filename
+              "
               :media-title-style="'w-200px overflow-hidden text-ellipsis white whitespace-nowrap'"
-              :media-author="media.meta && (media.meta.author_name || media.meta.author) ? media.meta.author ? $t(mediaTranslationPrefix + 'by') + media.meta.author : $t(mediaTranslationPrefix + 'by') + media.meta.author_name : ''"
+              :media-author="
+                media.meta && (media.meta.author_name || media.meta.author)
+                  ? media.meta.author
+                    ? $t(mediaTranslationPrefix + 'by') + media.meta.author
+                    : $t(mediaTranslationPrefix + 'by') + media.meta.author_name
+                  : ''
+              "
               :contentvalue="media.number_of_contents.toString()"
               :hidden-media-src="'icon-alert text-4xl'"
-              :hidden-container-style="media.type === 'document' ? 'background: #61035B' : 'background: #EDEDED'"
+              :hidden-container-style="
+                media.type === 'document' ? 'background: #61035B' : 'background: #EDEDED'
+              "
               :hidden-message="$t(mediaTranslationPrefix + 'previewNotAvailable')"
               :is-author="media.author === sectionsUserId"
-              :size-value="media.files[0].size > Math.pow(10, 6) ? `${(media.files[0].size * Math.pow(10, -6)).toFixed(2)} MB` : `${(media.files[0].size * Math.pow(10, -3)).toFixed(2)} KB`"
+              :size-value="
+                media.files[0].size > Math.pow(10, 6)
+                  ? `${(media.files[0].size * Math.pow(10, -6)).toFixed(2)} MB`
+                  : `${(media.files[0].size * Math.pow(10, -3)).toFixed(2)} KB`
+              "
               :with-duration="media.type === 'video'"
               :media-type="media.type"
               :copy-link="() => copyMediaLink(media.files[0].url)"
@@ -142,19 +194,38 @@
             />
           </div>
         </div>
-        <a v-if="mediaResponse.length !== totalMedias" class="flex justify-center text-Blue underline mb-16 cursor-pointer" @click="seeMoreMedias">{{ $t(mediaTranslationPrefix + 'seeMore') }}</a>
+        <a
+          v-if="mediaResponse.length !== totalMedias"
+          class="flex justify-center text-Blue underline mb-16 cursor-pointer"
+          @click="seeMoreMedias"
+          >{{ $t(mediaTranslationPrefix + 'seeMore') }}</a
+        >
       </div>
 
-      <div v-show="mediaResponse.length === 0 && loading === false" class="text-FieldGray p-16">{{ $t(mediaTranslationPrefix + 'noMediasFound') }}</div>
+      <div v-show="mediaResponse.length === 0 && loading === false" class="text-FieldGray p-16">
+        {{ $t(mediaTranslationPrefix + 'noMediasFound') }}
+      </div>
       <LazyGAnimatedLoading :loading="loading" />
     </div>
   </div>
 </template>
 
 <script setup>
-import { useFetch, useI18n, ref, computed, useNuxtApp, useRoute, useRouter, navigateTo, useHead, useLocalePath ,watch } from '#imports'
+import {
+  useFetch,
+  useI18n,
+  ref,
+  computed,
+  useNuxtApp,
+  useRoute,
+  useRouter,
+  navigateTo,
+  useHead,
+  useLocalePath,
+  watch,
+} from '#imports'
 
-import {mediaHeader, showToast} from './medias'
+import { mediaHeader, showToast } from './medias'
 
 const route = useRoute()
 const router = useRouter()
@@ -163,75 +234,75 @@ const nuxtApp = useNuxtApp()
 const props = defineProps({
   appliedFilters: {
     type: String,
-    default: ''
+    default: '',
   },
   folderType: {
     type: String,
-    default: ''
+    default: '',
   },
   mediaUriProp: {
     type: String,
-    default: ''
+    default: '',
   },
   authorsUriProp: {
     type: String,
-    default: ''
+    default: '',
   },
   projectIdProp: {
     type: String,
-    default: ''
+    default: '',
   },
   authToken: {
     type: String,
-    default: ''
+    default: '',
   },
   sectionsUserIdProp: {
     type: String,
-    default: ''
+    default: '',
   },
   mediaTranslationPrefix: {
     type: String,
-    default: ''
+    default: '',
   },
   createMediaPath: {
     type: String,
-    default: ''
+    default: '',
   },
   editMediaPath: {
     type: String,
-    default: ''
+    default: '',
   },
   mediasPath: {
     type: String,
-    default: ''
+    default: '',
   },
   multiSelectPlaceholder: {
     type: String,
-    default: ''
+    default: '',
   },
   lineSeparatorStyle: {
     type: String,
-    default: 'background: #EDEDED'
+    default: 'background: #EDEDED',
   },
   mediaCategory: {
     type: String,
-    default: ''
+    default: '',
   },
   showCreateMediaButton: {
     type: Boolean,
-    default: false
+    default: false,
   },
   accessLimited: {
     type: Boolean,
-    default: false
+    default: false,
   },
   nuxtSections: {
     type: Boolean,
-    default: false
+    default: false,
   },
   mediaResponseProp: {
     type: Object,
-    default: () => ({})
+    default: () => ({}),
   },
   mainFilterOptions: {
     type: Object,
@@ -240,7 +311,8 @@ const props = defineProps({
       selectStyle: 'default-select-style-chooser relative',
       labelStyle: 'text-md font-base mr-2 mb-1',
       labelInsideStyle: 'absolute top-2 text-xs font-base text-Blue mr-2 mb-1 z-10',
-      labelInsideDefaultStyle: 'absolute top-3 text-md font-base text-darkGray mr-2 mb-1 defaultSearching z-10',
+      labelInsideDefaultStyle:
+        'absolute top-3 text-md font-base text-darkGray mr-2 mb-1 defaultSearching z-10',
       labelPaddingWithIcon: 'left-12',
       labelPadding: 'left-3',
       selectErrorClass: 'select-error-class',
@@ -266,7 +338,7 @@ const props = defineProps({
       filterSearchable: false,
       errorOccurred: false,
       withIcon: true,
-    })
+    }),
   },
   singleSelectFilterOptions: {
     type: Object,
@@ -276,7 +348,8 @@ const props = defineProps({
       selectStyle: 'default-select-style-chooser relative',
       labelStyle: 'text-md font-base mr-2 mb-1',
       labelInsideStyle: 'absolute top-2 text-xs font-base text-Blue mr-2 mb-1 z-10',
-      labelInsideDefaultStyle: 'absolute top-3 text-md font-base text-darkGray mr-2 mb-1 defaultSearching z-10',
+      labelInsideDefaultStyle:
+        'absolute top-3 text-md font-base text-darkGray mr-2 mb-1 defaultSearching z-10',
       labelPaddingWithIcon: 'left-12',
       labelPadding: 'left-3',
       selectErrorClass: 'select-error-class',
@@ -302,7 +375,7 @@ const props = defineProps({
       filterSearchable: false,
       errorOccurred: false,
       withIcon: false,
-    })
+    }),
   },
   multiSelectFilterOptions: {
     type: Object,
@@ -312,7 +385,8 @@ const props = defineProps({
       selectStyle: 'default-select-style-chooser relative',
       labelStyle: 'text-md font-base mr-2 mb-1',
       labelInsideStyle: 'absolute top-2 text-xs font-base text-Blue mr-2 mb-1 z-10',
-      labelInsideDefaultStyle: 'absolute top-3 text-md font-base text-darkGray mr-2 mb-1 defaultSearching z-10',
+      labelInsideDefaultStyle:
+        'absolute top-3 text-md font-base text-darkGray mr-2 mb-1 defaultSearching z-10',
       labelPaddingWithIcon: 'left-12',
       labelPadding: 'left-3',
       selectErrorClass: 'select-error-class',
@@ -338,19 +412,19 @@ const props = defineProps({
       filterSearchable: true,
       errorOccurred: false,
       withIcon: false,
-    })
+    }),
   },
   responseReceived: {
     type: Function,
-    default: () => {}
+    default: () => {},
   },
   requestPreSent: {
     type: Function,
-    default: () => {}
+    default: () => {},
   },
   forwardRequest: {
     type: Function,
-    default: null
+    default: null,
   },
 })
 
@@ -377,10 +451,10 @@ const selectedFolder = ref(useRoute().query.folder || props.folderType || 'all')
 const payloadData = ref({
   filters: [],
   sort: {
-    inserted_at: "desc"
+    inserted_at: 'desc',
   },
   page: 1,
-  per_page: 9
+  per_page: 9,
 })
 
 const totalMedias = ref(0)
@@ -389,64 +463,131 @@ const pageNumber = ref(1)
 const sectionsUserId = ref(props.sectionsUserIdProp)
 const accessLimitedVal = ref(props.accessLimited)
 
-const createButtonsStyle = "h-53px py-3.5 px-8 text-white rounded-xl bg-Blue hover:bg-white hover:text-Blue border border-Blue hover:border-Blue"
+const createButtonsStyle =
+  'h-53px py-3.5 px-8 text-white rounded-xl bg-Blue hover:bg-white hover:text-Blue border border-Blue hover:border-Blue'
 
 const filterOptions = [
-  { key: 'All', value: props.mediaTranslationPrefix ? useI18n().t(props.mediaTranslationPrefix + 'selectFilter') : 'Select Filter' },
-  { key: 'title', value: props.mediaTranslationPrefix ? useI18n().t(props.mediaTranslationPrefix + 'filterOptions.title') : 'Title' },
-  { key: 'author', value: props.mediaTranslationPrefix ? useI18n().t(props.mediaTranslationPrefix + 'filterOptions.createdBy') : 'Created By' },
-  { key: 'number_of_contents', value: props.mediaTranslationPrefix ? useI18n().t(props.mediaTranslationPrefix + 'filterOptions.contentsNumber') : 'Contents Number' },
-  { key: 'private_status', value: props.mediaTranslationPrefix ? useI18n().t(props.mediaTranslationPrefix + 'filterOptions.privateStatus') : 'Private Status' },
-  { key: 'locked_status', value: props.mediaTranslationPrefix ? useI18n().t(props.mediaTranslationPrefix + 'filterOptions.lockedStatus') : 'Locked Status' }
+  {
+    key: 'All',
+    value: props.mediaTranslationPrefix
+      ? useI18n().t(props.mediaTranslationPrefix + 'selectFilter')
+      : 'Select Filter',
+  },
+  {
+    key: 'title',
+    value: props.mediaTranslationPrefix
+      ? useI18n().t(props.mediaTranslationPrefix + 'filterOptions.title')
+      : 'Title',
+  },
+  {
+    key: 'author',
+    value: props.mediaTranslationPrefix
+      ? useI18n().t(props.mediaTranslationPrefix + 'filterOptions.createdBy')
+      : 'Created By',
+  },
+  {
+    key: 'number_of_contents',
+    value: props.mediaTranslationPrefix
+      ? useI18n().t(props.mediaTranslationPrefix + 'filterOptions.contentsNumber')
+      : 'Contents Number',
+  },
+  {
+    key: 'private_status',
+    value: props.mediaTranslationPrefix
+      ? useI18n().t(props.mediaTranslationPrefix + 'filterOptions.privateStatus')
+      : 'Private Status',
+  },
+  {
+    key: 'locked_status',
+    value: props.mediaTranslationPrefix
+      ? useI18n().t(props.mediaTranslationPrefix + 'filterOptions.lockedStatus')
+      : 'Locked Status',
+  },
 ]
 
 const filterMap = {
   All: { key: 'All', size: 3 },
   title: {
-    title: props.mediaTranslationPrefix ? useI18n().t(props.mediaTranslationPrefix + 'filterOptions.title') : 'Title',
+    title: props.mediaTranslationPrefix
+      ? useI18n().t(props.mediaTranslationPrefix + 'filterOptions.title')
+      : 'Title',
     key: 'title',
     size: 5,
-    type: 'text'
+    type: 'text',
   },
   author: {
-    title: props.mediaTranslationPrefix ? useI18n().t(props.mediaTranslationPrefix + 'filterOptions.createdBy') : 'Created By',
+    title: props.mediaTranslationPrefix
+      ? useI18n().t(props.mediaTranslationPrefix + 'filterOptions.createdBy')
+      : 'Created By',
     key: 'author',
     size: 5,
     type: 'multiSelect',
     multiSelectLabel: 'translation',
     multiSelectKey: 'key',
     multipleSelect: false,
-    selectPlaceholder: props.mediaTranslationPrefix ? useI18n().t(props.mediaTranslationPrefix + 'selectUser') : 'Select User',
-    filterOptions: []
+    selectPlaceholder: props.mediaTranslationPrefix
+      ? useI18n().t(props.mediaTranslationPrefix + 'selectUser')
+      : 'Select User',
+    filterOptions: [],
   },
   number_of_contents: {
-    title: props.mediaTranslationPrefix ? useI18n().t(props.mediaTranslationPrefix + 'filterOptions.contentsNumber') : 'Contents Number',
+    title: props.mediaTranslationPrefix
+      ? useI18n().t(props.mediaTranslationPrefix + 'filterOptions.contentsNumber')
+      : 'Contents Number',
     key: 'number_of_contents',
     size: 5,
-    type: 'text'
+    type: 'text',
   },
   private_status: {
-    title: props.mediaTranslationPrefix ? useI18n().t(props.mediaTranslationPrefix + 'filterOptions.privateStatus') : 'Private Status',
+    title: props.mediaTranslationPrefix
+      ? useI18n().t(props.mediaTranslationPrefix + 'filterOptions.privateStatus')
+      : 'Private Status',
     key: 'private_status',
     size: 5,
     type: 'select',
-    selectPlaceholder: props.mediaTranslationPrefix ? useI18n().t(props.mediaTranslationPrefix + 'filterOptions.selectStatus') : 'Select Status',
+    selectPlaceholder: props.mediaTranslationPrefix
+      ? useI18n().t(props.mediaTranslationPrefix + 'filterOptions.selectStatus')
+      : 'Select Status',
     options: [
-      { key: 'public', translation: props.mediaTranslationPrefix ? useI18n().t(props.mediaTranslationPrefix + 'public') : 'Public' },
-      { key: 'private', translation: props.mediaTranslationPrefix ? useI18n().t(props.mediaTranslationPrefix + 'private') : 'Private' }
-    ]
+      {
+        key: 'public',
+        translation: props.mediaTranslationPrefix
+          ? useI18n().t(props.mediaTranslationPrefix + 'public')
+          : 'Public',
+      },
+      {
+        key: 'private',
+        translation: props.mediaTranslationPrefix
+          ? useI18n().t(props.mediaTranslationPrefix + 'private')
+          : 'Private',
+      },
+    ],
   },
   locked_status: {
-    title: props.mediaTranslationPrefix ? useI18n().t(props.mediaTranslationPrefix + 'filterOptions.lockedStatus') : 'Locked Status',
+    title: props.mediaTranslationPrefix
+      ? useI18n().t(props.mediaTranslationPrefix + 'filterOptions.lockedStatus')
+      : 'Locked Status',
     key: 'locked_status',
     size: 5,
     type: 'select',
-    selectPlaceholder: props.mediaTranslationPrefix ? useI18n().t(props.mediaTranslationPrefix + 'filterOptions.selectStatus') : 'Select Status',
+    selectPlaceholder: props.mediaTranslationPrefix
+      ? useI18n().t(props.mediaTranslationPrefix + 'filterOptions.selectStatus')
+      : 'Select Status',
     options: [
-      { key: 'locked', translation: props.mediaTranslationPrefix ? useI18n().t(props.mediaTranslationPrefix + 'locked') : 'Locked' },
-      { key: 'unlocked', translation: props.mediaTranslationPrefix ? useI18n().t(props.mediaTranslationPrefix + 'unlocked') : 'Unlocked' }
-    ]
-  }
+      {
+        key: 'locked',
+        translation: props.mediaTranslationPrefix
+          ? useI18n().t(props.mediaTranslationPrefix + 'locked')
+          : 'Locked',
+      },
+      {
+        key: 'unlocked',
+        translation: props.mediaTranslationPrefix
+          ? useI18n().t(props.mediaTranslationPrefix + 'unlocked')
+          : 'Unlocked',
+      },
+    ],
+  },
 }
 
 // Computed
@@ -483,11 +624,11 @@ watch(
   () => props.mediaUriProp,
   async (val) => {
     mediaUri.value = val
-    if (useRoute().query.filters && useRoute().query.filters !== "") {
+    if (useRoute().query.filters && useRoute().query.filters !== '') {
       filterMedias(JSON.parse(useRoute().query.filters))
     } else if (props.nuxtSections && props.appliedFilters) {
       filterMedias(JSON.parse(props.appliedFilters))
-    } else if (val && process.client) {
+    } else if (val && import.meta.client) {
       await getAllMedias()
     }
   },
@@ -498,7 +639,7 @@ watch(
   () => props.authorsUriProp,
   async (val) => {
     authorsUri.value = val
-    if (val && process.client) {
+    if (val && import.meta.client) {
       await getAuthors()
     }
   },
@@ -544,11 +685,11 @@ watch(
 
 // Methods
 function hasObjectWithKey(arr, key, value) {
-  return arr.some(item => item.hasOwnProperty(key) && item[key] === value)
+  return arr.some((item) => item.hasOwnProperty(key) && item[key] === value)
 }
 
 // getAllMedias function using Composition API for Nuxt 3
-async function getAllMedias (folderMediaType, filtered) {
+async function getAllMedias(folderMediaType, filtered) {
   try {
     if (props.nuxtSections && props.mediaCategory === 'document') {
       selectedFolder.value = 'document'
@@ -561,24 +702,29 @@ async function getAllMedias (folderMediaType, filtered) {
       method: 'POST',
       body: {
         sort: {
-          inserted_at: payloadData.value.sort.inserted_at
-        }
+          inserted_at: payloadData.value.sort.inserted_at,
+        },
       },
-      headers: mediaHeader({ token: token.value }, projectId.value)
+      headers: mediaHeader({ token: token.value }, projectId.value),
     }
     if (props.forwardRequest) {
-      ({ data: allMediaResponse } = await props.forwardRequest(mediaUri.value, payload))
+      ;({ data: allMediaResponse } = await props.forwardRequest(mediaUri.value, payload))
     } else {
-      ({ data: allMediaResponse } = await useFetch(mediaUri.value, payload))
+      ;({ data: allMediaResponse } = await useFetch(mediaUri.value, payload))
     }
 
     let responseReceivedData
     try {
-      responseReceivedData = await props.responseReceived('POST', mediaUri.value, {
-        sort: {
-          inserted_at: payloadData.value.sort.inserted_at
-        }
-      }, allMediaResponse.value)
+      responseReceivedData = await props.responseReceived(
+        'POST',
+        mediaUri.value,
+        {
+          sort: {
+            inserted_at: payloadData.value.sort.inserted_at,
+          },
+        },
+        allMediaResponse.value
+      )
     } catch {}
     if (responseReceivedData) {
       allMediaResponse.value = responseReceivedData
@@ -609,11 +755,17 @@ async function getAllMedias (folderMediaType, filtered) {
 
       // Handle route updates if not in nuxtSections and not filtered
       if (!props.nuxtSections && filtered !== true) {
-
-        if (route.query.filters && route.query.filters !== "") {
-          router.push(localePath({ path: props.mediasPath, query: { filters: route.query.filters, folder: folderMediaType } }))
+        if (route.query.filters && route.query.filters !== '') {
+          router.push(
+            localePath({
+              path: props.mediasPath,
+              query: { filters: route.query.filters, folder: folderMediaType },
+            })
+          )
         } else {
-          router.push(localePath({ path: props.mediasPath, query: { folder: selectedFolder.value } }))
+          router.push(
+            localePath({ path: props.mediasPath, query: { folder: selectedFolder.value } })
+          )
         }
       }
 
@@ -621,24 +773,26 @@ async function getAllMedias (folderMediaType, filtered) {
       if (selectedFolder.value) {
         if (selectedFolder.value === 'document') {
           if (hasObjectWithKey(payloadData.value.filters, 'key', 'type')) {
-            payloadData.value.filters.find(filter => filter.key === 'type').value = 'document'
+            payloadData.value.filters.find((filter) => filter.key === 'type').value = 'document'
           } else {
             payloadData.value.filters.push({
-              key: "type",
-              value: "document"
+              key: 'type',
+              value: 'document',
             })
           }
         } else if (selectedFolder.value === 'image') {
           if (hasObjectWithKey(payloadData.value.filters, 'key', 'type')) {
-            payloadData.value.filters.find(filter => filter.key === 'type').value = 'image'
+            payloadData.value.filters.find((filter) => filter.key === 'type').value = 'image'
           } else {
             payloadData.value.filters.push({
-              key: "type",
-              value: "image"
+              key: 'type',
+              value: 'image',
             })
           }
         } else {
-          payloadData.value.filters = payloadData.value.filters.filter((filter) => filter.key !== "type")
+          payloadData.value.filters = payloadData.value.filters.filter(
+            (filter) => filter.key !== 'type'
+          )
         }
       }
     }
@@ -648,21 +802,26 @@ async function getAllMedias (folderMediaType, filtered) {
     const filteredPayload = {
       method: 'POST',
       body: payloadData.value,
-      headers: mediaHeader({ token: token.value }, projectId.value)
+      headers: mediaHeader({ token: token.value }, projectId.value),
     }
     if (props.forwardRequest) {
-      ({ data: filteredResponse } = await props.forwardRequest(mediaUri.value, filteredPayload))
+      ;({ data: filteredResponse } = await props.forwardRequest(mediaUri.value, filteredPayload))
     } else {
-      ({ data: filteredResponse } = await useFetch(mediaUri.value, filteredPayload))
+      ;({ data: filteredResponse } = await useFetch(mediaUri.value, filteredPayload))
     }
 
-    if (mediaResponse && mediaResponse.value) {
+    if (mediaResponse.value && mediaResponse.value) {
       let responseReceivedData
       try {
-        responseReceivedData = await props.responseReceived('POST', mediaUri.value, {
-          ...payloadData.value,
-          filteredFetch: true
-        }, filteredResponse.value)
+        responseReceivedData = await props.responseReceived(
+          'POST',
+          mediaUri.value,
+          {
+            ...payloadData.value,
+            filteredFetch: true,
+          },
+          filteredResponse.value
+        )
       } catch {}
       if (responseReceivedData) {
         filteredResponse.value = responseReceivedData
@@ -708,7 +867,7 @@ async function getAllMedias (folderMediaType, filtered) {
   } catch (e) {
     loading.value = false
     if (props.nuxtSections) {
-      showToast("Error", 'error', e.response.data.message)
+      showToast('Error', 'error', e.response.data.message)
     }
   }
 }
@@ -726,7 +885,7 @@ async function getAuthors() {
     let response
     const payload = {
       method: 'GET',
-      headers: mediaHeader({ token: token.value }, projectId.value)
+      headers: mediaHeader({ token: token.value }, projectId.value),
     }
     if (props.forwardRequest) {
       response = await props.forwardRequest(authorsUri.value, payload)
@@ -736,7 +895,7 @@ async function getAuthors() {
     response.data.forEach((project) => {
       filterMap.author.filterOptions.push({
         key: project.id,
-        translation: project.full_name ? `${project.full_name} (${project.id})` : `(${project.id})`
+        translation: project.full_name ? `${project.full_name} (${project.id})` : `(${project.id})`,
       })
     })
     loading.value = false
@@ -753,22 +912,30 @@ function copyMediaLink(link) {
   }
 }
 
-function getFilter(filter) {
-
-}
+function getFilter(filter) {}
 
 function filterMedias(filter) {
   filtersQuery.value = JSON.stringify(filter)
   if (!props.nuxtSections) {
-    navigateTo(useLocalePath({ path: props.mediasPath, query: { filters: filtersQuery.value, folder: selectedFolder.value } }))
+    navigateTo(
+      useLocalePath({
+        path: props.mediasPath,
+        query: { filters: filtersQuery.value, folder: selectedFolder.value },
+      })
+    )
   }
 
   for (const i in filter) {
-    const index = payloadData.value.filters.findIndex(x => x.key === filter[i].key)
+    const index = payloadData.value.filters.findIndex((x) => x.key === filter[i].key)
     const value =
-      filter[i].key === 'number_of_contents' ? parseInt(filter[i].value) :
-      filter[i].key === 'author' ? filter[i].value.substring(filter[i].value.indexOf('(') + 1, filter[i].value.lastIndexOf(')')) :
-      filter[i].value
+      filter[i].key === 'number_of_contents'
+        ? Number.parseInt(filter[i].value)
+        : filter[i].key === 'author'
+          ? filter[i].value.substring(
+              filter[i].value.indexOf('(') + 1,
+              filter[i].value.lastIndexOf(')')
+            )
+          : filter[i].value
 
     if (index === -1) {
       payloadData.value.filters.push({ key: filter[i].key, value })
@@ -784,7 +951,9 @@ function filterMedias(filter) {
 
 function removeFilter(i, item) {
   if (payloadData.value.filters.length !== 1) {
-    payloadData.value.filters = payloadData.value.filters.filter(object => object.key !== payloadData.value.filters[i].key)
+    payloadData.value.filters = payloadData.value.filters.filter(
+      (object) => object.key !== payloadData.value.filters[i].key
+    )
     if (mediaUri.value !== '') {
       getAllMedias(selectedFolder.value, true)
     }
@@ -792,8 +961,15 @@ function removeFilter(i, item) {
 
   if (!props.nuxtSections) {
     try {
-      const newFilters = JSON.stringify(JSON.parse(filtersQuery.value).filter(f => f.key !== item.key))
-      navigateTo(useLocalePath({ path: props.mediasPath, query: { filters: newFilters, folder: selectedFolder.value } }))
+      const newFilters = JSON.stringify(
+        JSON.parse(filtersQuery.value).filter((f) => f.key !== item.key)
+      )
+      navigateTo(
+        useLocalePath({
+          path: props.mediasPath,
+          query: { filters: newFilters, folder: selectedFolder.value },
+        })
+      )
     } catch {}
   }
 }
@@ -813,11 +989,16 @@ function clearFilters() {
 
 function openMedia(mediaID) {
   if (props.editMediaPath) {
-    let query = { id: mediaID, folder: selectedFolder.value }
+    const query = { id: mediaID, folder: selectedFolder.value }
     if (useRoute().query.filters) query.filters = useRoute().query.filters
     navigateTo(useLocalePath({ path: props.editMediaPath, query }))
   } else {
-    emit('updateMediaComponent', { name: 'MediaEditMedia', mediaId: mediaID, appliedFilters: filtersQuery.value, folderType: selectedFolder.value })
+    emit('updateMediaComponent', {
+      name: 'MediaEditMedia',
+      mediaId: mediaID,
+      appliedFilters: filtersQuery.value,
+      folderType: selectedFolder.value,
+    })
   }
 }
 
@@ -840,11 +1021,15 @@ function handlePageChange(e) {
 
 function openCreateMedia() {
   if (props.createMediaPath) {
-    let query = { folder: selectedFolder.value }
+    const query = { folder: selectedFolder.value }
     if (useRoute().query.filters) query.filters = useRoute().query.filters
     navigateTo(useLocalePath({ path: props.createMediaPath, query }))
   } else {
-    emit('updateMediaComponent', { name: 'MediaCreateMedia', appliedFilters: filtersQuery.value, folderType: selectedFolder.value })
+    emit('updateMediaComponent', {
+      name: 'MediaCreateMedia',
+      appliedFilters: filtersQuery.value,
+      folderType: selectedFolder.value,
+    })
   }
 }
 
@@ -856,18 +1041,17 @@ function updateFilterValues(value) {
 }
 
 useHead({
-  title: 'bo - Medias'
+  title: 'bo - Medias',
 })
 
-const emit = defineEmits(['updateMediaComponent']);
-
+const emit = defineEmits(['updateMediaComponent'])
 </script>
 
 <style scoped>
 .text-ellipsis {
   text-overflow: ellipsis !important;
 }
-@media only screen and (max-width:768px) {
+@media only screen and (max-width: 768px) {
   .mobileHidden {
     display: none !important;
   }

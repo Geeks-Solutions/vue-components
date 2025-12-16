@@ -1,23 +1,17 @@
 <template>
-  <div ref="lottieContainer" :style="{ width, height }"></div>
+  <div ref="lottieContainer" :style="{ width, height }"/>
 </template>
 
 <script setup>
-import {
-  ref,
-  onMounted,
-  onBeforeUnmount,
-  inject,
-  watch
-} from '#imports'
+import { ref, onMounted, onBeforeUnmount, inject, watch } from '#imports'
 
 const props = defineProps({
-  src: {type: String, required: true}, // JSON path (public folder or remote URL)
-  type: {type: String, default: 'lottie'},
-  loop: {type: Boolean, default: true},
-  autoplay: {type: Boolean, default: true},
-  width: {type: String, default: '200px'},
-  height: {type: String, default: '200px'},
+  src: { type: String, required: true }, // JSON path (public folder or remote URL)
+  type: { type: String, default: 'lottie' },
+  loop: { type: Boolean, default: true },
+  autoplay: { type: Boolean, default: true },
+  width: { type: String, default: '200px' },
+  height: { type: String, default: '200px' },
 })
 
 const lottieContainer = ref(null)
@@ -41,7 +35,7 @@ function setSpeed(speed = 1) {
 }
 
 // Expose methods to parent via ref
-defineExpose({play, pause, stop, setSpeed})
+defineExpose({ play, pause, stop, setSpeed })
 
 const loadScript = inject('loadScript')
 const initAnimation = () => {
@@ -66,9 +60,9 @@ const initAnimation = () => {
     if (dataUriMatch) {
       const base64Content = dataUriMatch[1]
       try {
-         const binaryString = atob(base64Content)
-         const bytes = Uint8Array.from(binaryString, c => c.charCodeAt(0))
-         options.animationData = JSON.parse(new TextDecoder().decode(bytes))
+        const binaryString = atob(base64Content)
+        const bytes = Uint8Array.from(binaryString, (c) => c.charCodeAt(0))
+        options.animationData = JSON.parse(new TextDecoder().decode(bytes))
       } catch (parseError) {
         console.error('LottieAnimation: Failed to decode/parse Data URI lottie.', parseError)
         return // Do NOT fallback to path for Data URIs to avoid XHR errors
@@ -76,10 +70,13 @@ const initAnimation = () => {
     }
     // 2. Raw Base64 Heuristic (Check for explicit non-path chars, or large length)
     // If it's very long, assume it's data. If it looks like a path, use path.
-    else if (props.src.length > 512 || (!props.src.startsWith('http') && !props.src.startsWith('/') && !props.src.startsWith('.'))) {
+    else if (
+      props.src.length > 512 ||
+      (!props.src.startsWith('http') && !props.src.startsWith('/') && !props.src.startsWith('.'))
+    ) {
       try {
         const binaryString = atob(props.src)
-        const bytes = Uint8Array.from(binaryString, c => c.charCodeAt(0))
+        const bytes = Uint8Array.from(binaryString, (c) => c.charCodeAt(0))
         options.animationData = JSON.parse(new TextDecoder().decode(bytes))
       } catch (e) {
         // If parsing as base64 fails, and it was short, it might be a weird path.
@@ -87,9 +84,12 @@ const initAnimation = () => {
         if (props.src.length < 512) {
           options.path = props.src
         } else {
-           console.warn('LottieAnimation: Source looked like base64 (length/format) but failed to parse. Ignoring.', e)
-           // Do not fallback to path for huge strings
-           return
+          console.warn(
+            'LottieAnimation: Source looked like base64 (length/format) but failed to parse. Ignoring.',
+            e
+          )
+          // Do not fallback to path for huge strings
+          return
         }
       }
     } else {
@@ -98,7 +98,6 @@ const initAnimation = () => {
     }
 
     animation.value = window.lottie.loadAnimation(options)
-
   } catch (err) {
     console.error('LottieAnimation: Unexpected error initializing animation.', err)
   }
@@ -113,9 +112,12 @@ onMounted(async () => {
 })
 
 // Reactivity support
-watch(() => props.src, () => {
-  if (window.lottie) initAnimation()
-})
+watch(
+  () => props.src,
+  () => {
+    if (window.lottie) initAnimation()
+  }
+)
 
 onBeforeUnmount(() => {
   animation.value?.destroy()

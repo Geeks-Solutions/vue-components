@@ -1,10 +1,10 @@
-import Buttons from '../src/runtime/components/Buttons.vue';
-import rotateIcon from '../src/runtime/assets/images/rotate.svg';
+import Buttons from '../src/runtime/components/Buttons.vue'
+import rotateIcon from '../src/runtime/assets/images/rotate.svg'
 
 const defaultControls = {
   submitFunction: {
     type: Function,
-    default: () => {}
+    default: () => {},
   },
   buttonText: {
     type: String,
@@ -44,11 +44,13 @@ const defaultControls = {
   },
   buttonStyle: {
     type: String,
-    default: 'bg-Blue text-white border-Blue border hover:text-Blue px-3.5 h-53px py-3.5 rounded-xl hover:bg-white',
+    default:
+      'bg-Blue text-white border-Blue border hover:text-Blue px-3.5 h-53px py-3.5 rounded-xl hover:bg-white',
   },
   inactiveButtonStyle: {
     type: String,
-    default: 'bg-SmallTextGray text-white border-SmallTextGray border px-3.5 h-53px py-3.5 rounded-xl cursor-default',
+    default:
+      'bg-SmallTextGray text-white border-SmallTextGray border px-3.5 h-53px py-3.5 rounded-xl cursor-default',
   },
   iconStyle: {
     type: Object,
@@ -56,34 +58,30 @@ const defaultControls = {
       activeIconStyle: '',
       inActiveIconStyle: '',
       // Use the imported asset as the default value
-      src: rotateIcon
-    })
-  }
+      src: rotateIcon,
+    }),
+  },
 }
 
 export default {
   component: Buttons,
   title: 'Components/Form Components/Buttons',
-  args:  Object.fromEntries(
-      Object.entries(defaultControls).map(([key, value]) => {
-        const defaultVal = typeof value.default === 'function'
-            ? value.default()
-            : value.default;
+  args: Object.fromEntries(
+    Object.entries(defaultControls).map(([key, value]) => {
+      const defaultVal = typeof value.default === 'function' ? value.default() : value.default
 
-        return [key, defaultVal];
-      })
-  )
-};
+      return [key, defaultVal]
+    })
+  ),
+}
 
 const Template = (args, { argTypes }) => ({
   components: { Buttons },
   setup() {
-    return { args };
+    return { args }
   },
   props: Object.keys(argTypes),
   template: '<Buttons v-bind="args" />',
-});
+})
 
-
-export const Primary = Template.bind({});
-
+export const Primary = Template.bind({})

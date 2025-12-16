@@ -1,8 +1,6 @@
 # Vue Components
 
-
 - [✨ &nbsp;Release Notes](/CHANGELOG.md)
-
 
 ## Quick Setup
 
@@ -14,7 +12,6 @@ npx nuxi module add @geeks.solutions/vue-components
 
 That's it! You can now use Vue Components in your Nuxt app ✨
 
-
 ## Contribution
 
 <details>
@@ -24,29 +21,38 @@ That's it! You can now use Vue Components in your Nuxt app ✨
   # Install dependencies
   npm install
 
-  # Declare the library for NPM
-  npm link
-  
-  # Generate type stubs so /dist points to src for live development
-  npm run dev:prepare
-  
-  # Develop with the playground
-  npm run dev
-  
-  # Build the playground
-  npm run dev:build
-  
-  # Run ESLint
-  npm run lint
-  
-  # Run Vitest
-  npm run test
-  npm run test:watch
-  
-  # Release new version
-  npm install
-  npm run prepack
-  npm publish
-  ```
+# Declare the library for NPM
+
+npm link
+
+# Generate type stubs so /dist points to src for live development
+
+npm run dev:prepare
+
+# Develop with the playground
+
+npm run dev
+
+# Build the playground
+
+npm run dev:build
+
+# Run ESLint
+
+npm run lint
+
+# Run Vitest
+
+npm run test
+npm run test:watch
+
+# Release new version
+
+npm install
+npm run prepack
+npm publish
+
+```
 
 </details>
+```

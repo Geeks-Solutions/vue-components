@@ -1,51 +1,65 @@
 <template>
-  <div v-show="props.showPopupCode" class="fixed z-20 overflow-hidden bg-FieldGray bg-opacity-25 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-      <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="false"></div>
+  <div
+    v-show="props.showPopupCode"
+    class="fixed z-20 overflow-hidden bg-FieldGray bg-opacity-25 inset-0 overflow-y-auto"
+    aria-labelledby="modal-title"
+    role="dialog"
+    aria-modal="true"
+  >
+    <div
+      class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0"
+    >
+      <div
+        class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+        aria-hidden="false"
+      />
 
-      <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="false">&#8203;</span>
+      <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="false"
+        >&#8203;</span
+      >
 
       <div :class="props.containerStyle">
         <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
           <div>
             <div class="mt-3 flex justify-between pt-1 text-center sm:mt-0 sm:ml-4 sm:text-left">
-
               <div class="flex w-full justify-end">
-                <span :class="[props.icomoonCrossIconSrc, props.icomoonCrossIconStyle]" @click="emit('cancel')"></span>
+                <span
+                  :class="[props.icomoonCrossIconSrc, props.icomoonCrossIconStyle]"
+                  @click="emit('cancel')"
+                />
               </div>
             </div>
 
             <div v-if="props.canBeDeleted" class="w-full justify-center pt-16 mb-24">
-             <span :class="props.alertIcon"></span>
-             <div class="flex w-full justify-center text-center">
-               <div :class="props.titleDeleteStyle">
-                 {{ props.titleDelete }}
-               </div>
-             </div>
+              <span :class="props.alertIcon"/>
+              <div class="flex w-full justify-center text-center">
+                <div :class="props.titleDeleteStyle">
+                  {{ props.titleDelete }}
+                </div>
+              </div>
 
-             <div class="flex justify-center mt-14">
-               <div @click.stop.prevent="emit('apply')">
-                 <LazyGButtons
-                   :button-text="props.applyButtonText"
-                   :button-style="props.applyButtonStyle"
-                   :with-icomoon-icon="true"
-                   :icomoon-icon-active-src="'icon-trashCan2'"
-                   :active="true"
-                 />
-               </div>
-               <div @click.stop.prevent="emit('cancel')">
-                 <LazyGButtons
-                   :button-text="props.cancelButtonText"
-                   :button-style="props.cancelButtonStyle"
-                   :with-icon="false"
-                 />
-               </div>
-             </div>
-
+              <div class="flex justify-center mt-14">
+                <div @click.stop.prevent="emit('apply')">
+                  <LazyGButtons
+                    :button-text="props.applyButtonText"
+                    :button-style="props.applyButtonStyle"
+                    :with-icomoon-icon="true"
+                    :icomoon-icon-active-src="'icon-trashCan2'"
+                    :active="true"
+                  />
+                </div>
+                <div @click.stop.prevent="emit('cancel')">
+                  <LazyGButtons
+                    :button-text="props.cancelButtonText"
+                    :button-style="props.cancelButtonStyle"
+                    :with-icon="false"
+                  />
+                </div>
+              </div>
             </div>
 
             <div v-else class="w-full flex flex-col justify-center">
-              <span :class="props.alertIcon"></span>
+              <span :class="props.alertIcon"/>
               <div class="flex w-full justify-center text-center">
                 <div :class="props.titleNoDeleteStyle">
                   {{ props.titleNoDelete }}
@@ -57,11 +71,10 @@
                 </div>
               </div>
 
-
               <div :class="props.errorsContainerStyle">
                 <div v-for="(error, index) in props.errors" :key="index" class="mb-4">
                   <div v-show="error.errorTitle" :class="error.errorTitleStyle">
-                    {{ error.errorTitle}}
+                    {{ error.errorTitle }}
                   </div>
                   <div class="flex">
                     <div v-show="error.authorName" :class="error.authorNameStyle">
@@ -76,7 +89,6 @@
                   </div>
                 </div>
               </div>
-
             </div>
           </div>
         </div>
@@ -86,15 +98,14 @@
 </template>
 
 <script setup>
-
 const props = defineProps({
   showPopupCode: {
     type: Boolean,
-    default: false
+    default: false,
   },
   canBeDeleted: {
     type: Boolean,
-    default: true
+    default: true,
   },
   errors: {
     type: Array,
@@ -108,98 +119,99 @@ const props = defineProps({
         errorTitleStyle: 'font-medium text-Blue text-lg',
       },
       // ... (autres erreurs par défaut si nécessaire, mais généralement il vaut mieux passer un tableau vide par défaut)
-    ]
+    ],
   },
   containerStyle: {
     type: String,
-    default: 'inline-block shadow-lg shadow ring-black ring-opacity-5 align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle md:w-1/2'
+    default:
+      'inline-block shadow-lg shadow ring-black ring-opacity-5 align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle md:w-1/2',
   },
   errorsContainerStyle: {
     type: String,
-    default: 'mt-10 mb-14 self-center h-[270px] overflow-y-auto'
+    default: 'mt-10 mb-14 self-center h-[270px] overflow-y-auto',
   },
   createdOnStyle: {
     type: String,
-    default: 'font-light pl-4'
+    default: 'font-light pl-4',
   },
   createdOnLabel: {
     type: String,
-    default: 'Created on:'
+    default: 'Created on:',
   },
   titleDelete: {
     type: String,
-    default: 'Are you sure you want to delete this media?'
+    default: 'Are you sure you want to delete this media?',
   },
   titleDeleteStyle: {
     type: String,
-    default: 'text-xl font-base text-center w-220px'
+    default: 'text-xl font-base text-center w-220px',
   },
   titleNoDeleteStyle: {
     type: String,
-    default: 'text-xl font-base text-center'
+    default: 'text-xl font-base text-center',
   },
   titleNoDelete: {
     type: String,
-    default: 'Oops! You cannot delete this media'
+    default: 'Oops! You cannot delete this media',
   },
   subTitleNoDeleteStyle: {
     type: String,
-    default: 'text-xl font-extralight text-center'
+    default: 'text-xl font-extralight text-center',
   },
   subTitleNoDelete: {
     type: String,
-    default: 'because it\'s linked to the following contents:'
+    default: "because it's linked to the following contents:",
   },
-  title: { // Note: Ces props 'title', 'titleStyle', 'description', 'descriptionStyle' ne sont pas utilisées dans le template
+  title: {
+    // Note: Ces props 'title', 'titleStyle', 'description', 'descriptionStyle' ne sont pas utilisées dans le template
     type: String,
-    default: ''
+    default: '',
   },
   titleStyle: {
     type: String,
-    default: ''
+    default: '',
   },
   description: {
     type: String,
-    default: ''
+    default: '',
   },
   descriptionStyle: {
     type: String,
-    default: ''
+    default: '',
   },
   alertIcon: {
     type: String,
-    default: 'flex w-full icon-alert text-6xl justify-center pb-8'
+    default: 'flex w-full icon-alert text-6xl justify-center pb-8',
   },
   icomoonCrossIconStyle: {
     type: String,
-    default: 'cursor-pointer'
+    default: 'cursor-pointer',
   },
   applyButtonText: {
     type: String,
-    default: 'DELETE MEDIA'
+    default: 'DELETE MEDIA',
   },
   applyButtonStyle: {
     type: String,
-    default: 'text-sm text-TextGray font-semibold bg-white border border-FieldGray hover:border-Blue hover:bg-white rounded-2xl px-4 py-3 mr-2 hover:text-Blue'
+    default:
+      'text-sm text-TextGray font-semibold bg-white border border-FieldGray hover:border-Blue hover:bg-white rounded-2xl px-4 py-3 mr-2 hover:text-Blue',
   },
   cancelButtonText: {
     type: String,
-    default: 'CANCEL'
+    default: 'CANCEL',
   },
   cancelButtonStyle: {
     type: String,
-    default: 'text-sm text-white bg-Blue hover:bg-white border hover:border-Blue rounded-2xl px-6 py-3 hover:text-Blue'
+    default:
+      'text-sm text-white bg-Blue hover:bg-white border hover:border-Blue rounded-2xl px-6 py-3 hover:text-Blue',
   },
   icomoonCrossIconSrc: {
     type: String,
-    default: 'icon-cross'
-  }
-});
+    default: 'icon-cross',
+  },
+})
 
-const emit = defineEmits(['cancel', 'apply']);
-
+const emit = defineEmits(['cancel', 'apply'])
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>
