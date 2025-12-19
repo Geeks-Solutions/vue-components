@@ -136,7 +136,6 @@
 
         <div v-if="props.filter_map[mainFilter].type === 'multiSelect'">
           <LazyGAutoComplete
-            :select-style="props.multiSelectStyle"
             :main-filter="filter_val[mainFilter]"
             :select-placeholder="
               props.filter_map[mainFilter].selectPlaceholder
@@ -163,7 +162,6 @@
             :select-error-class="props.multiSelectFilterOptions.selectErrorClass"
             :select-icon-class="props.multiSelectFilterOptions.selectIconClass"
             :label-inside-class="props.multiSelectFilterOptions.labelInsideClass"
-            :track-by="props.multiSelectFilterOptions.trackBy"
             :focused="props.multiSelectFilterOptions.focused"
             :filter-disabled="props.multiSelectFilterOptions.filterDisabled"
             :close-on-select="props.multiSelectFilterOptions.closeOnSelect"
@@ -545,7 +543,7 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['getFilter', 'removeFilter'])
+const emit = defineEmits(['getFilter', 'removeFilter', 'itemsSelected'])
 
 // Reactive state
 const filters = ref([{ value: '' }])
