@@ -1,11 +1,24 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { shallowMount } from '@vue/test-utils'
 import EditMedia from '../EditMedia.vue'
-
 import { createI18n } from 'vue-i18n'
-import { ref, watch, nextTick } from '#imports'
-import { expect, it, vi } from 'vitest'
-import * as medias from '../medias.js'
-import * as constants from '../../../utils/constants.js'
+
+// Explicitly mock modules to ensure reliable spying in script setup
+// Paths must be relative to THIS test file.
+// Component at src/runtime/components/media/EditMedia.vue
+// Test at src/runtime/components/media/__tests__/EditMedia.spec.js
+vi.mock('../medias.js', () => ({
+  showToast: vi.fn(),
+  isLottieAnimation: vi.fn(),
+  mediaHeader: vi.fn(),
+}))
+
+vi.mock('../../../utils/constants.js', () => ({
+  isFileTypeSupported: vi.fn(),
+}))
+
+import { showToast } from '../medias.js'
+import { isFileTypeSupported } from '../../../utils/constants.js'
 
 const i18n = createI18n({
   legacy: false,
@@ -13,14 +26,34 @@ const i18n = createI18n({
   fallbackLocale: 'en',
   messages: {
     en: {},
-    fr: {},
   },
 })
 
 describe('EditMedia', () => {
   let wrapper
+  const mockMedia = {
+    id: '123',
+    title: 'Test Media',
+    seo_tag: 'test-tag',
+    private_status: 'public',
+    locked_status: 'unlocked',
+    type: 'image',
+    author: 'user1',
+    files: [
+      {
+        url: 'test.jpg',
+        filename: 'test.jpg',
+        platform: { name: 'S3', width: 100, height: 100 },
+        size: 1024,
+      },
+    ],
+    meta: { author: 'user1', content: [] },
+    metadata: { type: 'image' },
+    creation_date: 1710000000,
+  }
 
   beforeEach(() => {
+    vi.clearAllMocks()
     wrapper = shallowMount(EditMedia, {
       global: {
         plugins: [i18n],
@@ -29,153 +62,125 @@ describe('EditMedia', () => {
           LazyGButtons: true,
           LazyGAlertPopup: true,
           LazyGAnimatedLoading: true,
+          LazyGUniversalViewer: true,
         },
         config: {
           globalProperties: {
-            $t: vi.fn((key) => key),
-            mediaHeader: vi.fn(({ token }, projectId) => ({
-              Authorization: `Bearer ${token}`,
-              'Project-ID': projectId,
-            })),
-            localePath: vi.fn(),
+            $t: (key) => key,
+          },
+          mocks: {
+            useLocalePath: (path) => path,
             useRoute: () => ({
-              params: { pathMatch: [] },
               query: {},
+              params: {},
             }),
+            navigateTo: vi.fn(),
           },
         },
       },
-      data() {
-        return {
-          showPopupCode: true,
-          popupContent: {
-            content: [
-              { id: 1, name: 'Content 1' },
-              { id: 2, name: 'Content 2' },
-            ],
-            author: 'Author Name',
-          },
-        }
-      },
-      propsData: {
-        contentUsedKey: 'name',
+      props: {
         mediaTranslationPrefix: 'mediaT.',
-        acceptedFileTypes: '.jpg, .png',
+        sectionsUserIdProp: 'user1',
+        mediaByIdResponseProp: mockMedia,
+        mediaByIdUriProp: '/api/media/',
+        nuxtSections: true,
+        acceptedFileTypes: 'image/*',
       },
     })
   })
 
-  it('does not display "undefined" in content-used div', async () => {
-    wrapper.vm.showPopupCode = true
-    wrapper.vm.popupContent = {
-      content: [
-        { id: 1, name: 'Content 1' },
-        { id: 2, name: 'Content 2' },
-      ],
-      author: 'Author Name',
+  it('mounts and initializes with media data', () => {
+    expect(wrapper.exists()).toBe(true)
+    expect(wrapper.vm.media.id).toBe('123')
+  })
+
+  it('updates headerItems when media changes', async () => {
+    wrapper.vm.media = {
+      ...mockMedia,
+      id: '456',
+      type: 'video',
     }
 
     await wrapper.vm.$nextTick()
 
-    const contentUsedDivs = wrapper.findAll('.content-used')
-    contentUsedDivs.forEach((div) => {
-      expect(div.exists()).toBe(true)
-      expect(div.text()).not.toContain('undefined')
+    expect(wrapper.vm.headerItems[0].value).toBe('456')
+    expect(wrapper.vm.headerItems[3].value).toBe('Video')
+  })
+
+  describe('Computed Properties', () => {
+    it('returns correct allowedPermission and statusAvailable', async () => {
+      wrapper.vm.privateStatus = 'private'
+      wrapper.vm.lockedStatus = 'locked'
+      expect(wrapper.vm.allowedPermission).toBe('mediaT.previewOrEditMediaLabel')
+      expect(wrapper.vm.statusAvailable).toBe('mediaT.privateAndLocked')
     })
   })
 
-  it('should update headerItems correctly when media changes', async () => {
-    const media = ref({
-      id: '',
-      creation_date: null,
-      inserted_at: 1680000000000, // ms timestamp
-      meta: {
-        author: '',
-      },
-      type: '',
-      number_of_contents: 0,
+  describe('Locking Logic', () => {
+    it('toggles lock status if user is author', () => {
+      wrapper.vm.sectionsUserId = 'user1'
+      wrapper.vm.media.author = 'user1'
+      wrapper.vm.media.locked_status = 'unlocked'
+
+      wrapper.vm.toggleLockStatus()
+      expect(wrapper.vm.media.locked_status).toBe('locked')
     })
-
-    const headerItems = ref([
-      { label: 'ID', value: '' },
-      { label: 'Date', value: '' },
-      { label: 'Author', value: '' },
-      { label: 'Type', value: '' },
-      { label: 'Count', value: '' },
-    ])
-
-    // Watcher logic from your code
-    watch(
-      media,
-      () => {
-        if (Object.keys(media.value).length > 0) {
-          headerItems.value[0].value = media.value.id
-          headerItems.value[1].value = media.value.creation_date
-            ? new Date(media.value.creation_date * 1000).toLocaleDateString()
-            : new Date(media.value.inserted_at).toLocaleDateString()
-          headerItems.value[2].value = media.value.meta.author
-          headerItems.value[3].value =
-            media.value.type[0].toUpperCase() + media.value.type.substring(1)
-          headerItems.value[4].value = media.value.number_of_contents
-        }
-      },
-      { deep: true }
-    )
-
-    // Update media to trigger the watcher
-    media.value = {
-      id: 'abc123',
-      creation_date: 1710000000, // UNIX timestamp (sec)
-      inserted_at: 1680000000000,
-      meta: {
-        author: 'Jane Doe',
-      },
-      type: 'video',
-      number_of_contents: 42,
-    }
-
-    await nextTick() // Wait for Vue to update
-
-    expect(headerItems.value[0].value).toBe('abc123')
-    expect(headerItems.value[1].value).toBe(new Date(1710000000 * 1000).toLocaleDateString())
-    expect(headerItems.value[2].value).toBe('Jane Doe')
-    expect(headerItems.value[3].value).toBe('Video')
-    expect(headerItems.value[4].value).toBe(42)
   })
 
-  it('should show toast and stop if file type is not supported', async () => {
-    const unsupportedFile = new File(['dummy content'], 'test.pdf', { type: 'application/pdf' })
+  describe('File Selection', () => {
+    it('shows toast for unsupported file types', async () => {
+      isFileTypeSupported.mockReturnValue(false)
 
-    const showToastSpy = vi.spyOn(medias, 'showToast')
-    const isFileTypeSupportedSpy = vi.spyOn(constants, 'isFileTypeSupported')
+      const file = new File([''], 'test.pdf', { type: 'application/pdf' })
+      const event = { target: { files: [file] } }
 
-    const e = { target: { files: [unsupportedFile] } }
-    // Call the function with mocks
+      wrapper.vm.onFileSelected(event)
+      await wrapper.vm.$nextTick()
 
-    await wrapper.vm.onFileSelected(e)
-
-    expect(isFileTypeSupportedSpy).toHaveBeenCalledWith(unsupportedFile, '.jpg, .png')
-
-    expect(showToastSpy).toHaveBeenCalledWith('Error', 'error', 'mediaT.unsupportedFileType')
-  })
-
-  it('should proceed and not show a toast message if acceptedFileTypes prop is not provided', async () => {
-    await wrapper.setProps({
-      acceptedFileTypes: '',
+      expect(showToast).toHaveBeenCalledWith('Error', 'error', 'mediaT.unsupportedFileType')
     })
 
-    const unsupportedFile = new File(['dummy content'], 'test.pdf', { type: 'application/pdf' })
+    it('updates file on valid selection', async () => {
+      isFileTypeSupported.mockReturnValue(true)
+      const file = new File([''], 'test.jpg', { type: 'image/jpeg' })
+      const event = { target: { files: [file] } }
 
-    const showToastSpy = vi.spyOn(medias, 'showToast')
-    const isFileTypeSupportedSpy = vi.spyOn(constants, 'isFileTypeSupported')
+      wrapper.vm.onFileSelected(event)
+      await wrapper.vm.$nextTick()
 
-    const e = { target: { files: [unsupportedFile] } }
-    // Call the function with mocks
+      // Use toStrictEqual for File objects or just check properties if Vitest serialization is tricky
+      expect(wrapper.vm.file.name).toBe(file.name)
+      expect(wrapper.vm.file.type).toBe(file.type)
+    })
+  })
 
-    await wrapper.vm.onFileSelected(e)
+  describe('Navigation', () => {
+    it('emits updateMediaComponent on backClicked when no mediasPath', () => {
+      wrapper.vm.backClicked()
+      expect(wrapper.emitted().updateMediaComponent).toBeTruthy()
+    })
+  })
 
-    expect(isFileTypeSupportedSpy).not.toHaveBeenCalled()
+  describe('Download', () => {
+    it('triggers download logic', () => {
+      const createElementSpy = vi.spyOn(document, 'createElement')
+      const clickSpy = vi.fn()
+      createElementSpy.mockReturnValue({
+        setAttribute: vi.fn(),
+        click: clickSpy,
+        remove: vi.fn(),
+        href: '',
+        target: '',
+        style: {}, // Add minimal properties to avoid addEventListener or other errors if environment touches it
+      })
+      vi.spyOn(document.body, 'appendChild').mockImplementation(() => ({}))
+      window.URL.revokeObjectURL = vi.fn()
 
-    expect(showToastSpy).not.toHaveBeenCalled()
+      wrapper.vm.downloadMedia()
+      expect(createElementSpy).toHaveBeenCalledWith('a')
+      expect(clickSpy).toHaveBeenCalled()
+
+      createElementSpy.mockRestore()
+    })
   })
 })

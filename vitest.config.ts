@@ -9,10 +9,32 @@ export default defineVitestConfig({
     setupFiles: [],
     server: {
       deps: {
-        inline: [/vue-router/],
+        inline: [/vue-router/, '#app', '@nuxt/test-utils'],
       },
     },
     testTimeout: 5000,
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html'],
+      reportsDirectory: './coverage',
+      include: ['src/runtime/components/**/*.{js,ts,vue}', 'src/runtime/utils/**/*.js'],
+      exclude: [
+        '**/node_modules/**',
+        '**/.nuxt/**',
+        '**/dist/**',
+        '**/tests/**',
+        '**/*.spec.js',
+        '**/*.spec.ts',
+        '**/*.test.js',
+        '**/*.test.ts',
+        '**/playground/**',
+        '**/coverage/**',
+        '**/*.config.*',
+        '**/*.stories.js',
+        'src/runtime/components/icons/**',
+      ],
+      all: true,
+    },
   },
   resolve: {
     alias: {
