@@ -337,6 +337,15 @@
           <span class="icon-trashCan2 text-md pb-1 px-2" />
         </div>
 
+        <div @click.stop.prevent="revertChanges">
+          <LazyGButtons
+            :active="isChanged"
+            :button-text="$t(mediaTranslationPrefix + 'EditMedia.revert')"
+            :button-style="revertButtonStyle"
+            :with-icon="false"
+          />
+        </div>
+
         <div @click.stop.prevent="updateMediaByID">
           <LazyGButtons
             :button-text="$t(mediaTranslationPrefix + 'save')"
@@ -347,14 +356,16 @@
 
         <div
           @click.stop.prevent="
-            privateStatus === 'private' && media.author !== sectionsUserId
+            (privateStatus === 'private' && media.author !== sectionsUserId) || isChanged
               ? null
               : $emit('onMediaSelected', media)
           "
         >
           <LazyGButtons
             v-if="withSelectMediaButton"
-            :active="!(privateStatus === 'private' && media.author !== sectionsUserId)"
+            :active="
+              !(privateStatus === 'private' && media.author !== sectionsUserId) && !isChanged
+            "
             :button-text="$t(mediaTranslationPrefix + 'selectMedia')"
             :button-style="selectMediaButtonStyle"
             :with-icon="false"
@@ -502,6 +513,8 @@ const saveButtonStyle =
   'py-2.5 px-12 ml-12 mr-2 text-white rounded-xl bg-Blue hover:bg-white hover:text-Blue border border-Blue hover:border-Blue'
 const selectMediaButtonStyle =
   'py-2.5 px-12 ml-2 mr-2 text-white rounded-xl bg-Blue hover:bg-white hover:text-Blue border border-Blue hover:border-Blue'
+const revertButtonStyle =
+  'py-2.5 px-12 ml-12 mr-2 text-Blue rounded-xl bg-white hover:bg-Blue hover:text-white border border-Blue hover:border-Blue'
 
 const mediaId = ref('')
 const mediaByIdUri = ref('')
@@ -584,6 +597,7 @@ const showPopupCode = ref(false)
 const popupContent = ref('')
 const backLabel = '<'
 const isEditingMedia = ref(false)
+const initialMedia = ref(null)
 
 // Computed
 const allowedPermission = computed(() => {
@@ -619,6 +633,17 @@ const noDeleteErrors = computed(() => {
     })
   }
   return errorsArray
+})
+
+const isChanged = computed(() => {
+  if (!initialMedia.value) return false
+  if (file.value !== null) return true
+  return (
+    media.value.title !== initialMedia.value.title ||
+    media.value.seo_tag !== initialMedia.value.seo_tag ||
+    media.value.private_status !== initialMedia.value.private_status ||
+    media.value.locked_status !== initialMedia.value.locked_status
+  )
 })
 
 // Watchers
@@ -672,6 +697,8 @@ watch(
       privateStatus.value = media.value.private_status
       lockedStatus.value = media.value.locked_status
       popupContent.value = media.value.meta
+      initialMedia.value = JSON.parse(JSON.stringify(media.value))
+      file.value = null
     }
   },
   { deep: true, immediate: true }
@@ -747,6 +774,9 @@ async function getMediaByID() {
     if (privateStatus.value === 'private' && media.value.author === props.sectionsUserIdProp) {
       getMediaImage(media.value.files[0].url)
     }
+
+    initialMedia.value = JSON.parse(JSON.stringify(media.value))
+    file.value = null
   } catch (e) {
     loading.value = false
     if (props.nuxtSections) {
@@ -827,6 +857,9 @@ async function updateMediaByID() {
     if (props.nuxtSections) {
       if (!responseReceivedData) {
         await getMediaByID()
+      } else {
+        initialMedia.value = JSON.parse(JSON.stringify(media.value))
+        file.value = null
       }
       if (isEditingMedia.value) emit('onMediaSelected', media.value)
       showToast('', 'success', t(props.mediaTranslationPrefix + 'mediaUpdated'))
@@ -965,6 +998,14 @@ function backClicked() {
       folderType: props.folderType,
     })
   }
+}
+
+function revertChanges() {
+  if (!initialMedia.value) return
+  media.value = JSON.parse(JSON.stringify(initialMedia.value))
+  privateStatus.value = media.value.private_status
+  lockedStatus.value = media.value.locked_status
+  file.value = null
 }
 
 function toggleLockStatus() {

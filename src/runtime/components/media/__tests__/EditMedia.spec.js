@@ -183,4 +183,150 @@ describe('EditMedia', () => {
       createElementSpy.mockRestore()
     })
   })
+
+  describe('Change Tracking', () => {
+    const createTestMedia = (overrides = {}) => ({
+      id: '123',
+      title: 'Test Media',
+      seo_tag: 'test-tag',
+      private_status: 'public',
+      locked_status: 'unlocked',
+      type: 'image',
+      author: 'test-user',
+      files: [
+        {
+          url: 'test.jpg',
+          filename: 'test.jpg',
+          platform: { name: 'S3', width: 100, height: 100 },
+          size: 1024,
+        },
+      ],
+      meta: { author: 'test-user', content: [] },
+      metadata: { type: 'image' },
+      creation_date: 1710000000,
+      ...overrides,
+    })
+
+    it('should return false for isChanged when no changes have been made', async () => {
+      const testMedia = createTestMedia()
+      wrapper.vm.initialMedia = { ...testMedia }
+      wrapper.vm.media = { ...testMedia }
+      wrapper.vm.file = null
+
+      await wrapper.vm.$nextTick()
+
+      expect(wrapper.vm.isChanged).toBe(false)
+    })
+
+    it('should return true for isChanged when title has been changed', async () => {
+      wrapper.vm.initialMedia = createTestMedia()
+      wrapper.vm.media = createTestMedia({ title: 'Modified Title' })
+      wrapper.vm.file = null
+
+      await wrapper.vm.$nextTick()
+
+      expect(wrapper.vm.isChanged).toBe(true)
+    })
+
+    it('should return true for isChanged when a new file has been selected', async () => {
+      const testMedia = createTestMedia()
+      wrapper.vm.initialMedia = { ...testMedia }
+      wrapper.vm.media = { ...testMedia }
+      wrapper.vm.file = new File(['dummy content'], 'test.jpg', { type: 'image/jpeg' })
+
+      await wrapper.vm.$nextTick()
+
+      expect(wrapper.vm.isChanged).toBe(true)
+    })
+
+    it('should return false for isChanged when initialMedia is null', async () => {
+      wrapper.vm.initialMedia = null
+      wrapper.vm.file = null
+
+      await wrapper.vm.$nextTick()
+
+      expect(wrapper.vm.isChanged).toBe(false)
+    })
+  })
+
+  describe('Revert Changes', () => {
+    const createTestMedia = (overrides = {}) => ({
+      id: '123',
+      title: 'Original Title',
+      seo_tag: 'original-tag',
+      private_status: 'public',
+      locked_status: 'unlocked',
+      type: 'image',
+      author: 'test-user',
+      files: [
+        {
+          url: 'test.jpg',
+          filename: 'test.jpg',
+          platform: { name: 'S3', width: 100, height: 100 },
+          size: 1024,
+        },
+      ],
+      meta: { author: 'test-user', content: [] },
+      metadata: { type: 'image' },
+      creation_date: 1710000000,
+      ...overrides,
+    })
+
+    it('should reset media to initialMedia when revertChanges is called', async () => {
+      wrapper.vm.initialMedia = createTestMedia()
+      wrapper.vm.media = createTestMedia({
+        title: 'Modified Title',
+        seo_tag: 'modified-tag',
+        private_status: 'private',
+        locked_status: 'locked',
+      })
+      wrapper.vm.file = new File(['content'], 'test.jpg', { type: 'image/jpeg' })
+
+      await wrapper.vm.$nextTick()
+
+      wrapper.vm.revertChanges()
+
+      await wrapper.vm.$nextTick()
+
+      expect(wrapper.vm.media.title).toBe('Original Title')
+      expect(wrapper.vm.media.seo_tag).toBe('original-tag')
+      expect(wrapper.vm.media.private_status).toBe('public')
+      expect(wrapper.vm.media.locked_status).toBe('unlocked')
+      expect(wrapper.vm.file).toBeNull()
+    })
+
+    it('should not modify media when initialMedia is null', async () => {
+      wrapper.vm.initialMedia = null
+      const currentMedia = createTestMedia({ title: 'Current Title' })
+      wrapper.vm.media = { ...currentMedia }
+
+      await wrapper.vm.$nextTick()
+
+      wrapper.vm.revertChanges()
+
+      await wrapper.vm.$nextTick()
+
+      expect(wrapper.vm.media.title).toBe('Current Title')
+    })
+
+    it('should reset privateStatus and lockedStatus refs when revertChanges is called', async () => {
+      wrapper.vm.initialMedia = createTestMedia()
+      wrapper.vm.media = createTestMedia({
+        title: 'Modified Title',
+        private_status: 'private',
+        locked_status: 'locked',
+      })
+      wrapper.vm.privateStatus = 'private'
+      wrapper.vm.lockedStatus = 'locked'
+
+      await wrapper.vm.$nextTick()
+
+      wrapper.vm.revertChanges()
+
+      await wrapper.vm.$nextTick()
+
+      expect(wrapper.vm.privateStatus).toBe('public')
+      expect(wrapper.vm.lockedStatus).toBe('unlocked')
+    })
+  })
 })
