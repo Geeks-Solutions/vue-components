@@ -146,6 +146,22 @@ const htmlEditorTextareaElement = null
 
 const showHTMLFunction = null
 
+/**
+ * Cleans HTML by removing all whitespace between tags
+ * This prevents Quill from interpreting HTML formatting whitespace as visible content
+ * @param {string} html - The HTML string to clean
+ * @returns {string} - The cleaned HTML string
+ */
+const cleanHtmlWhitespace = (html) => {
+  if (!html) return ''
+
+  return html
+    .trim()
+    .replace(/>\s+</g, '><') // Remove all whitespace between tags
+    .replace(/\s+>/g, '>') // Remove whitespace before closing brackets
+    .replace(/<\s+/g, '<') // Remove whitespace after opening brackets
+}
+
 // Define Quill modules and custom blots
 const defineQuillModules = async () => {
   if (!Quill) {
@@ -469,18 +485,21 @@ const defineQuillModules = async () => {
         return
       }
 
+      // Clean whitespace from custom HTML
+      const cleanedHTML = cleanHtmlWhitespace(userHTML)
+
       if (this.currentEditingNode) {
         // Update existing blot
-        this.currentEditingNode.setAttribute('data-html', userHTML)
+        this.currentEditingNode.setAttribute('data-html', cleanedHTML)
         const contentWrapper = this.currentEditingNode.querySelector('div')
         if (contentWrapper) {
-          contentWrapper.innerHTML = userHTML
+          contentWrapper.innerHTML = cleanedHTML
         }
       } else {
         // Insert new blot
         const range = this.quill.getSelection(true)
         const insertIndex = range.index
-        this.quill.insertEmbed(insertIndex, 'html', userHTML, Quill.sources.USER)
+        this.quill.insertEmbed(insertIndex, 'html', cleanedHTML, Quill.sources.USER)
 
         // Position cursor after the HTML block
         this.quill.setSelection(insertIndex + 2, 0, Quill.sources.SILENT)
@@ -1346,7 +1365,10 @@ const onQuillEditorReady = async (quillInstance) => {
     if (props.html === '<p><br></p>' && quill.getLength() <= 1) {
       // Do nothing if both are empty
     } else {
-      const htmlContent = appendEmptyParagraphIfOnlyRawHtmlContainer(props.html)
+      // Clean whitespace from HTML before loading into Quill
+      const cleanedHtml = cleanHtmlWhitespace(props.html)
+
+      const htmlContent = appendEmptyParagraphIfOnlyRawHtmlContainer(cleanedHtml)
       const delta = quill.clipboard.convert({ html: htmlContent, text: '\n' })
       quill.setContents(delta)
       // quill.clipboard.dangerouslyPasteHTML(0, htmlContent);
