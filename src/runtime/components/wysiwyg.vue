@@ -147,19 +147,22 @@ const htmlEditorTextareaElement = null
 const showHTMLFunction = null
 
 /**
- * Cleans HTML by removing all whitespace between tags
- * This prevents Quill from interpreting HTML formatting whitespace as visible content
- * @param {string} html - The HTML string to clean
- * @returns {string} - The cleaned HTML string
+ * Recursively removes whitespace-only text nodes from an element
+ * This prevents formatting whitespace in HTML source from rendering as visible content
+ * while preserving the user's original HTML in data attributes
+ * @param {HTMLElement} element - The element to process
  */
-const cleanHtmlWhitespace = (html) => {
-  if (!html) return ''
-
-  return html
-    .trim()
-    .replace(/>\s+</g, '><') // Remove all whitespace between tags
-    .replace(/\s+>/g, '>') // Remove whitespace before closing brackets
-    .replace(/<\s+/g, '<') // Remove whitespace after opening brackets
+const removeWhitespaceNodes = (element) => {
+  const childNodes = Array.from(element.childNodes)
+  childNodes.forEach((child) => {
+    if (child.nodeType === Node.TEXT_NODE && /^\s*$/.test(child.textContent)) {
+      // Remove whitespace-only text nodes
+      element.removeChild(child)
+    } else if (child.nodeType === Node.ELEMENT_NODE) {
+      // Recursively process element nodes
+      removeWhitespaceNodes(child)
+    }
+  })
 }
 
 // Define Quill modules and custom blots
@@ -328,12 +331,16 @@ const defineQuillModules = async () => {
 
     static create(value) {
       const node = super.create()
-      node.setAttribute('data-html', value)
+      node.setAttribute('data-html', value) // Store original HTML unchanged
       node.setAttribute('contenteditable', 'false')
 
       // Create content wrapper
       const contentWrapper = document.createElement('div')
       contentWrapper.innerHTML = value
+
+      // Remove whitespace-only text nodes to prevent them from rendering
+      removeWhitespaceNodes(contentWrapper)
+
       node.appendChild(contentWrapper)
 
       // Add edit button
@@ -485,21 +492,19 @@ const defineQuillModules = async () => {
         return
       }
 
-      // Clean whitespace from custom HTML
-      const cleanedHTML = cleanHtmlWhitespace(userHTML)
-
       if (this.currentEditingNode) {
         // Update existing blot
-        this.currentEditingNode.setAttribute('data-html', cleanedHTML)
+        this.currentEditingNode.setAttribute('data-html', userHTML)
         const contentWrapper = this.currentEditingNode.querySelector('div')
         if (contentWrapper) {
-          contentWrapper.innerHTML = cleanedHTML
+          contentWrapper.innerHTML = userHTML
+          removeWhitespaceNodes(contentWrapper)
         }
       } else {
         // Insert new blot
         const range = this.quill.getSelection(true)
         const insertIndex = range.index
-        this.quill.insertEmbed(insertIndex, 'html', cleanedHTML, Quill.sources.USER)
+        this.quill.insertEmbed(insertIndex, 'html', userHTML, Quill.sources.USER)
 
         // Position cursor after the HTML block
         this.quill.setSelection(insertIndex + 2, 0, Quill.sources.SILENT)
@@ -1365,10 +1370,7 @@ const onQuillEditorReady = async (quillInstance) => {
     if (props.html === '<p><br></p>' && quill.getLength() <= 1) {
       // Do nothing if both are empty
     } else {
-      // Clean whitespace from HTML before loading into Quill
-      const cleanedHtml = cleanHtmlWhitespace(props.html)
-
-      const htmlContent = appendEmptyParagraphIfOnlyRawHtmlContainer(cleanedHtml)
+      const htmlContent = appendEmptyParagraphIfOnlyRawHtmlContainer(props.html)
       const delta = quill.clipboard.convert({ html: htmlContent, text: '\n' })
       quill.setContents(delta)
       // quill.clipboard.dangerouslyPasteHTML(0, htmlContent);
