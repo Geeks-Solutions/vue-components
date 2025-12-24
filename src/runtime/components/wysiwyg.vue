@@ -146,25 +146,6 @@ const htmlEditorTextareaElement = null
 
 const showHTMLFunction = null
 
-/**
- * Recursively removes whitespace-only text nodes from an element
- * This prevents formatting whitespace in HTML source from rendering as visible content
- * while preserving the user's original HTML in data attributes
- * @param {HTMLElement} element - The element to process
- */
-const removeWhitespaceNodes = (element) => {
-  const childNodes = Array.from(element.childNodes)
-  childNodes.forEach((child) => {
-    if (child.nodeType === Node.TEXT_NODE && /^\s*$/.test(child.textContent)) {
-      // Remove whitespace-only text nodes
-      element.removeChild(child)
-    } else if (child.nodeType === Node.ELEMENT_NODE) {
-      // Recursively process element nodes
-      removeWhitespaceNodes(child)
-    }
-  })
-}
-
 // Define Quill modules and custom blots
 const defineQuillModules = async () => {
   if (!Quill) {
@@ -322,6 +303,118 @@ const defineQuillModules = async () => {
   }
   Quill.register('modules/buttonToolbar', ButtonToolbarModule)
 
+  /**
+   * @param {string} s [HTML string]
+   */
+  const minify = (s) => {
+    return s
+      ? s
+          .replace(/\>[\r\n ]+\</g, '><') // Removes new lines and irrelevant spaces which might affect layout, and are better gone
+          .replace(/(<.*?>)|\s+/g, (m, $1) => ($1 ? $1 : ' '))
+          .trim()
+      : ''
+  }
+
+  /**
+   * @param {string} html [HTML string to prettify]
+   */
+  const prettifyHTML = (html) => {
+    if (!html) return ''
+
+    // First, prettify any CSS inside <style> tags
+    html = html.replace(/<style[^>]*>([\s\S]*?)<\/style>/gi, (match, css) => {
+      const prettifiedCSS = prettifyCSS(css)
+      return match.replace(css, '\n' + prettifiedCSS + '\n')
+    })
+
+    let formatted = ''
+    let indent = 0
+    const tab = '  ' // 2 spaces for indentation
+
+    // Split by tags
+    html.split(/(<[^>]+>)/g).forEach((element) => {
+      if (!element.trim()) return
+
+      // Check if it's a tag
+      if (element.match(/^<[^>]+>$/)) {
+        // Closing tag
+        if (element.match(/^<\/\w/)) {
+          indent = Math.max(0, indent - 1)
+          formatted += tab.repeat(indent) + element + '\n'
+        }
+        // Self-closing or opening tag
+        else if (element.match(/<\w[^>]*>/)) {
+          formatted += tab.repeat(indent) + element + '\n'
+          // Don't increase indent for self-closing tags
+          if (!element.match(/\/>$/)) {
+            indent++
+          }
+        }
+        // Other tags (comments, etc)
+        else {
+          formatted += tab.repeat(indent) + element + '\n'
+        }
+      }
+      // Text content
+      else {
+        const trimmed = element.trim()
+        if (trimmed) {
+          formatted += tab.repeat(indent) + trimmed + '\n'
+        }
+      }
+    })
+
+    return formatted.trim()
+  }
+
+  /**
+   * @param {string} css [CSS string to prettify]
+   */
+  const prettifyCSS = (css) => {
+    if (!css) return ''
+
+    let formatted = ''
+    let indent = 0
+    const tab = '  ' // 2 spaces for indentation
+
+    // Remove extra whitespace and newlines
+    css = css.replace(/\s+/g, ' ').trim()
+
+    // Add newlines and indentation
+    for (let i = 0; i < css.length; i++) {
+      const char = css[i]
+      const nextChar = css[i + 1]
+
+      if (char === '{') {
+        formatted += ' {\n'
+        indent++
+        formatted += tab.repeat(indent)
+      } else if (char === '}') {
+        formatted += '\n'
+        indent = Math.max(0, indent - 1)
+        formatted += tab.repeat(indent) + '}'
+        if (nextChar && nextChar !== '}') {
+          formatted += '\n' + tab.repeat(indent)
+        }
+      } else if (char === ';') {
+        formatted += ';\n' + tab.repeat(indent)
+      } else if (char === ',' && css.substring(i - 10, i).indexOf('{') === -1) {
+        // Comma in selector, not in values
+        formatted += ',\n' + tab.repeat(indent)
+      } else {
+        formatted += char
+      }
+    }
+
+    // Clean up extra spaces and empty lines
+    formatted = formatted
+      .replace(/\n\s*\n/g, '\n')
+      .replace(/\s+$/gm, '')
+      .trim()
+
+    return formatted
+  }
+
   const BlockEmbed = Quill.import('blots/block/embed')
 
   class HTMLBlot extends BlockEmbed {
@@ -331,16 +424,12 @@ const defineQuillModules = async () => {
 
     static create(value) {
       const node = super.create()
-      node.setAttribute('data-html', value) // Store original HTML unchanged
+      node.setAttribute('data-html', value)
       node.setAttribute('contenteditable', 'false')
 
       // Create content wrapper
       const contentWrapper = document.createElement('div')
       contentWrapper.innerHTML = value
-
-      // Remove whitespace-only text nodes to prevent them from rendering
-      removeWhitespaceNodes(contentWrapper)
-
       node.appendChild(contentWrapper)
 
       // Add edit button
@@ -426,8 +515,8 @@ const defineQuillModules = async () => {
       cancelButton.className = 'ql-html-editor-cancel'
 
       const noteText = document.createElement('div')
-      noteText.textContent =
-        'Use with cautions, when adding a new html content, make sure to wrap it with a <p></p> tag'
+      noteText.innerHTML =
+        'Use with cautions, when adding a new html content, make sure to wrap it with a &lt;p&gt;&lt;/p&gt; tag<br>Tip: To isolate your CSS from website styles, use a div with Shadow DOM.'
       noteText.className = 'ql-html-editor-noteText'
 
       buttonContainer.appendChild(saveButton)
@@ -437,6 +526,8 @@ const defineQuillModules = async () => {
       modalContent.appendChild(this.htmlEditorTextareaElement)
       modalContent.appendChild(buttonContainer)
       this.htmlModalElement.appendChild(modalContent)
+
+      console.log('HTML Modal created:', this.htmlModalElement)
 
       // Bind event handlers to this instance
       saveButton.addEventListener('click', () => this.saveHTMLPlus())
@@ -468,7 +559,7 @@ const defineQuillModules = async () => {
     }
 
     showHTMLEditor(html, editingNode = null) {
-      this.htmlEditorTextareaElement.value = html
+      this.htmlEditorTextareaElement.value = prettifyHTML(html)
       this.htmlModalElement.style.display = 'flex'
 
       // Set the current editing node if provided (from edit button click)
@@ -491,20 +582,21 @@ const defineQuillModules = async () => {
         this.hideHTMLEditor()
         return
       }
+      const minifiedHTML = minify(userHTML)
+      console.log('minify: ', minifiedHTML)
 
       if (this.currentEditingNode) {
         // Update existing blot
-        this.currentEditingNode.setAttribute('data-html', userHTML)
+        this.currentEditingNode.setAttribute('data-html', minifiedHTML)
         const contentWrapper = this.currentEditingNode.querySelector('div')
         if (contentWrapper) {
-          contentWrapper.innerHTML = userHTML
-          removeWhitespaceNodes(contentWrapper)
+          contentWrapper.innerHTML = minifiedHTML
         }
       } else {
         // Insert new blot
         const range = this.quill.getSelection(true)
         const insertIndex = range.index
-        this.quill.insertEmbed(insertIndex, 'html', userHTML, Quill.sources.USER)
+        this.quill.insertEmbed(insertIndex, 'html', minifiedHTML, Quill.sources.USER)
 
         // Position cursor after the HTML block
         this.quill.setSelection(insertIndex + 2, 0, Quill.sources.SILENT)
