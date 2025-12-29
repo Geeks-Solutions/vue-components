@@ -527,8 +527,6 @@ const defineQuillModules = async () => {
       modalContent.appendChild(buttonContainer)
       this.htmlModalElement.appendChild(modalContent)
 
-      console.log('HTML Modal created:', this.htmlModalElement)
-
       // Bind event handlers to this instance
       saveButton.addEventListener('click', () => this.saveHTMLPlus())
       cancelButton.addEventListener('click', () => this.hideHTMLEditor())
@@ -583,7 +581,6 @@ const defineQuillModules = async () => {
         return
       }
       const minifiedHTML = minify(userHTML)
-      console.log('minify: ', minifiedHTML)
 
       if (this.currentEditingNode) {
         // Update existing blot
