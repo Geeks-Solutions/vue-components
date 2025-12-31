@@ -1,12 +1,18 @@
-import { defineNuxtModule, addComponentsDir, installModule, createResolver, addPluginTemplate } from '@nuxt/kit'
+import {
+  defineNuxtModule,
+  addComponentsDir,
+  installModule,
+  createResolver,
+  addPluginTemplate,
+} from '@nuxt/kit'
 
 export default defineNuxtModule({
   meta: {
     name: '@geeks.solutions/vue-components',
     configKey: 'geeksComponents',
     compatibility: {
-      nuxt: '^3.0.0'
-    }
+      nuxt: '^3.0.0',
+    },
   },
   defaults: {
     // Module default options
@@ -20,7 +26,7 @@ export default defineNuxtModule({
     addComponentsDir({
       path: resolve('./runtime/components'),
       prefix: 'g',
-      global: true
+      global: true,
     })
 
     await installModule('@nuxtjs/i18n', {
@@ -34,12 +40,11 @@ export default defineNuxtModule({
           code: 'fr',
           file: resolve('./runtime/lang/fr.json'),
         },
-      ]
+      ],
     })
 
     addPluginTemplate(resolve('./runtime/plugin'))
 
     nuxt.options.css.push(resolve('./runtime/assets/icons/icomoon/style.css'))
-
-  }
+  },
 })

@@ -1,39 +1,39 @@
 <template>
   <div>
     <component
-        :is="componentsPrefix + componentName"
-        :key="componentKey"
-        :content-used-key="contentUsedKey"
-        :media-category="mediaCategory"
-        :media-uri-prop="mediaUriProp"
-        :authors-uri-prop="authorsUriProp"
-        :project-id-prop="projectIdProp"
-        :auth-token="authToken"
-        :sections-user-id-prop="sectionsUserIdProp"
-        :media-translation-prefix="mediaTranslationPrefix"
-        :show-create-media-button="showCreateMediaButton"
-        :media-response-prop="mediaResponseProp"
-        :media-by-id-uri-prop="mediaByIdUriProp"
-        :media-by-id-response-prop="mediaByIdResponseProp"
-        :media-id-prop="mediaId"
-        :create-media-path="createMediaPath"
-        :edit-media-path="editMediaPath"
-        :medias-path="mediasPath"
-        :bo-usage="boUsage"
-        :access-limited="accessLimited"
-        :with-select-media-button="withSelectMediaButton"
-        :nuxt-sections="nuxtSections"
-        :is-create-media="isCreateMedia"
-        :media-id-editing="mediaIdEditing"
-        :applied-filters="appliedFilters"
-        :folder-type="folderType"
-        :response-received="responseReceived"
-        :request-pre-sent="requestPreSent"
-        :forward-request="forwardRequest"
-        :alter-error-received="alterErrorReceived"
-        :accepted-file-types="acceptedFileTypes"
-        @updateMediaComponent="onMediaComponentUpdate"
-        @onMediaSelected="(media) => $emit('getSelectedMedia', media)"
+      :is="componentsPrefix + componentName"
+      :key="componentKey"
+      :content-used-key="contentUsedKey"
+      :media-category="mediaCategory"
+      :media-uri-prop="mediaUriProp"
+      :authors-uri-prop="authorsUriProp"
+      :project-id-prop="projectIdProp"
+      :auth-token="authToken"
+      :sections-user-id-prop="sectionsUserIdProp"
+      :media-translation-prefix="mediaTranslationPrefix"
+      :show-create-media-button="showCreateMediaButton"
+      :media-response-prop="mediaResponseProp"
+      :media-by-id-uri-prop="mediaByIdUriProp"
+      :media-by-id-response-prop="mediaByIdResponseProp"
+      :media-id-prop="mediaId"
+      :create-media-path="createMediaPath"
+      :edit-media-path="editMediaPath"
+      :medias-path="mediasPath"
+      :bo-usage="boUsage"
+      :access-limited="accessLimited"
+      :with-select-media-button="withSelectMediaButton"
+      :nuxt-sections="nuxtSections"
+      :is-create-media="isCreateMedia"
+      :media-id-editing="mediaIdEditing"
+      :applied-filters="appliedFilters"
+      :folder-type="folderType"
+      :response-received="responseReceived"
+      :request-pre-sent="requestPreSent"
+      :forward-request="forwardRequest"
+      :alter-error-received="alterErrorReceived"
+      :accepted-file-types="acceptedFileTypes"
+      @update-media-component="onMediaComponentUpdate"
+      @on-media-selected="(media) => $emit('getSelectedMedia', media)"
     />
   </div>
 </template>
@@ -44,116 +44,116 @@ import { useI18n, ref, computed, useRoute, useRouter, onMounted } from '#imports
 const props = defineProps({
   componentsPrefix: {
     type: String,
-    default: ''
+    default: '',
   },
   mediaUriProp: {
     type: String,
-    default: ''
+    default: '',
   },
   mediaByIdUriProp: {
     type: String,
-    default: ''
+    default: '',
   },
   authorsUriProp: {
     type: String,
-    default: ''
+    default: '',
   },
   projectIdProp: {
     type: String,
-    default: ''
+    default: '',
   },
   authToken: {
     type: String,
-    default: ''
+    default: '',
   },
   sectionsUserIdProp: {
     type: String,
-    default: ''
+    default: '',
   },
   mediaIdProp: {
     type: String,
-    default: ''
+    default: '',
   },
   mediaTranslationPrefix: {
     type: String,
-    default: 'mediaT.'
+    default: 'mediaT.',
   },
   createMediaPath: {
     type: String,
-    default: ''
+    default: '',
   },
   editMediaPath: {
     type: String,
-    default: ''
+    default: '',
   },
   mediasPath: {
     type: String,
-    default: ''
+    default: '',
   },
   mediaCategory: {
     type: String,
-    default: ''
+    default: '',
   },
   showCreateMediaButton: {
     type: Boolean,
-    default: false
+    default: false,
   },
   accessLimited: {
     type: Boolean,
-    default: false
+    default: false,
   },
   mediaResponseProp: {
     type: Object,
-    default: () => ({})
+    default: () => ({}),
   },
   mediaByIdResponseProp: {
     type: Object,
-    default: () => ({})
+    default: () => ({}),
   },
   boUsage: {
     type: Boolean,
-    default: true
+    default: true,
   },
   withSelectMediaButton: {
     type: Boolean,
-    default: false
+    default: false,
   },
   selectedMedia: {
     type: Object,
-    default: () => ({})
+    default: () => ({}),
   },
   nuxtSections: {
     type: Boolean,
-    default: false
+    default: false,
   },
   mediaIdEditing: {
     type: String,
-    default: ''
+    default: '',
   },
   contentUsedKey: {
     type: String,
-    default: ''
+    default: '',
   },
   alterErrorReceived: {
     type: Function,
-    default: () => {}
+    default: () => {},
   },
   responseReceived: {
     type: Function,
-    default: () => {}
+    default: () => {},
   },
   requestPreSent: {
     type: Function,
-    default: () => {}
+    default: () => {},
   },
   forwardRequest: {
     type: Function,
-    default: null
+    default: null,
   },
   acceptedFileTypes: {
     type: String,
-    default: ''
-  }
+    default: '',
+  },
 })
 
 const emit = defineEmits(['mediaComponentUpdated', 'getSelectedMedia'])
@@ -172,8 +172,8 @@ const router = useRouter()
 const { t } = useI18n()
 
 const pathMatch = Array.isArray(route.params.pathMatch)
-    ? route.params.pathMatch.join('/')
-    : route.params.pathMatch || []
+  ? route.params.pathMatch.join('/')
+  : route.params.pathMatch || []
 
 const isMediasPath = computed(() => {
   return Array.isArray(pathMatch) ? pathMatch.includes('medias') : false

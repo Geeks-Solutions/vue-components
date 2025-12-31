@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { shallowMount } from "@vue/test-utils";
-import CreateMedia from "../CreateMedia.vue";
+import { shallowMount } from '@vue/test-utils'
+import CreateMedia from '../CreateMedia.vue'
 import * as medias from '../medias'
 import * as constants from '../../../utils/constants.js'
 
 import { createI18n } from 'vue-i18n'
-import {nextTick} from "#imports"
+import { nextTick } from '#imports'
 
 const i18n = createI18n({
   legacy: false,
@@ -13,8 +13,8 @@ const i18n = createI18n({
   fallbackLocale: 'en',
   messages: {
     en: {},
-    fr: {}
-  }
+    fr: {},
+  },
 })
 
 describe('CreateMedia', () => {
@@ -28,7 +28,7 @@ describe('CreateMedia', () => {
           LazyGHeaderContainer: true,
           LazyGButtons: true,
           LazyGAlertPopup: true,
-          LazyGAnimatedLoading: true
+          LazyGAnimatedLoading: true,
         },
         config: {
           globalProperties: {
@@ -41,21 +41,18 @@ describe('CreateMedia', () => {
             useRoute: () => ({
               params: { pathMatch: [] },
               query: {},
-            })
-          }
-        }
+            }),
+          },
+        },
       },
       data() {
-        return {
-
-        }
+        return {}
       },
       propsData: {
         acceptedFileTypes: '.jpg, .jpeg, .png, .webp, .gif, .svg, .json, .pdf, .css, .js',
-        mediaTranslationPrefix: 'mediaT.'
-      }
+        mediaTranslationPrefix: 'mediaT.',
+      },
     })
-
   })
 
   it('should show toast and stop if file type is not supported', async () => {
@@ -69,17 +66,15 @@ describe('CreateMedia', () => {
 
     await wrapper.vm.onFileSelected(e)
 
-    expect(isFileTypeSupportedSpy).toHaveBeenCalledWith(unsupportedFile, '.jpg, .jpeg, .png, .webp, .gif, .svg, .json, .pdf, .css, .js')
-
-    expect(showToastSpy).toHaveBeenCalledWith(
-        'Error',
-        'error',
-        'mediaT.unsupportedFileType'
+    expect(isFileTypeSupportedSpy).toHaveBeenCalledWith(
+      unsupportedFile,
+      '.jpg, .jpeg, .png, .webp, .gif, .svg, .json, .pdf, .css, .js'
     )
+
+    expect(showToastSpy).toHaveBeenCalledWith('Error', 'error', 'mediaT.unsupportedFileType')
   })
 
   it('should proceed and not show a toast message if acceptedFileTypes prop is not provided', async () => {
-
     await wrapper.setProps({
       acceptedFileTypes: '',
     })
@@ -104,7 +99,7 @@ describe('CreateMedia', () => {
     Object.defineProperty(file, 'name', { value: 'test.png' })
 
     const fileInput = {
-      dataTransfer: { files: [file] }
+      dataTransfer: { files: [file] },
     }
 
     const forwardSpy = vi.fn()
@@ -116,5 +111,4 @@ describe('CreateMedia', () => {
     // Assert
     expect(forwardSpy).not.toHaveBeenCalled()
   })
-
 })

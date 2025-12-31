@@ -1,190 +1,187 @@
-import Card from '../src/runtime/components/media/Card.vue';
-import defaultMediaSvg from "~/src/runtime/assets/images/temp2.svg";
+import Card from '../src/runtime/components/media/Card.vue'
+import defaultMediaSvg from '~/src/runtime/assets/images/temp2.svg'
 
 const defaultControls = {
   locked: {
     type: Boolean,
-    default: false
+    default: false,
   },
   hidden: {
     type: Boolean,
-    default: false
+    default: false,
   },
   isAuthor: {
     type: Boolean,
-    default: false
+    default: false,
   },
   iconLocked: {
     type: String,
-    default: 'icon-locked pl-2.5 pr-2.5 pt-2 pb-2'
+    default: 'icon-locked pl-2.5 pr-2.5 pt-2 pb-2',
   },
   iconUnlocked: {
     type: String,
-    default: 'icon-unlocked pl-2.5 pr-2.5 pt-2 pb-2'
+    default: 'icon-unlocked pl-2.5 pr-2.5 pt-2 pb-2',
   },
   iconHidden: {
     type: String,
-    default: 'icon-hidden text-2xl'
+    default: 'icon-hidden text-2xl',
   },
   iconSeen: {
     type: String,
-    default: 'icon-seen text-2xl'
+    default: 'icon-seen text-2xl',
   },
   iconAttach: {
     type: String,
-    default: 'icon-attach'
+    default: 'icon-attach',
   },
   copyLinkLabel: {
     type: String,
-    default: 'Copy link'
+    default: 'Copy link',
   },
   copyLinkStyle: {
     type: String,
-    default: 'pl-1 text-Blue font-light'
+    default: 'pl-1 text-Blue font-light',
   },
   containerStyle: {
     type: String,
-    default: 'shadow rounded-xl h-[380px]'
+    default: 'shadow rounded-xl h-[380px]',
   },
   mediaSrc: {
     type: String,
-    default: defaultMediaSvg // Use imported asset
+    default: defaultMediaSvg, // Use imported asset
   },
   hiddenMediaSrc: {
     type: String,
-    default: ''
+    default: '',
   },
   hiddenMessage: {
     type: String,
-    default: ''
+    default: '',
   },
   mediaTitle: {
     type: String,
-    default: 'Nametest.jpeg'
+    default: 'Nametest.jpeg',
   },
   mediaTitleStyle: {
     type: String,
-    default: ''
+    default: '',
   },
   hiddenContainerStyle: {
     type: String,
-    default: ''
+    default: '',
   },
   mediaAuthorStyle: {
     type: String,
-    default: 'pl-1 italic text-sm font-extralight'
+    default: 'pl-1 italic text-sm font-extralight',
   },
   mediaAuthor: {
     type: String,
-    default: '- By Lorem ipsum'
+    default: '- By Lorem ipsum',
   },
   contentStyle: {
     type: String,
-    default: 'text-sm font-extralight pr-1'
+    default: 'text-sm font-extralight pr-1',
   },
   contentvalue: {
     type: String,
-    default: '0'
+    default: '0',
   },
   contentLabel: {
     type: String,
-    default: 'content using this media'
+    default: 'content using this media',
   },
   sizeStyle: {
     type: String,
-    default: 'text-sm font-extralight pr-1'
+    default: 'text-sm font-extralight pr-1',
   },
   sizeLabel: {
     type: String,
-    default: 'Size: '
+    default: 'Size: ',
   },
   sizeValueStyle: {
     type: String,
-    default: 'text-xs text-grayText font-extralight pr-1'
+    default: 'text-xs text-grayText font-extralight pr-1',
   },
   sizeValue: {
     type: String,
-    default: '38MB - 40MB'
+    default: '38MB - 40MB',
   },
   withDuration: {
     type: Boolean,
-    default: true
+    default: true,
   },
   durationStyle: {
     type: String,
-    default: 'text-sm font-extralight pr-2'
+    default: 'text-sm font-extralight pr-2',
   },
   durationLabel: {
     type: String,
-    default: 'Duration:'
+    default: 'Duration:',
   },
   mobileLabel: {
     type: String,
-    default: 'Mobile'
+    default: 'Mobile',
   },
   mobileDesktopValueStyle: {
     type: String,
-    default: 'text-xs text-grayText font-extralight pr-3'
+    default: 'text-xs text-grayText font-extralight pr-3',
   },
   mobileDesktopLabelStyle: {
     type: String,
-    default: 'text-sm font-light pr-1'
+    default: 'text-sm font-light pr-1',
   },
   desktopLabel: {
     type: String,
-    default: 'Desktop'
+    default: 'Desktop',
   },
   mobileValue: {
     type: String,
-    default: '30min'
+    default: '30min',
   },
   desktopValue: {
     type: String,
-    default: '20min'
+    default: '20min',
   },
   seeMoreStyle: {
     type: String,
-    default: 'text-sm text-Blue italic font-extralight cursor-pointer'
+    default: 'text-sm text-Blue italic font-extralight cursor-pointer',
   },
   seeMoreLabel: {
     type: String,
-    default: 'see more'
+    default: 'see more',
   },
   mediaType: {
     type: String,
-    default: ''
+    default: '',
   },
   seeMoreClicked: {
     type: Function,
-    default: () => {}
+    default: () => {},
   },
   copyLink: {
     type: Function,
-    default: () => {}
+    default: () => {},
   },
   openMedia: {
     type: Function,
-    default: () => {}
-  }
+    default: () => {},
+  },
 }
 
 export default {
   title: 'Components/Media/Card',
   component: Card,
-  parameters: {
-  },
+  parameters: {},
   tags: ['autodocs'],
   // Define argTypes if your component has props
-  args:  Object.fromEntries(
-      Object.entries(defaultControls).map(([key, value]) => {
-        const defaultVal = typeof value.default === 'function'
-            ? value.default()
-            : value.default;
+  args: Object.fromEntries(
+    Object.entries(defaultControls).map(([key, value]) => {
+      const defaultVal = typeof value.default === 'function' ? value.default() : value.default
 
-        return [key, defaultVal];
-      })
-  )
-};
+      return [key, defaultVal]
+    })
+  ),
+}
 
 // You can also use the render function if you need more control
 export const Primary = {
@@ -194,8 +191,8 @@ export const Primary = {
   render: (args) => ({
     components: { Card },
     setup() {
-      return { args };
+      return { args }
     },
     template: '<Card v-bind="args" />',
   }),
-};
+}

@@ -1,19 +1,15 @@
 <template>
   <LazyGLottieAnimation
-      v-if="computedType === 'lottie'"
-      ref="lottieRef"
-      v-bind="$attrs"
-      :src="computedSrc"
+    v-if="computedType === 'lottie'"
+    ref="lottieRef"
+    v-bind="$attrs"
+    :src="computedSrc"
   />
-  <NuxtImg
-      v-else
-      v-bind="$attrs"
-      :src="computedSrc"
-  />
+  <NuxtImg v-else v-bind="$attrs" :src="computedSrc" />
 </template>
 
 <script setup>
-import { computed, ref, watch, inject, useAttrs } from "#imports"
+import { computed, ref, watch, inject, useAttrs } from '#imports'
 
 const props = defineProps({
   type: {
@@ -22,12 +18,12 @@ const props = defineProps({
   },
   src: {
     type: String,
-    default: ''
+    default: '',
   },
   transformer: {
     type: Function,
-    required: false
-  }
+    required: false,
+  },
 })
 
 const attrs = useAttrs()
@@ -47,7 +43,7 @@ const resolveSrc = async () => {
   if (!src) return
 
   const transformer = props.transformer || injectedTransformer
-  
+
   if (transformer && typeof transformer === 'function') {
     try {
       transformedSrc.value = await transformer(src)
@@ -67,5 +63,4 @@ watch(
   },
   { immediate: true }
 )
-
 </script>

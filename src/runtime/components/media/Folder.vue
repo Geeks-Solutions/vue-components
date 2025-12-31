@@ -2,19 +2,32 @@
   <div class="cursor-pointer max-w-max" @click="props.folderClicked">
     <div class="relative">
       <div>
-        <span :class="props.isSelected ? 'icon-folder' : 'icon-folderGrey'" :style="props.folderStyle"></span>
+        <span
+          :class="props.isSelected ? 'icon-folder' : 'icon-folderGrey'"
+          :style="props.folderStyle"
+        />
       </div>
       <div :class="props.containerStyle">
         <div class="flex">
           <!-- Iterate over a slice of the medias array -->
           <div v-for="(media, i) in props.medias.slice(0, props.mediasNumber)" :key="i">
             <!-- Display document icon if media type is not image -->
-            <div v-if="media.type && !media.type.includes('image')" :class="[props.mediaStyle, props.documentClass]" :style="props.documentStyle">
-              <span class="icon-mediaDocument text-xl"></span>
+            <div
+              v-if="media.type && !media.type.includes('image')"
+              :class="[props.mediaStyle, props.documentClass]"
+              :style="props.documentStyle"
+            >
+              <span class="icon-mediaDocument text-xl" />
             </div>
             <!-- Display image otherwise -->
             <div v-else>
-              <LazyGUniversalViewer :src="media.url" :width="props.mediasWidth" :height="props.mediasHeight" :type="media.type" :class="props.mediaStyle" />
+              <LazyGUniversalViewer
+                :src="media.url"
+                :width="props.mediasWidth"
+                :height="props.mediasHeight"
+                :type="media.type"
+                :class="props.mediaStyle"
+              />
             </div>
           </div>
           <div class="self-end">...</div>
@@ -25,7 +38,7 @@
         </div>
 
         <div class="flex items-center pt-2 pl-3">
-          <span v-if="!props.all" :class="props.categoryIcon"></span>
+          <span v-if="!props.all" :class="props.categoryIcon" />
           <div :class="!props.all ? props.categoryValueStyle : props.allStyle">
             {{ !props.all ? props.categoryValue : props.allText }}
           </div>
@@ -39,7 +52,6 @@
             {{ props.totalValue }}
           </div>
         </div>
-
       </div>
     </div>
   </div>
@@ -47,18 +59,18 @@
 
 <script setup lang="ts">
 // Import the default asset
-import defaultMediaImage from '../../assets/images/temp1.png';
+import defaultMediaImage from '../../assets/images/temp1.png'
 
 // Define the structure for a media item within the medias array prop
 interface MediaItem {
-  url: string;
-  type?: string; // Optional type property
+  url: string
+  type?: string // Optional type property
 }
 
 const props = defineProps({
   loading: {
     type: Boolean,
-    default: false
+    default: false,
   },
   medias: {
     type: Array as PropType<MediaItem[]>,
@@ -69,98 +81,97 @@ const props = defineProps({
       { url: defaultMediaImage },
       { url: defaultMediaImage },
       { url: defaultMediaImage },
-    ]
+    ],
   },
   mediasNumber: {
     type: Number,
-    default: 5
+    default: 5,
   },
   categoryLabel: {
     type: String,
-    default: 'CATEGORY:'
+    default: 'CATEGORY:',
   },
   categoryStyle: {
     type: String,
-    default: 'pt-3 pl-3 text-xs text-mediaGrey font-medium'
+    default: 'pt-3 pl-3 text-xs text-mediaGrey font-medium',
   },
   categoryValue: {
     type: String,
-    default: 'IMAGES'
+    default: 'IMAGES',
   },
   categoryValueStyle: {
     type: String,
-    default: 'text-sm text-mediaGrey font-medium'
+    default: 'text-sm text-mediaGrey font-medium',
   },
   categoryIcon: {
     type: String,
-    default: 'icon-images pr-2'
+    default: 'icon-images pr-2',
   },
   allText: {
     type: String,
-    default: 'ALL'
+    default: 'ALL',
   },
   totalLabel: {
     type: String,
-    default: 'Total: '
+    default: 'Total: ',
   },
   totalValue: {
     type: String,
-    default: '67'
+    default: '67',
   },
   totalStyle: {
     type: String,
-    default: 'flex font-light items-center pt-1 pl-3 text-xs'
+    default: 'flex font-light items-center pt-1 pl-3 text-xs',
   },
   folderStyle: {
     type: String,
-    default: 'font-size: 165px' // Consider moving to CSS class if possible
+    default: 'font-size: 165px', // Consider moving to CSS class if possible
   },
   mediasWidth: {
     type: String,
-    default: '38'
+    default: '38',
   },
   mediasHeight: {
     type: String,
-    default: '38'
+    default: '38',
   },
   mediaStyle: {
     type: String,
-    default: 'rounded-full ml-2'
+    default: 'rounded-full ml-2',
   },
   documentClass: {
     type: String,
-    default: 'flex justify-center items-center'
+    default: 'flex justify-center items-center',
   },
   documentStyle: {
     type: String,
-    default: 'background: #61035B' // Consider moving to CSS class if possible
+    default: 'background: #61035B', // Consider moving to CSS class if possible
   },
   allStyle: {
     type: String,
-    default: 'text-xl text-Blue font-medium'
+    default: 'text-xl text-Blue font-medium',
   },
   containerStyle: {
     type: String,
-    default: 'absolute top-12 left-1'
+    default: 'absolute top-12 left-1',
   },
   all: {
     type: Boolean,
-    default: false
+    default: false,
   },
   isSelected: {
     type: Boolean,
-    default: false
+    default: false,
   },
   folderClicked: {
     type: Function as PropType<(folder?: any) => void>, // Added type safety for the function prop
-    default: () => {}
-  }
-});
-
+    default: () => {},
+  },
+})
 </script>
 
 <style scoped>
 .text-mediaGrey {
-  color: #6E6E6E;
+  color: #6e6e6e;
 }
 </style>

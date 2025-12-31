@@ -2,18 +2,18 @@
   <div>
     <button
       :type="submit ? 'submit' : ''"
-      class="
-        flex
-        items-center
-        justify-center
-      "
-      :class="[
-        active ? buttonStyle : inactiveButtonStyle,
-      ]"
+      class="flex items-center justify-center"
+      :class="[active ? buttonStyle : inactiveButtonStyle]"
       @click="submitFunction"
     >
       {{ buttonText }}
-      <span v-if="withIcomoonIcon" :class="[active ? icomoonIconActiveSrc : icomoonIconInActiveSrc, active ? icomoonIconActiveStyle : icomoonIconInActiveStyle]"></span>
+      <span
+        v-if="withIcomoonIcon"
+        :class="[
+          active ? icomoonIconActiveSrc : icomoonIconInActiveSrc,
+          active ? icomoonIconActiveStyle : icomoonIconInActiveStyle,
+        ]"
+      />
       <img
         v-else-if="withIcon"
         class="ml-2.5"
@@ -26,12 +26,11 @@
 </template>
 
 <script setup>
-
 // Define props using the new Vue 3 syntax
 const props = defineProps({
   submitFunction: {
     type: Function,
-    default: () => {}
+    default: () => {},
   },
   buttonText: {
     type: String,
@@ -71,11 +70,13 @@ const props = defineProps({
   },
   buttonStyle: {
     type: String,
-    default: 'bg-Blue text-white border-Blue border hover:text-Blue px-3.5 h-53px py-3.5 rounded-xl hover:bg-white',
+    default:
+      'bg-Blue text-white border-Blue border hover:text-Blue px-3.5 h-53px py-3.5 rounded-xl hover:bg-white',
   },
   inactiveButtonStyle: {
     type: String,
-    default: 'bg-SmallTextGray text-white border-SmallTextGray border px-3.5 h-53px py-3.5 rounded-xl cursor-default',
+    default:
+      'bg-SmallTextGray text-white border-SmallTextGray border px-3.5 h-53px py-3.5 rounded-xl cursor-default',
   },
   iconStyle: {
     type: Object,
@@ -83,9 +84,9 @@ const props = defineProps({
       activeIconStyle: '',
       inActiveIconStyle: '',
       // Use the imported asset as the default value
-      src: '/images/rotate.svg'
-    })
-  }
+      src: '/images/rotate.svg',
+    }),
+  },
 })
 </script>
 
