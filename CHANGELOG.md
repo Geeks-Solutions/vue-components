@@ -1,5 +1,14 @@
 # Releases
 
+### V3.0.9 (31/12/2025)
+
+---
+
+- Update Media Editing UX to force saving a media file
+- Added a Media revert feature to reset media to its original state in case of edit failure
+- Fix for Wysiwyg Component to minimize HTML on save and format them on Edit
+- Code format and linting improvements with CI pipeline updates
+
 ### V3.0.8 (13/12/2025)
 
 ---
