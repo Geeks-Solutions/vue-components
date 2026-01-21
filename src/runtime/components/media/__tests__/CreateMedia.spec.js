@@ -68,7 +68,7 @@ describe('CreateMedia', () => {
 
     expect(isFileTypeSupportedSpy).toHaveBeenCalledWith(
       unsupportedFile,
-      '.jpg, .jpeg, .png, .webp, .gif, .svg, .json, .pdf, .css, .js'
+      '.jpg, .jpeg, .png, .webp, .gif, .svg, .json, .lottie, .pdf, .css, .js'
     )
 
     expect(showToastSpy).toHaveBeenCalledWith('Error', 'error', 'mediaT.unsupportedFileType')
