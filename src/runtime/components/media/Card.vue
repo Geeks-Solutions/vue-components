@@ -33,7 +33,13 @@
         class="md:w-[350px] cursor-pointer card-image-wrapper"
         @click="props.openMedia"
       >
-        <div v-if="props.mediaType === 'document' && props.mediaMetadataType !== 'lottie'">
+        <div
+          v-if="
+            props.mediaType === 'document' &&
+            props.mediaMetadataType !== 'lottie' &&
+            props.mediaMetadataType !== 'dotlottie'
+          "
+        >
           <div
             class="flex w-full h-[200px] justify-center items-center object-cover"
             :style="props.hiddenContainerStyle"

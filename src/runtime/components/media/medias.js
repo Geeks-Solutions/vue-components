@@ -55,16 +55,23 @@ export const isLottieAnimation = (json) => {
   }
 }
 
+export const isDotLottieFile = (fileName) => {
+  try {
+    if (!fileName || typeof fileName !== 'string') return false
+    return fileName.toLowerCase().endsWith('.lottie')
+  } catch {
+    return false
+  }
+}
+
 export const initLottieFromHtml = (htmlElement) => {
   try {
-    // Select all matching divs
     const lottieDivs = htmlElement.querySelectorAll('div[lottie-id][media-type="lottie"]')
     if (lottieDivs && lottieDivs.length > 0) {
       lottieDivs.forEach((div) => {
         const src = div.getAttribute('src')
         const lottieId = div.getAttribute('lottie-id')
 
-        // Find the corresponding element in the real DOM
         const target = htmlElement.querySelector(
           `div[lottie-id="${lottieId}"][media-type="lottie"]`
         )
@@ -82,6 +89,35 @@ export const initLottieFromHtml = (htmlElement) => {
             autoplay: true,
             path: src,
           })
+        }
+      })
+    }
+  } catch {}
+}
+
+export const initDotLottieFromHtml = (htmlElement) => {
+  try {
+    const dotLottieDivs = htmlElement.querySelectorAll('div[lottie-id][media-type="dotlottie"]')
+    if (dotLottieDivs && dotLottieDivs.length > 0) {
+      dotLottieDivs.forEach((div) => {
+        const src = div.getAttribute('src')
+        const lottieId = div.getAttribute('lottie-id')
+
+        const target = htmlElement.querySelector(
+          `div[lottie-id="${lottieId}"][media-type="dotlottie"]`
+        )
+        if (!target) return
+
+        if (target.hasChildNodes()) {
+          target.innerHTML = ''
+        }
+
+        if (window.DotLottiePlayer) {
+          const player = new window.DotLottiePlayer()
+          player.load(src)
+          player.loop = true
+          player.autoplay = true
+          target.appendChild(player)
         }
       })
     }
