@@ -6,7 +6,7 @@
 
 <script setup>
 import { useRouter, onMounted, watch, ref, inject, nextTick } from '#imports'
-import { initLottieFromHtml } from '../components/media/medias.js'
+import { initLottieFromHtml, initDotLottieFromHtml } from '../components/media/medias.js'
 
 const props = defineProps({
   htmlContent: {
@@ -116,15 +116,27 @@ onMounted(async () => {
     const lottieDivs = articleContainerRef.value.querySelectorAll(
       'div[lottie-id][media-type="lottie"]'
     )
+    const dotLottieDivs = articleContainerRef.value.querySelectorAll(
+      'div[lottie-id][media-type="dotlottie"]'
+    )
+
     if (lottieDivs && lottieDivs.length > 0) {
       await loadScript(
         'https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.13.0/lottie.min.js',
         true
       )
     }
+
+    if (dotLottieDivs && dotLottieDivs.length > 0) {
+      await loadScript(
+        'https://cdn.jsdelivr.net/npm/@lottiefiles/dotlottie-player@4.0.1/dist/dotlottie-player.js',
+        true
+      )
+    }
   }
   await nextTick()
   initLottieFromHtml(articleContainerRef.value)
+  initDotLottieFromHtml(articleContainerRef.value)
 })
 
 watch(
@@ -138,15 +150,27 @@ watch(
       const lottieDivs = articleContainerRef.value.querySelectorAll(
         'div[lottie-id][media-type="lottie"]'
       )
+      const dotLottieDivs = articleContainerRef.value.querySelectorAll(
+        'div[lottie-id][media-type="dotlottie"]'
+      )
+
       if (lottieDivs && lottieDivs.length > 0) {
         await loadScript(
           'https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.13.0/lottie.min.js',
           true
         )
       }
+
+      if (dotLottieDivs && dotLottieDivs.length > 0) {
+        await loadScript(
+          'https://cdn.jsdelivr.net/npm/@lottiefiles/dotlottie-player@4.0.1/dist/dotlottie-player.js',
+          true
+        )
+      }
     }
     await nextTick()
     initLottieFromHtml(articleContainerRef.value)
+    initDotLottieFromHtml(articleContainerRef.value)
   }
 )
 </script>

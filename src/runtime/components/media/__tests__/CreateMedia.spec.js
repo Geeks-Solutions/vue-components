@@ -49,7 +49,7 @@ describe('CreateMedia', () => {
         return {}
       },
       propsData: {
-        acceptedFileTypes: '.jpg, .jpeg, .png, .webp, .gif, .svg, .json, .pdf, .css, .js',
+        acceptedFileTypes: '.jpg, .jpeg, .png, .webp, .gif, .svg, .json, .lottie, .pdf, .css, .js',
         mediaTranslationPrefix: 'mediaT.',
       },
     })
@@ -110,5 +110,62 @@ describe('CreateMedia', () => {
 
     // Assert
     expect(forwardSpy).not.toHaveBeenCalled()
+  })
+
+  it('should set metadata type to dotlottie for .lottie files', async () => {
+    const lottieFile = new Blob(['test'], { type: 'application/octet-stream' })
+    Object.defineProperty(lottieFile, 'name', { value: 'test.lottie' })
+
+    const isLottieAnimationSpy = vi.spyOn(medias, 'isLottieAnimation')
+
+    const fileInput = {
+      dataTransfer: { files: [lottieFile] },
+    }
+
+    wrapper.setProps({
+      forwardRequest: vi.fn().mockResolvedValue({ data: { value: { id: '1' } } }),
+      mediaByIdUri: '/api/media',
+      authToken: 'test-token',
+      projectId: 'test-project',
+      responseReceived: vi.fn(),
+      requestPreSent: vi.fn().mockResolvedValue({ proceed: true }),
+    })
+
+    await wrapper.vm.onFileSelected(fileInput)
+
+    expect(isLottieAnimationSpy).not.toHaveBeenCalled()
+  })
+
+  it('should set metadata type to lottie for .json lottie files', async () => {
+    const lottieJson = {
+      v: '5.7.0',
+      fr: 60,
+      ip: 0,
+      op: 180,
+      w: 100,
+      h: 100,
+      layers: [],
+    }
+    const jsonFile = new Blob([JSON.stringify(lottieJson)], { type: 'application/json' })
+    Object.defineProperty(jsonFile, 'name', { value: 'test.json' })
+
+    const isLottieAnimationSpy = vi.spyOn(medias, 'isLottieAnimation').mockReturnValue(true)
+
+    const fileInput = {
+      dataTransfer: { files: [jsonFile] },
+    }
+
+    wrapper.setProps({
+      forwardRequest: vi.fn().mockResolvedValue({ data: { value: { id: '1' } } }),
+      mediaByIdUri: '/api/media',
+      authToken: 'test-token',
+      projectId: 'test-project',
+      responseReceived: vi.fn(),
+      requestPreSent: vi.fn().mockResolvedValue({ proceed: true }),
+    })
+
+    await wrapper.vm.onFileSelected(fileInput)
+
+    expect(isLottieAnimationSpy).toHaveBeenCalledWith(lottieJson)
   })
 })
