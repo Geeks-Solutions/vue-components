@@ -815,10 +815,15 @@ async function updateMediaByID() {
     }
 
     try {
-      const fileText = await readFileAsText(file.value)
-      const isLottie = isLottieAnimation(JSON.parse(fileText))
-      if (isLottie) {
-        data.append('metadata[type]', 'lottie')
+      const fileName = file.value.name.toLowerCase()
+      if (fileName.endsWith('.lottie')) {
+        data.append('metadata[type]', 'dotlottie')
+      } else if (fileName.endsWith('.json')) {
+        const fileText = await readFileAsText(file.value)
+        const isLottie = isLottieAnimation(JSON.parse(fileText))
+        if (isLottie) {
+          data.append('metadata[type]', 'lottie')
+        }
       }
     } catch {}
 
